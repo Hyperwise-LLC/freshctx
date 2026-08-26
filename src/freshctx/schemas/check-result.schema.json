@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://freshctx.dev/schemas/v0.1/check-result.schema.json",
+  "title": "CheckResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["state", "checked_at", "subject_id", "causes", "adapter_results", "policy_decision"],
+  "properties": {
+    "state": {"enum": ["CURRENT", "STALE_SOURCE", "STALE_REASONING", "UNVERIFIABLE"]},
+    "checked_at": {"type": "string", "format": "date-time"},
+    "subject_id": {"type": "string", "minLength": 1},
+    "causes": {"type": "array", "items": {"type": "string"}},
+    "adapter_results": {"type": "array", "items": {"type": "object"}},
+    "policy_decision": {"enum": ["allow", "warn", "refresh", "block"]}
+  }
+}

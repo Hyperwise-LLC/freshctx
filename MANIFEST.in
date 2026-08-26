@@ -1,0 +1,14 @@
+include README.md
+include LICENSE
+include NOTICE
+include SECURITY.md
+include CONTRIBUTING.md
+include ARCHITECTURE.md
+include API.md
+include BACKLOG.md
+recursive-include examples *.py
+recursive-include schemas *.json
+recursive-include src/freshctx/schemas *.json
+recursive-include adr *.md
+recursive-include scripts *.py
+include Makefile

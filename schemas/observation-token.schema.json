@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://freshctx.dev/schemas/v0.1/observation-token.schema.json",
+  "title": "ObservationToken",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "adapter", "locator", "observed_at", "fingerprint", "validator", "metadata"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "adapter": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "minLength": 1},
+    "observed_at": {"type": "string", "format": "date-time"},
+    "fingerprint": {"type": "string", "minLength": 1},
+    "validator": {"type": "string", "minLength": 1},
+    "metadata": {"type": "object"}
+  }
+}

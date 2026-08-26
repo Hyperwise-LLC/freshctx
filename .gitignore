@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.freshctx/
+.venv/
+dist/
+build/
+*.egg-info/
