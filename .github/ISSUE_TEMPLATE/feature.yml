@@ -1,0 +1,25 @@
+name: Feature proposal
+description: Propose a scoped FreshCtx capability
+title: "[Feature]: "
+labels: [enhancement, needs-design]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What freshness or enforcement problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: contract
+    attributes:
+      label: Proposed contract
+      description: Describe API, states, audit behavior, and failure semantics.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Safety and compatibility risks
+    validations:
+      required: true
