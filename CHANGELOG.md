@@ -2,7 +2,7 @@
 
 All notable FreshCtx changes will be documented here.
 
-## Unreleased
+## 0.1.0 - 2026-08-27
 
 ### Added
 
@@ -20,8 +20,5 @@ All notable FreshCtx changes will be documented here.
 - HTTP, Postgres, and MCP adapter contracts
 - Bounded refresh and concurrency isolation
 - Wheel packaging and release automation
-
-### Planned for v0.1
-
-- Real-service integration suites and adversarial security tests
-- Async guard support evaluation
+- External developer gate coverage for selective invalidation and safe connection-loss behavior
+- Three executable reference demos for file, configuration/API, and audit reasoning drift
