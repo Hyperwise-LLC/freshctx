@@ -2,9 +2,91 @@
 
 Never let an AI agent reason or act on stale reality.
 
+![FreshCtx freshness boundary intercepting stale inputs before an agent action](docs/assets/freshctx-social-preview.png)
+
 FreshCtx™ is an independent open-source project initially stewarded by Hyperwise. It is not a proprietary Hyperwise product. The software is model-neutral, framework-neutral, local-first, requires no account, and sends no telemetry.
 
 FreshCtx records source observations, links reasoning to those observations, and revalidates dependencies before a protected action or output.
+
+## 60-second quickstart
+
+Prerequisites: Python 3.10–3.13 and Git. The Git executable is required by the Git adapter and its compatibility tests.
+
+After FreshCtx v0.1.0 is published to PyPI, install the release package with:
+
+```console
+python -m pip install freshctx==0.1.0
+```
+
+Until publication—or when working from source—clone and install the repository:
+
+```console
+git clone https://github.com/Hyperwise-LLC/freshctx.git
+cd freshctx
+python -m venv .venv
+```
+
+Activate the environment on macOS or Linux:
+
+```console
+source .venv/bin/activate
+```
+
+On Windows PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+On Windows Command Prompt:
+
+```bat
+.venv\Scripts\activate.bat
+```
+
+Install the source checkout and run the executable quickstart:
+
+```console
+python -m pip install .
+python examples/quickstart.py
+```
+
+Expected output includes:
+
+```text
+DEPLOYED to staging
+FreshCtx state: CURRENT
+Audit events: 4
+```
+
+The complete quickstart is deliberately small:
+
+```python
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from freshctx import MemoryStore, guard, observe, reasoning
+
+
+def deploy(target: str) -> None:
+    print(f"DEPLOYED to {target}")
+
+
+with TemporaryDirectory() as directory:
+    root = Path(directory)
+    config = root / "deployment.env"
+    audit = root / "freshctx-audit.jsonl"
+    config.write_text("TARGET=staging\n", encoding="utf-8")
+
+    with guard(policy="block", store=MemoryStore(), audit_path=audit) as ctx:
+        source = observe(config)
+        with reasoning("choose_target", depends_on=[source]) as decision:
+            target = "staging"
+        ctx.run(deploy, target, depends_on=[decision])
+
+    print(f"FreshCtx state: {ctx.result.state.value}")
+    print(f"Audit events: {sum(1 for _ in audit.open(encoding='utf-8'))}")
+```
 
 ## Current implementation
 
@@ -22,6 +104,8 @@ The first v0.1 vertical slice includes:
 - local JSONL audit events
 - Filesystem, Git, HTTP, Postgres, and MCP adapters
 
+The following conceptual example shows where FreshCtx fits around an existing agent:
+
 ```python
 from freshctx import guard, observe, reasoning
 
@@ -36,14 +120,9 @@ If `config.yaml` changes before the protected boundary, FreshCtx marks the obser
 
 `ctx.run()` performs the freshness check and records the allow decision before it invokes the protected function. Use `ctx.protect()` only for output validation where no side effect has already occurred.
 
-## Install and verify
-
-Prerequisites: Python 3.10–3.13 and Git. The Git executable is required by the Git adapter and its compatibility tests.
+## Verify the checkout
 
 ```console
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install .
 python -c "import freshctx; print(freshctx.FreshnessStatus.CURRENT.value)"
 ```
 
@@ -64,6 +143,106 @@ python -m unittest discover -s tests -v
 ```
 
 FreshCtx is intended to be Apache-2.0 licensed, model- and framework-neutral, local-first, and free of required accounts or telemetry.
+
+## Local audit trail
+
+Unless `audit_path` is supplied, FreshCtx appends JSON Lines events to `.freshctx/audit.jsonl`, relative to the process working directory. The file stays local; FreshCtx does not upload audit events or send telemetry.
+
+Set an explicit location when the application has its own data directory:
+
+```python
+with guard(audit_path="var/audit/freshctx.jsonl") as ctx:
+    ...
+```
+
+Each line is one event such as `observed`, `policy_applied`, or `action_allowed`. Treat audit files as application data: restrict access, define retention, and avoid putting them in source control.
+
+## Adapter quick reference
+
+All adapters use the same `observe()` entry point. Revalidation occurs when `ctx.check()`, `ctx.run()`, or a protected boundary evaluates the token or dependent reasoning.
+
+The examples below assume:
+
+```python
+from freshctx import guard, observe
+```
+
+### Filesystem
+
+```python
+with guard(policy="allow") as ctx:
+    token = observe("README.md")
+    print(ctx.check(token).state.value)
+```
+
+### Git
+
+```python
+with guard(policy="allow") as ctx:
+    token = observe(".", adapter="git", scope="path", path="README.md")
+    print(ctx.check(token).state.value)
+```
+
+### HTTP
+
+```python
+with guard(policy="allow") as ctx:
+    token = observe("https://example.com/", adapter="http", timeout=2.0)
+    print(ctx.check(token).state.value)
+```
+
+Use a read-only endpoint. Authentication headers remain in process-local adapter state and should come from the application's secret store.
+
+### Postgres
+
+Install the optional dependency first:
+
+```console
+python -m pip install '.[postgres]'
+```
+
+After the public package is available, the equivalent command is `python -m pip install 'freshctx[postgres]==0.1.0'`.
+
+```python
+import os
+
+with guard(policy="allow") as ctx:
+    token = observe(
+        os.environ["DATABASE_URL"],
+        adapter="postgres",
+        query="SELECT id, status FROM jobs WHERE status = %s",
+        params=["ready"],
+        ordered=False,
+        timeout=2.0,
+    )
+    print(ctx.check(token).state.value)
+```
+
+Postgres validation is read-only. DSNs, raw query text, and parameters are not persisted in observation tokens.
+
+### MCP
+
+Pass a safe, read-only callable from the application's MCP client:
+
+```python
+def read_policy_resource():
+    # Replace this body with the application's read-only MCP client call.
+    return {"uri": "policy://deployment", "version": 1}
+
+
+with guard(policy="allow") as ctx:
+    token = observe(
+        "policy-server",
+        adapter="mcp",
+        name="read_resource",
+        arguments={"uri": "policy://deployment"},
+        reader=read_policy_resource,
+        safe=True,
+    )
+    print(ctx.check(token).state.value)
+```
+
+Unsafe or non-idempotent MCP operations are `UNVERIFIABLE`; do not use them as validation readers. See `docs/ADAPTER_CONTRACT.md` for the complete extension contract.
 
 ## Developer documentation
 

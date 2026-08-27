@@ -14,6 +14,7 @@ REQUIRED = [
     "ARCHITECTURE.md", "API.md", "BACKLOG.md", "PROJECT_STATUS.md", "SPEC.md",
     "TRADEMARKS.md", "GOVERNANCE.md", "RELEASING.md", "CODE_OF_CONDUCT.md",
     "docs/ADAPTER_CONTRACT.md", "docs/SECURITY_MODEL.md", "docs/PERFORMANCE.md",
+    "docs/assets/freshctx-social-preview.png", "examples/quickstart.py",
     "pyproject.toml", ".github/workflows/ci.yml", ".github/workflows/release.yml",
 ]
 
@@ -42,7 +43,10 @@ def main() -> int:
     command = [sys.executable, "-m", "unittest", "discover", "-s", str(ROOT / "tests"), "-v"]
     env = os.environ.copy()
     env["PYTHONPATH"] = str(ROOT / "src") + os.pathsep + env.get("PYTHONPATH", "")
-    return subprocess.run(command, cwd=ROOT, env=env).returncode
+    result = subprocess.run(command, cwd=ROOT, env=env)
+    if result.returncode:
+        return result.returncode
+    return subprocess.run([sys.executable, str(ROOT / "examples" / "quickstart.py")], cwd=ROOT, env=env).returncode
 
 
 if __name__ == "__main__":
