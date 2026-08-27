@@ -1,10 +1,23 @@
 import hashlib
 import tempfile
+import threading
 import unittest
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from freshctx import FreshnessStatus, MemoryStore, ObservationToken, guard, observe, reasoning, register_adapter
 from freshctx.model import AdapterResult
+from freshctx.adapters import MCPAdapter
+
+
+class _HTTPHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"one")
+
+    def log_message(self, *_args):
+        pass
 
 
 class _ExternalAdapter:
@@ -57,6 +70,47 @@ class ExternalDeveloperSemanticsTests(unittest.TestCase):
             self.assertEqual(ctx.check(first_token).state, FreshnessStatus.STALE_SOURCE)
             self.assertEqual(ctx.check(first_finding).state, FreshnessStatus.STALE_REASONING)
             self.assertEqual(ctx.check(second_finding).state, FreshnessStatus.CURRENT)
+
+    def test_http_connection_loss_is_unverifiable(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), _HTTPHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with guard(store=self.store, audit_path=self.audit):
+                token = observe(
+                    f"http://127.0.0.1:{server.server_port}/evidence",
+                    adapter="http",
+                    timeout=0.1,
+                )
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join()
+        with guard(policy="allow", store=self.store, audit_path=self.audit) as ctx:
+            self.assertEqual(ctx.check(token).state, FreshnessStatus.UNVERIFIABLE)
+
+    def test_mcp_connection_loss_is_unverifiable(self):
+        state = {"connected": True}
+
+        def reader():
+            if not state["connected"]:
+                raise ConnectionError("MCP transport closed")
+            return {"evidence": "one"}
+
+        adapter = MCPAdapter()
+        adapter.name = "mcp-disconnect-test"
+        register_adapter(adapter.name, adapter)
+        with guard(store=self.store, audit_path=self.audit):
+            token = observe(
+                "local-test-server",
+                adapter=adapter.name,
+                name="read_evidence",
+                reader=reader,
+                safe=True,
+            )
+        state["connected"] = False
+        with guard(policy="allow", store=self.store, audit_path=self.audit) as ctx:
+            self.assertEqual(ctx.check(token).state, FreshnessStatus.UNVERIFIABLE)
 
 
 if __name__ == "__main__":
