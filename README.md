@@ -38,6 +38,8 @@ If `config.yaml` changes before the protected boundary, FreshCtx marks the obser
 
 ## Install and verify
 
+Prerequisites: Python 3.10–3.13 and Git. The Git executable is required by the Git adapter and its compatibility tests.
+
 ```console
 python -m venv .venv
 source .venv/bin/activate
