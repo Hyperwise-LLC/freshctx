@@ -30,6 +30,7 @@ Private v0.1 release candidate. Public release requires the user's explicit perm
 ## Validated for the private v0.1 candidate
 
 - Python 3.10-3.13 compatibility matrix
+- Windows PowerShell and Command Prompt virtual-environment activation on a real Windows CI runner
 - Disposable real-service Postgres validation and connection-loss behavior
 - HTTP and MCP connection-loss behavior
 - Clean wheel and source-distribution installation
@@ -52,4 +53,4 @@ The technical specification is authoritative when implementation details conflic
 - `schemas/` defines machine-readable domain and audit structures.
 - `adr/` records accepted architectural decisions.
 - `BACKLOG.md` is the issue-ready v0.1 implementation plan.
-- `.github/workflows/ci.yml` tests Python 3.10-3.13 and builds distributions.
+- `.github/workflows/ci.yml` tests Python 3.10-3.13, executes Windows onboarding commands, and builds distributions.
