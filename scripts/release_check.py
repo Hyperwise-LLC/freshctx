@@ -14,8 +14,12 @@ REQUIRED = [
     "ARCHITECTURE.md", "API.md", "BACKLOG.md", "PROJECT_STATUS.md", "SPEC.md",
     "TRADEMARKS.md", "GOVERNANCE.md", "RELEASING.md", "CODE_OF_CONDUCT.md",
     "docs/ADAPTER_CONTRACT.md", "docs/SECURITY_MODEL.md", "docs/PERFORMANCE.md",
-    "docs/FAQ.md",
+    "docs/FAQ.md", "docs/SUCCESS_CASES.md",
+    "docs/evidence/success-cases-v0.1.json",
+    "docs/evidence/banking-postgres-v0.1.json",
     "docs/assets/freshctx-social-preview.png", "examples/quickstart.py",
+    "examples/real_world_success_cases.py", "tests/test_success_cases.py",
+    "scripts/banking_postgres_success_case.py",
     "pyproject.toml", ".github/workflows/ci.yml", ".github/workflows/release.yml",
 ]
 
@@ -47,7 +51,14 @@ def main() -> int:
     result = subprocess.run(command, cwd=ROOT, env=env)
     if result.returncode:
         return result.returncode
-    return subprocess.run([sys.executable, str(ROOT / "examples" / "quickstart.py")], cwd=ROOT, env=env).returncode
+    quickstart = subprocess.run([sys.executable, str(ROOT / "examples" / "quickstart.py")], cwd=ROOT, env=env)
+    if quickstart.returncode:
+        return quickstart.returncode
+    return subprocess.run(
+        [sys.executable, str(ROOT / "examples" / "real_world_success_cases.py")],
+        cwd=ROOT,
+        env=env,
+    ).returncode
 
 
 if __name__ == "__main__":
