@@ -1,0 +1,13 @@
+{
+  "action_blocked": true,
+  "action_executed": false,
+  "audit_event_count": 7,
+  "case_id": "banking-payment-release-live-postgres",
+  "decision_state": "STALE_REASONING",
+  "intervening_change": "source account frozen and placed on legal hold",
+  "method": "live disposable Postgres integration acceptance test",
+  "passed": true,
+  "schema_version": 1,
+  "source_state": "STALE_SOURCE",
+  "transaction": "$240,000 supplier wire"
+}

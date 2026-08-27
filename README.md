@@ -136,6 +136,16 @@ python examples/audit_reasoning_drift.py
 
 Expected final lines are `STALE_SOURCE`, `STALE_SOURCE`, and `only finding-a invalidated`, respectively.
 
+Run the nine realistic business acceptance scenarios:
+
+```bash
+python examples/real_world_success_cases.py --output success-cases.json
+```
+
+The command covers banking, e-commerce, audit, insurance, healthcare operations,
+procurement, customer service, IT/security, and legal operations. See
+[`docs/SUCCESS_CASES.md`](docs/SUCCESS_CASES.md) for the method, results, and limits.
+
 Run the complete test suite from an installed checkout:
 
 ```console
