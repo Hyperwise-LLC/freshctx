@@ -19,7 +19,7 @@ python -m unittest discover -s tests -v
 ## Contribution requirements
 
 - Add tests for behavioral changes.
-- Preserve the normative requirements in `docs/FreshCtx_v0.1_Technical_Specification.docx`.
+- Preserve the normative requirements in the versioned `SPEC.md`.
 - Treat validation as side-effect free.
 - Never treat an unknown or failed check as `CURRENT`.
 - Do not persist credentials or enable telemetry by default.

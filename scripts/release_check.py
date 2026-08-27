@@ -11,7 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = [
     "LICENSE", "NOTICE", "README.md", "SECURITY.md", "CONTRIBUTING.md",
-    "ARCHITECTURE.md", "API.md", "BACKLOG.md", "PROJECT_STATUS.md",
+    "ARCHITECTURE.md", "API.md", "BACKLOG.md", "PROJECT_STATUS.md", "SPEC.md",
+    "TRADEMARKS.md", "GOVERNANCE.md", "RELEASING.md", "CODE_OF_CONDUCT.md",
+    "docs/ADAPTER_CONTRACT.md", "docs/SECURITY_MODEL.md", "docs/PERFORMANCE.md",
     "pyproject.toml", ".github/workflows/ci.yml", ".github/workflows/release.yml",
 ]
 
@@ -30,6 +32,11 @@ def main() -> int:
         packaged_schema = packaged / schema.name
         if not packaged_schema.exists() or packaged_schema.read_bytes() != schema.read_bytes():
             print(f"Packaged schema differs: {schema.name}", file=sys.stderr); return 1
+    forbidden = "Fresh" + "Bench"
+    for path in ROOT.rglob("*"):
+        if path.is_file() and ".git" not in path.parts and path.suffix.lower() not in {".docx", ".pyc"}:
+            if forbidden in path.read_text(encoding="utf-8", errors="ignore"):
+                print(f"Forbidden project name in {path.relative_to(ROOT)}", file=sys.stderr); return 1
     if not compileall.compile_dir(ROOT / "src", quiet=1) or not compileall.compile_dir(ROOT / "tests", quiet=1):
         return 1
     command = [sys.executable, "-m", "unittest", "discover", "-s", str(ROOT / "tests"), "-v"]

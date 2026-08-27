@@ -1,6 +1,11 @@
 __pycache__/
 *.py[cod]
 .freshctx/
+build/
+dist/
+*.egg-info/
+.release-venv/
+.smoke-venv/
 .venv/
 dist/
 build/

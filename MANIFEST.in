@@ -6,6 +6,14 @@ include CONTRIBUTING.md
 include ARCHITECTURE.md
 include API.md
 include BACKLOG.md
+include CHANGELOG.md
+include CODE_OF_CONDUCT.md
+include GOVERNANCE.md
+include PROJECT_STATUS.md
+include RELEASING.md
+include SPEC.md
+include TRADEMARKS.md
+recursive-include docs *.md
 recursive-include examples *.py
 recursive-include schemas *.json
 recursive-include src/freshctx/schemas *.json

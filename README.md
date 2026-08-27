@@ -1,10 +1,14 @@
-# FreshCtx
+# FreshCtx™
 
 Never let an AI agent reason or act on stale reality.
+
+FreshCtx™ is an independent open-source project initially stewarded by Hyperwise. It is not a proprietary Hyperwise product. The software is model-neutral, framework-neutral, local-first, requires no account, and sends no telemetry.
 
 FreshCtx records source observations, links reasoning to those observations, and revalidates dependencies before a protected action or output.
 
 ## Current implementation
+
+The frozen v0.1 contract includes `ObservationToken`, `ReasoningNode`, `DependencyEdge`, and `FreshnessStatus`, with these statuses: `CURRENT`, `STALE_SOURCE`, `STALE_REASONING`, and `UNVERIFIABLE`.
 
 The first v0.1 vertical slice includes:
 
@@ -16,6 +20,7 @@ The first v0.1 vertical slice includes:
 - default blocking policy plus `warn` and `allow`
 - SQLite and in-memory stores
 - local JSONL audit events
+- Filesystem, Git, HTTP, Postgres, and MCP adapters
 
 ```python
 from freshctx import guard, observe, reasoning
@@ -37,6 +42,13 @@ If `config.yaml` changes before the protected boundary, FreshCtx marks the obser
 PYTHONPATH=src python -m unittest discover -s tests -v
 ```
 
+For normal consumer use, install from the repository and run a demo:
+
+```bash
+python -m pip install .
+python examples/coding_file_drift.py
+```
+
 FreshCtx is intended to be Apache-2.0 licensed, model- and framework-neutral, local-first, and free of required accounts or telemetry.
 
 ## Developer documentation
@@ -47,6 +59,11 @@ FreshCtx is intended to be Apache-2.0 licensed, model- and framework-neutral, lo
 - `adr/` — accepted architecture decisions
 - `BACKLOG.md` — issue-ready implementation and release plan
 - `PROJECT_STATUS.md` — implemented versus remaining work
+- `SPEC.md` — normative, versioned v0.1 specification
+- `docs/ADAPTER_CONTRACT.md` — adapter behavior and failure contract
+- `docs/SECURITY_MODEL.md` — trust boundaries and fail-closed behavior
+- `docs/PERFORMANCE.md` — intended scale and performance boundaries
+- `GOVERNANCE.md` and `RELEASING.md` — stewardship and private-to-public release process
 
 ## Release checks
 

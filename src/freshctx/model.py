@@ -11,11 +11,15 @@ def utcnow() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-class FreshnessState(str, Enum):
+class FreshnessStatus(str, Enum):
     CURRENT = "CURRENT"
     STALE_SOURCE = "STALE_SOURCE"
     STALE_REASONING = "STALE_REASONING"
     UNVERIFIABLE = "UNVERIFIABLE"
+
+
+# Backward-compatible v0.1 alias retained for early adopters.
+FreshnessState = FreshnessStatus
 
 
 @dataclass(frozen=True)
@@ -40,6 +44,14 @@ class ReasoningNode:
 
 
 @dataclass(frozen=True)
+class DependencyEdge:
+    source_id: str
+    dependent_id: str
+    relationship: str = "depends_on"
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
 class AdapterResult:
     outcome: str
     checked_at: str = field(default_factory=utcnow)
@@ -49,7 +61,7 @@ class AdapterResult:
 
 @dataclass(frozen=True)
 class CheckResult:
-    state: FreshnessState
+    state: FreshnessStatus
     subject_id: str
     causes: tuple[str, ...] = ()
     adapter_results: tuple[dict[str, Any], ...] = ()
