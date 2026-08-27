@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://freshctx.dev/schemas/v0.1/check-result.schema.json",
+  "$id": "https://raw.githubusercontent.com/Hyperwise-LLC/freshctx/v0.1/schemas/check-result.schema.json",
   "title": "CheckResult",
   "type": "object",
   "additionalProperties": false,

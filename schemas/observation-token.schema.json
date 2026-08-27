@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://freshctx.dev/schemas/v0.1/observation-token.schema.json",
+  "$id": "https://raw.githubusercontent.com/Hyperwise-LLC/freshctx/v0.1/schemas/observation-token.schema.json",
   "title": "ObservationToken",
   "type": "object",
   "additionalProperties": false,
