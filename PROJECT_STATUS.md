@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Pre-release v0.1 implementation.
+Private v0.1 release candidate. Public release requires the user's explicit permission.
 
 ## Implemented
 
@@ -14,7 +14,7 @@ Pre-release v0.1 implementation.
 - SQLite and in-memory stores
 - Local JSONL audit trail
 - Context-isolated guard API
-- Eighteen passing unit, contract, concurrency, and acceptance tests
+- Twenty-two passing unit, contract, concurrency, and acceptance tests
 - Protected pre-action execution through `Guard.run()`
 - Cycle, missing-dependency, and maximum-depth graph validation
 - Fail-closed audit behavior under blocking policies
@@ -27,12 +27,16 @@ Pre-release v0.1 implementation.
 - Packaging and tag-triggered release automation
 - Private-phase workflow is build-only; public package publishing is disabled
 
-## Required before v0.1 release
+## Validated for the private v0.1 candidate
 
 - Python 3.10-3.13 compatibility matrix
-- Real-service integration suites for Postgres and MCP
-- External security review and adversarial adapter testing
-- Async guard behavior and public API stabilization
+- Disposable real-service Postgres validation and connection-loss behavior
+- HTTP and MCP connection-loss behavior
+- Clean wheel and source-distribution installation
+- Dependency, secret, license, and package-content scans
+- External developer workflow using only the README
+
+Async guard support and independent third-party security review remain future hardening work; neither is part of the frozen v0.1 scope.
 
 ## Canonical documents
 

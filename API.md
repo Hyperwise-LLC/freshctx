@@ -44,7 +44,7 @@ observe("/repo", adapter="git", scope="repository")
 observe("/repo", adapter="git", scope="path", path="config.yaml", ref="HEAD")
 ```
 
-Unknown adapters raise `KeyError` in the current implementation; v0.1 should replace this with a public configuration exception.
+Unknown adapters raise the public `ConfigurationError` exception.
 
 ## `reasoning()`
 
@@ -56,7 +56,7 @@ reasoning(
 ) -> ReasoningContext
 ```
 
-Requires an active guard when the context exits. A successful exit persists one `ReasoningNode`. An exceptional exit does not create a valid node. The completed context may be supplied to `depends_on`; using it before completion raises `RuntimeError`.
+Requires an active guard when the context exits. A successful exit persists one `ReasoningNode`. An exceptional exit does not create a valid node. The completed context may be supplied to `depends_on`; using it before completion raises `FreshCtxError`.
 
 The current digest covers the reasoning kind and metadata, not raw prompts or model output. This behavior is provisional and must be finalized before v0.1.
 
@@ -121,15 +121,12 @@ try:
         config = observe("config.yaml")
         with reasoning("deployment_target", [config]) as decision:
             target = choose_target(config)
-        ctx.protect(target, depends_on=[decision], boundary="deploy")
-        # Perform the actual deployment only after an explicit ctx.check()
-        # or through a future protected-action wrapper.
+        ctx.run(deploy, target, depends_on=[decision], boundary="deploy")
 except FreshnessBlocked as blocked:
     print(blocked.result.state.value)
 ```
 
 ## Known v0.1 API work
 
-- Define public configuration and adapter exceptions.
 - Decide and test asynchronous context behavior.
 - Finalize reasoning digest semantics and redaction options.

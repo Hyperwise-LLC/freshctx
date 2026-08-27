@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://freshctx.dev/schemas/v0.1/audit-event.schema.json",
+  "$id": "https://raw.githubusercontent.com/Hyperwise-LLC/freshctx/v0.1/schemas/audit-event.schema.json",
   "title": "AuditEvent",
   "type": "object",
   "additionalProperties": false,
