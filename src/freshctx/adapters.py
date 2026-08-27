@@ -85,7 +85,7 @@ class HTTPAdapter:
 
 class PostgresAdapter:
     name="postgres"
-    def __init__(self,connect:Callable|None=None):self.connect=connect;self._dsns={}
+    def __init__(self,connect:Callable|None=None):self.connect=connect;self._dsns={};self._validation_inputs={}
     def _connector(self):
         if self.connect:return self.connect
         try:
@@ -105,12 +105,13 @@ class PostgresAdapter:
         finally:conn.close()
     def observe(self,locator,*,query,params=None,ordered=True,timeout=5.0):
         dsn=str(locator);identity=_sha(dsn.encode());self._dsns[identity]=dsn;params=params or []
-        fingerprint,evidence=self._snapshot(dsn,query,params,ordered,timeout);metadata={"dsn_identity":identity,"query_sha256":_sha(query.encode()),"query":query,"params_sha256":_sha(_canonical(params)),"params":params,"ordered":ordered,"timeout":timeout,**evidence}
-        return ObservationToken(self.name,identity,fingerprint,metadata=redact(metadata))
+        fingerprint,evidence=self._snapshot(dsn,query,params,ordered,timeout);metadata={"dsn_identity":identity,"query_sha256":_sha(query.encode()),"params_sha256":_sha(_canonical(params)),"ordered":ordered,"timeout":timeout,**evidence}
+        token=ObservationToken(self.name,identity,fingerprint,metadata=redact(metadata));self._validation_inputs[token.id]=(query,params);return token
     def validate(self,token):
-        dsn=self._dsns.get(token.locator)
-        if not dsn:return AdapterResult("indeterminate",error_code="credentials_unavailable")
-        try:fingerprint,evidence=self._snapshot(dsn,token.metadata["query"],token.metadata.get("params",[]),bool(token.metadata.get("ordered",True)),float(token.metadata.get("timeout",5)))
+        dsn=self._dsns.get(token.locator);validation=self._validation_inputs.get(token.id)
+        if not dsn or validation is None:return AdapterResult("indeterminate",error_code="validation_inputs_unavailable")
+        query,params=validation
+        try:fingerprint,evidence=self._snapshot(dsn,query,params,bool(token.metadata.get("ordered",True)),float(token.metadata.get("timeout",5)))
         except Exception as exc:return AdapterResult("indeterminate",error_code=type(exc).__name__)
         return AdapterResult("equivalent" if fingerprint==token.fingerprint else "changed",evidence={"fingerprint":fingerprint,**evidence})
 

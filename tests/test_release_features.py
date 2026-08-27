@@ -137,8 +137,8 @@ class ExternalAdapterContractTests(unittest.TestCase):
         state={"rows":[(1,"a"),(2,"b")]}; adapter=PostgresAdapter(connect=lambda _dsn:_Connection(state));register_adapter("postgres-test",adapter)
         adapter.name="postgres-test"
         with guard(store=self.store,audit_path=self.audit) as ctx:
-            token=observe("postgres://user:password@db/app",adapter="postgres-test",query="select id,value from items",ordered=False);ctx.protect(depends_on=[token])
-        self.assertNotIn("password",token.locator);state["rows"].reverse()
+            token=observe("postgres://user:password@db/app",adapter="postgres-test",query="select id,value from items where secret = %s",params=["sensitive-business-value"],ordered=False);ctx.protect(depends_on=[token])
+        self.assertNotIn("password",token.locator);self.assertNotIn("sensitive-business-value",repr(token));state["rows"].reverse()
         with guard(store=self.store,audit_path=self.audit) as ctx:self.assertEqual(ctx.check(token).state,FreshnessState.CURRENT)
         state["rows"]=[(1,"changed")]
         with guard(policy="allow",store=self.store,audit_path=self.audit) as ctx:self.assertEqual(ctx.check(token).state,FreshnessState.STALE_SOURCE)

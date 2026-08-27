@@ -4,6 +4,8 @@ An adapter exposes `observe(locator, **options) -> ObservationToken` and `valida
 
 Adapters must not persist plaintext credentials in tokens or audit events. A missing credential, unavailable validator, timeout, permission error, malformed response, unsafe/non-idempotent MCP operation, or unsupported state returns `indeterminate`; it must not be treated as current. Adapter implementations own canonicalization and evidence-specific equivalence rules.
 
+Secrets and sensitive query inputs needed for revalidation must stay in process-local adapter state or an application-provided secret store. Persisted tokens may contain non-reversible hashes of those inputs. If runtime validation inputs cannot be recovered, validation returns `indeterminate` rather than treating the token as current.
+
 ## Minimal implementation
 
 ```python
