@@ -6,7 +6,7 @@ Never let an AI agent reason or act on stale reality.
 
 FreshCtx™ is an independent open-source project initially stewarded by Hyperwise. It is not a proprietary Hyperwise product. The software is model-neutral, framework-neutral, local-first, requires no account, and sends no telemetry.
 
-FreshCtx records source observations, links reasoning to those observations, and revalidates dependencies before a protected action or output.
+FreshCtx is a pre-action freshness and dependency-validation layer for AI agents. It records source observations, links reasoning to those observations, and revalidates declared dependencies before a protected action or output.
 
 ## 60-second quickstart
 
@@ -142,7 +142,19 @@ Run the complete test suite from an installed checkout:
 python -m unittest discover -s tests -v
 ```
 
-FreshCtx is intended to be Apache-2.0 licensed, model- and framework-neutral, local-first, and free of required accounts or telemetry.
+FreshCtx is licensed under Apache-2.0, model- and framework-neutral, local-first, and free of required accounts or telemetry.
+
+## Why CI/CD is not enough
+
+GitHub branch protection and CI/CD determine whether a particular commit passed its configured checks. FreshCtx determines whether the specific files, Git state, APIs, database rows, or MCP resources supporting an agent's current action are still valid when that action is about to occur.
+
+FreshCtx does not replace GitHub, pull requests, branch protection, or CI/CD. It closes the reasoning-to-action freshness gap, including for mutable sources outside Git. Path-scoped Git validation prevents an unrelated repository change from invalidating every observation.
+
+Memory tells an agent what it knew. FreshCtx tells it whether that knowledge is still current.
+
+FreshCtx does not prove that reasoning is logically correct or that reality is globally correct. It revalidates declared observations, invalidates reasoning that depends on stale observations, and produces auditable evidence that declared sources were revalidated at decision time. If a source cannot be checked, `UNVERIFIABLE` fails safely according to the configured policy and never silently becomes `CURRENT`.
+
+See [`docs/FAQ.md`](docs/FAQ.md) for concise answers about CI/CD, memory, selective invalidation, compliance controls, and optional adapters.
 
 ## Local audit trail
 
@@ -256,6 +268,7 @@ Unsafe or non-idempotent MCP operations are `UNVERIFIABLE`; do not use them as v
 - `docs/ADAPTER_CONTRACT.md` — adapter behavior and failure contract
 - `docs/SECURITY_MODEL.md` — trust boundaries and fail-closed behavior
 - `docs/PERFORMANCE.md` — intended scale and performance boundaries
+- `docs/FAQ.md` — product boundaries and common implementation questions
 - `GOVERNANCE.md` and `RELEASING.md` — stewardship and private-to-public release process
 
 ## Release checks

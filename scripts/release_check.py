@@ -14,6 +14,7 @@ REQUIRED = [
     "ARCHITECTURE.md", "API.md", "BACKLOG.md", "PROJECT_STATUS.md", "SPEC.md",
     "TRADEMARKS.md", "GOVERNANCE.md", "RELEASING.md", "CODE_OF_CONDUCT.md",
     "docs/ADAPTER_CONTRACT.md", "docs/SECURITY_MODEL.md", "docs/PERFORMANCE.md",
+    "docs/FAQ.md",
     "docs/assets/freshctx-social-preview.png", "examples/quickstart.py",
     "pyproject.toml", ".github/workflows/ci.yml", ".github/workflows/release.yml",
 ]

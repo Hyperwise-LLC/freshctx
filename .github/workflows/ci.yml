@@ -40,3 +40,23 @@ jobs:
         run: |
           python -m pip install --upgrade build
           python -m build
+
+  windows-onboarding:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: PowerShell activation and quickstart
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\Activate.ps1
+          python -m pip install .
+          python examples/quickstart.py
+      - name: Command Prompt activation and smoke test
+        shell: cmd
+        run: |
+          call .venv\Scripts\activate.bat
+          python -c "import freshctx; print(freshctx.FreshnessStatus.CURRENT.value)"
