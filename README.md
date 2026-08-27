@@ -36,17 +36,29 @@ If `config.yaml` changes before the protected boundary, FreshCtx marks the obser
 
 `ctx.run()` performs the freshness check and records the allow decision before it invokes the protected function. Use `ctx.protect()` only for output validation where no side effect has already occurred.
 
-## Run the tests
+## Install and verify
 
 ```console
-PYTHONPATH=src python -m unittest discover -s tests -v
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install .
+python -c "import freshctx; print(freshctx.FreshnessStatus.CURRENT.value)"
 ```
 
-For normal consumer use, install from the repository and run a demo:
+Run all three reference demos:
 
 ```bash
-python -m pip install .
 python examples/coding_file_drift.py
+python examples/configuration_api_drift.py
+python examples/audit_reasoning_drift.py
+```
+
+Expected final lines are `STALE_SOURCE`, `STALE_SOURCE`, and `only finding-a invalidated`, respectively.
+
+Run the complete test suite from an installed checkout:
+
+```console
+python -m unittest discover -s tests -v
 ```
 
 FreshCtx is intended to be Apache-2.0 licensed, model- and framework-neutral, local-first, and free of required accounts or telemetry.
@@ -68,6 +80,7 @@ FreshCtx is intended to be Apache-2.0 licensed, model- and framework-neutral, lo
 ## Release checks
 
 ```console
+python -m pip install '.[dev]'
 python scripts/release_check.py
 python -m build
 ```
