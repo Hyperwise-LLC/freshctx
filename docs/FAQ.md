@@ -36,7 +36,7 @@ No. FreshCtx v0.1 is local-first, model-neutral, framework-neutral, requires no 
 
 ## Is FreshCtx a Hyperwise proprietary product or an open-core edition?
 
-No. FreshCtx™ is an independent Apache-2.0 open-source project initially stewarded by Hyperwise. The complete usable v0.1 runtime and its five initial adapters are part of the open project.
+No. FreshCtx™ is an independent Apache-2.0 open-source project owned and stewarded by Hyperwise LLC. The complete usable v0.1 runtime and its five initial adapters are part of the open project.
 
 Possible future Hyperwise services—such as centralized governance, managed deployment, enterprise integrations, implementation support, and SLAs—are separate from FreshCtx core and do not exist in v0.1.
 
