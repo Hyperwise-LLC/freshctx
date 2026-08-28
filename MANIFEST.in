@@ -2,6 +2,8 @@ include README.md
 include LICENSE
 include NOTICE
 include SECURITY.md
+include SUPPORT.md
+include THIRD_PARTY_NOTICES.md
 include CONTRIBUTING.md
 include ARCHITECTURE.md
 include API.md

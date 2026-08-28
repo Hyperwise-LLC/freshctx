@@ -44,14 +44,6 @@ class ReasoningNode:
 
 
 @dataclass(frozen=True)
-class DependencyEdge:
-    source_id: str
-    dependent_id: str
-    relationship: str = "depends_on"
-    metadata: dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass(frozen=True)
 class AdapterResult:
     outcome: str
     checked_at: str = field(default_factory=utcnow)
@@ -71,4 +63,6 @@ class CheckResult:
     def to_dict(self) -> dict[str, Any]:
         value = asdict(self)
         value["state"] = self.state.value
+        value["causes"] = list(self.causes)
+        value["adapter_results"] = list(self.adapter_results)
         return value

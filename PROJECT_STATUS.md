@@ -14,7 +14,7 @@ Private v0.1 release candidate. Public release requires the user's explicit perm
 - SQLite and in-memory stores
 - Local JSONL audit trail
 - Context-isolated guard API
-- Twenty-two passing unit, contract, concurrency, and acceptance tests
+- Complete unit, contract, concurrency, schema, and acceptance test suite
 - Protected pre-action execution through `Guard.run()`
 - Cycle, missing-dependency, and maximum-depth graph validation
 - Fail-closed audit behavior under blocking policies
@@ -49,7 +49,7 @@ The technical specification is authoritative when implementation details conflic
 ## Developer handoff contracts
 
 - `ARCHITECTURE.md` defines components, trust boundaries, data flow, and extension rules.
-- `API.md` defines the provisional public Python contract and known API work.
+- `API.md` defines the frozen v0.1 Python contract.
 - `schemas/` defines machine-readable domain and audit structures.
 - `adr/` records accepted architectural decisions.
 - `BACKLOG.md` is the issue-ready v0.1 implementation plan.

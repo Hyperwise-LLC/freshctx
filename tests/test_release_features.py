@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import threading
 import time
@@ -7,9 +8,9 @@ from concurrent.futures import ThreadPoolExecutor
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from freshctx import FreshnessBlocked, FreshnessState, MemoryStore, guard, observe, reasoning, register_adapter
+from freshctx import ConfigurationError, FilesystemScopeError, FreshnessBlocked, FreshnessState, MemoryStore, SQLiteStore, StorageConflictError, guard, observe, reasoning, register_adapter
 from freshctx.adapters import MCPAdapter, PostgresAdapter
-from freshctx.model import ReasoningNode
+from freshctx.model import ObservationToken, ReasoningNode
 from freshctx.redaction import REDACTED, redact
 
 
@@ -78,6 +79,147 @@ class CoreReleaseTests(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=4) as pool: results = list(pool.map(run_one, range(8)))
         self.assertEqual({run for run, *_ in results}, {f"run-{i}" for i in range(8)})
         self.assertTrue(all(subject == token for _, subject, token, _ in results)); self.assertTrue(all(state is FreshnessState.CURRENT for *_, state in results))
+
+    def test_reasoning_digest_is_canonical_and_dependency_sensitive(self):
+        first = ObservationToken("test", "first", "one", id="first")
+        second = ObservationToken("test", "second", "two", id="second")
+        self.store.put_observation(first); self.store.put_observation(second)
+
+        def build(dependencies, metadata, kind="decision"):
+            with guard(store=self.store, audit_path=self.audit):
+                with reasoning(kind, dependencies, metadata) as node:
+                    pass
+            return node.node
+
+        original = build([first, second], {"policy": {"b": 2, "a": 1}, "tags": {"red", "blue"}})
+        reordered = build([second, first, first], {"tags": {"blue", "red"}, "policy": {"a": 1, "b": 2}})
+        changed_dependencies = build([first], {"policy": {"a": 1, "b": 2}, "tags": {"red", "blue"}})
+        changed_identity = build([first, second], {"policy": {"a": 9, "b": 2}, "tags": {"red", "blue"}})
+        changed_kind = build([first, second], {"policy": {"a": 1, "b": 2}, "tags": {"red", "blue"}}, "other-decision")
+
+        self.assertEqual(original.digest, reordered.digest)
+        self.assertEqual(original.dependencies, ("first", "second"))
+        self.assertEqual(original.metadata["tags"], ["blue", "red"])
+        self.assertNotEqual(original.digest, changed_dependencies.digest)
+        self.assertNotEqual(original.digest, changed_identity.digest)
+        self.assertNotEqual(original.digest, changed_kind.digest)
+        self.assertRegex(original.digest, r"^[0-9a-f]{64}$")
+
+    def test_reasoning_metadata_rejects_ambiguous_non_json_values(self):
+        token = ObservationToken("test", "first", "one", id="first")
+        self.store.put_observation(token)
+        for metadata in ({1: "ambiguous"}, {"unsupported": object()}, {"value": float("nan")}):
+            with self.assertRaises(ConfigurationError):
+                reasoning("decision", [token], metadata)
+
+
+class ImmutableStoreTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def stores(self):
+        sqlite = SQLiteStore(Path(self.tmp.name) / "objects.db")
+        self.addCleanup(sqlite.close)
+        return [MemoryStore(), sqlite]
+
+    def test_new_and_identical_writes_are_idempotent(self):
+        for store in self.stores():
+            token = ObservationToken("filesystem", "/safe/path", "abc", id="fixed-token", observed_at="2026-08-28T00:00:00+00:00")
+            store.put_observation(token); store.put_observation(token)
+            self.assertEqual(store.get(token.id), token)
+
+    def test_conflicting_observation_is_rejected_and_original_preserved(self):
+        for store in self.stores():
+            original = ObservationToken("filesystem", "/safe/path", "abc", id="fixed-token", observed_at="2026-08-28T00:00:00+00:00")
+            conflict = ObservationToken("filesystem", "/safe/path", "changed", id="fixed-token", observed_at="2026-08-28T00:00:00+00:00")
+            store.put_observation(original)
+            with self.assertRaises(StorageConflictError): store.put_observation(conflict)
+            self.assertEqual(store.get(original.id), original)
+
+    def test_conflicting_reasoning_is_rejected_and_original_preserved(self):
+        for store in self.stores():
+            original = ReasoningNode("decision", ("one",), "a" * 64, id="fixed-node", created_at="2026-08-28T00:00:00+00:00")
+            conflict = ReasoningNode("decision", ("two",), "b" * 64, id="fixed-node", created_at="2026-08-28T00:00:00+00:00")
+            store.put_reasoning(original); store.put_reasoning(original)
+            with self.assertRaises(StorageConflictError): store.put_reasoning(conflict)
+            self.assertEqual(store.get(original.id), original)
+
+    def test_concurrent_writes_never_replace_the_original(self):
+        for store in self.stores():
+            original = ObservationToken("filesystem", "/safe/path", "abc", id="concurrent", observed_at="2026-08-28T00:00:00+00:00")
+            conflict = ObservationToken("filesystem", "/safe/path", "changed", id="concurrent", observed_at="2026-08-28T00:00:00+00:00")
+            store.put_observation(original)
+
+            def write(value):
+                try:
+                    store.put_observation(value)
+                    return "accepted"
+                except StorageConflictError:
+                    return "conflict"
+
+            values = [original, conflict] * 8
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                outcomes = list(pool.map(write, values))
+            self.assertEqual(outcomes.count("accepted"), 8)
+            self.assertEqual(outcomes.count("conflict"), 8)
+            self.assertEqual(store.get(original.id), original)
+
+
+class FilesystemBoundaryTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name); self.audit = self.root / "audit.jsonl"; self.store = MemoryStore()
+    def tearDown(self): self.tmp.cleanup()
+
+    def test_file_growth_beyond_limit_is_unverifiable(self):
+        source = self.root / "source.bin"; source.write_bytes(b"1234")
+        with guard(store=self.store, audit_path=self.audit): token = observe(source, max_file_bytes=8)
+        source.write_bytes(b"x" * 9)
+        with guard(policy="allow", store=self.store, audit_path=self.audit) as ctx: result = ctx.check(token)
+        self.assertEqual(result.state, FreshnessState.UNVERIFIABLE)
+        self.assertEqual(result.adapter_results[0]["error_code"], "FilesystemLimitExceeded")
+
+    def test_directory_entry_limit_is_unverifiable(self):
+        directory = self.root / "tree"; directory.mkdir(); (directory / "one").write_text("1")
+        with guard(store=self.store, audit_path=self.audit): token = observe(directory, max_entries=1)
+        (directory / "two").write_text("2")
+        with guard(policy="allow", store=self.store, audit_path=self.audit) as ctx: result = ctx.check(token)
+        self.assertEqual(result.state, FreshnessState.UNVERIFIABLE)
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
+    def test_symlink_is_not_followed_by_default(self):
+        outside = self.root / "outside.txt"; outside.write_text("one")
+        directory = self.root / "tree"; directory.mkdir(); link = directory / "link"; link.symlink_to(outside)
+        with guard(store=self.store, audit_path=self.audit): token = observe(directory)
+        outside.write_text("two")
+        with guard(policy="allow", store=self.store, audit_path=self.audit) as ctx: result = ctx.check(token)
+        self.assertEqual(result.state, FreshnessState.CURRENT)
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
+    def test_direct_symlink_inside_root_is_not_followed_by_default(self):
+        allowed = self.root / "allowed"; allowed.mkdir()
+        outside = self.root / "outside.txt"; outside.write_text("one")
+        link = allowed / "link"; link.symlink_to(outside)
+        with guard(store=self.store, audit_path=self.audit): token = observe(link, root=allowed)
+        outside.write_text("two")
+        with guard(policy="allow", store=self.store, audit_path=self.audit) as ctx: result = ctx.check(token)
+        self.assertEqual(result.state, FreshnessState.CURRENT)
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
+    def test_followed_symlink_cannot_cross_explicit_root(self):
+        allowed = self.root / "allowed"; allowed.mkdir(); outside = self.root / "outside.txt"; outside.write_text("one")
+        (allowed / "link").symlink_to(outside)
+        with self.assertRaises(FilesystemScopeError):
+            with guard(store=self.store, audit_path=self.audit): observe(allowed, root=allowed, follow_symlinks=True)
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
+    def test_followed_directory_symlink_fails_safely(self):
+        allowed = self.root / "allowed"; allowed.mkdir()
+        target = allowed / "target"; target.mkdir(); (target / "source").write_text("one")
+        (allowed / "link").symlink_to(target, target_is_directory=True)
+        with self.assertRaises(FilesystemScopeError):
+            with guard(store=self.store, audit_path=self.audit): observe(allowed, root=allowed, follow_symlinks=True)
 
 
 class _HTTPHandler(BaseHTTPRequestHandler):

@@ -51,11 +51,13 @@ State precedence is stale over unverifiable over current. A stale observation pr
 
 ### Policy engine
 
-The policy layer consumes a `CheckResult`. The default `block` policy fails closed. `warn` and `allow` preserve the non-current result in audit events. The planned `refresh` policy may perform one bounded refresh cycle before blocking.
+The policy layer consumes a `CheckResult`. The default `block` policy fails closed. `warn` and `allow` preserve the non-current result in audit events. The implemented `refresh` policy performs at most one caller-supplied refresh and one recheck before blocking.
 
 ### Storage
 
 The default local store is SQLite at `.freshctx/freshctx.db`, using WAL mode and atomic transactions. Tests may use `MemoryStore`. Stored objects are immutable by ID; replacement is permitted only for identical logical records during idempotent writes.
+
+SQLite is FreshCtx persistence. The Postgres adapter only observes application query results. Conflicting writes raise `StorageConflictError` and leave the original record unchanged.
 
 ### Audit
 
@@ -67,6 +69,12 @@ The default sink is append-only JSONL at `.freshctx/audit.jsonl`. Events include
 - FreshCtx does not trust source availability, credentials, source metadata, or adapter exceptions.
 - Raw source content, prompts, model outputs, credentials, and authorization material are excluded by default.
 - FreshCtx guarantees only declared dependencies. Undeclared evidence cannot be evaluated.
+- `CURRENT` covers only reachable declared dependencies successfully revalidated under configured adapters at check time; it does not prove source truth, logical correctness, authorization, safety, compliance, or global reality.
+- HTTP, Postgres, and MCP perform external calls only when explicitly selected. Their readers, credentials, and other process-local validation state must be reconstructed after restart.
+
+### Reasoning digest
+
+`ReasoningNode.dependencies` is the canonical edge representation. IDs are sorted and deduplicated. The v0.1 digest is SHA-256 over canonical JSON containing domain `freshctx.reasoning-digest.v1`, the reasoning kind, normalized dependencies, and redacted metadata. It is identity/integrity metadata for those fields, not a signature, correctness proof, authorization result, or freshness check.
 
 ## Concurrency model
 

@@ -3,6 +3,7 @@ import hashlib, json, os, subprocess, time, urllib.error, urllib.request
 from pathlib import Path
 from typing import Any, Callable
 from urllib.parse import urlsplit, urlunsplit
+from .errors import FilesystemLimitExceeded, FilesystemScopeError
 from .model import AdapterResult, ObservationToken
 from .redaction import redact
 
@@ -12,21 +13,61 @@ def _canonical(value: Any) -> bytes: return json.dumps(value, sort_keys=True, se
 class FilesystemAdapter:
     name = "filesystem"
     @staticmethod
-    def _fingerprint(path: Path):
-        resolved=path.resolve(strict=True); stat=resolved.stat()
+    def _within(path:Path,root:Path)->bool:
+        try:path.relative_to(root);return True
+        except ValueError:return False
+    @staticmethod
+    def _hash_file(path:Path,max_file_bytes:int)->tuple[str,int]:
+        size=path.stat().st_size
+        if size>max_file_bytes:raise FilesystemLimitExceeded(f"file exceeds max_file_bytes={max_file_bytes}")
+        digest=hashlib.sha256()
+        with path.open("rb") as handle:
+            read=0
+            while chunk:=handle.read(1024*1024):
+                read+=len(chunk)
+                if read>max_file_bytes:raise FilesystemLimitExceeded(f"file exceeds max_file_bytes={max_file_bytes}")
+                digest.update(chunk)
+        return digest.hexdigest(),size
+    def _fingerprint(self,path:Path,*,root:Path|None,max_file_bytes:int,max_total_bytes:int,max_entries:int,follow_symlinks:bool):
+        absolute=path.absolute();is_link=absolute.is_symlink();resolved=absolute.resolve(strict=True)
+        boundary=(root.absolute().resolve(strict=True) if root is not None else (absolute.parent.resolve(strict=True) if is_link else (resolved if resolved.is_dir() else resolved.parent)))
+        if is_link and not follow_symlinks:
+            scoped_path=absolute.parent.resolve(strict=True)/absolute.name
+            if not self._within(scoped_path,boundary):raise FilesystemScopeError(f"path is outside root: {boundary}")
+            target=os.readlink(absolute);payload=_canonical({"symlink":target})
+            return _sha(payload),{"kind":"symlink","size":len(target.encode()),"mtime_ns":absolute.lstat().st_mtime_ns,"resolved_path":str(scoped_path),"root":str(boundary),"max_file_bytes":max_file_bytes,"max_total_bytes":max_total_bytes,"max_entries":max_entries,"follow_symlinks":False}
+        if not self._within(resolved,boundary):raise FilesystemScopeError(f"resolved path is outside root: {boundary}")
+        stat=resolved.stat();total=0;count=0
         if resolved.is_dir():
             entries=[]
-            for item in sorted(resolved.rglob("*"),key=lambda p:str(p.relative_to(resolved))):
-                entries.append((str(item.relative_to(resolved)),_sha(item.read_bytes()) if item.is_file() else "dir"))
-            payload=_canonical(entries); kind="directory"
-        else: payload=resolved.read_bytes(); kind="file"
-        return _sha(payload),{"kind":kind,"size":stat.st_size,"mtime_ns":stat.st_mtime_ns}
-    def observe(self,locator):
-        path=Path(locator); fingerprint,metadata=self._fingerprint(path)
-        return ObservationToken(self.name,str(path.resolve()),fingerprint,metadata=metadata)
+            for item in sorted(resolved.rglob("*"),key=lambda candidate:str(candidate.relative_to(resolved))):
+                count+=1
+                if count>max_entries:raise FilesystemLimitExceeded(f"directory exceeds max_entries={max_entries}")
+                relative=str(item.relative_to(resolved));item_is_link=item.is_symlink()
+                if item_is_link and not follow_symlinks:
+                    target=os.readlink(item);entries.append((relative,"symlink",_sha(target.encode())));continue
+                item_resolved=item.resolve(strict=True)
+                if not self._within(item_resolved,boundary):raise FilesystemScopeError(f"resolved path is outside root: {relative}")
+                if item_is_link and item_resolved.is_dir():raise FilesystemScopeError(f"followed directory symlink is unsupported: {relative}")
+                if item_resolved.is_file():
+                    fingerprint,size=self._hash_file(item_resolved,max_file_bytes);total+=size
+                    if total>max_total_bytes:raise FilesystemLimitExceeded(f"directory exceeds max_total_bytes={max_total_bytes}")
+                    entries.append((relative,"file",fingerprint,size))
+                else:entries.append((relative,"directory"))
+            payload=_canonical(entries);kind="directory"
+        else:
+            fingerprint,total=self._hash_file(resolved,max_file_bytes)
+            if total>max_total_bytes:raise FilesystemLimitExceeded(f"source exceeds max_total_bytes={max_total_bytes}")
+            payload=fingerprint.encode();kind="file";count=1
+        return _sha(payload),{"kind":kind,"size":stat.st_size,"total_bytes":total,"entry_count":count,"mtime_ns":stat.st_mtime_ns,"resolved_path":str(resolved),"root":str(boundary),"max_file_bytes":max_file_bytes,"max_total_bytes":max_total_bytes,"max_entries":max_entries,"follow_symlinks":follow_symlinks}
+    def observe(self,locator,*,root=None,max_file_bytes=16*1024*1024,max_total_bytes=64*1024*1024,max_entries=10000,follow_symlinks=False):
+        if min(max_file_bytes,max_total_bytes,max_entries)<=0:raise ValueError("filesystem limits must be positive")
+        path=Path(locator);fingerprint,metadata=self._fingerprint(path,root=Path(root) if root is not None else None,max_file_bytes=int(max_file_bytes),max_total_bytes=int(max_total_bytes),max_entries=int(max_entries),follow_symlinks=bool(follow_symlinks))
+        return ObservationToken(self.name,str(path.absolute()),fingerprint,metadata=metadata)
     def validate(self,token):
-        try:fingerprint,metadata=self._fingerprint(Path(token.locator))
+        try:fingerprint,metadata=self._fingerprint(Path(token.locator),root=Path(str(token.metadata["root"])),max_file_bytes=int(token.metadata.get("max_file_bytes",16*1024*1024)),max_total_bytes=int(token.metadata.get("max_total_bytes",64*1024*1024)),max_entries=int(token.metadata.get("max_entries",10000)),follow_symlinks=bool(token.metadata.get("follow_symlinks",False)))
         except FileNotFoundError:return AdapterResult("changed",evidence={"reason":"missing"})
+        except (FilesystemLimitExceeded,FilesystemScopeError) as exc:return AdapterResult("indeterminate",error_code=type(exc).__name__)
         except OSError as exc:return AdapterResult("indeterminate",error_code=type(exc).__name__)
         return AdapterResult("equivalent" if fingerprint==token.fingerprint else "changed",evidence={"fingerprint":fingerprint,**metadata})
 

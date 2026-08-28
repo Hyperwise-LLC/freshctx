@@ -23,7 +23,7 @@ Issues are ordered for a single initial milestone. Each item should become one G
 ## Completed adapter contracts
 
 6. HTTP adapter — completed
-   - Conditional HEAD/GET, strong and weak ETag rules, Last-Modified, body hash, redirect limits, timeout handling.
+   - Conditional GET, strong and weak ETag rules, Last-Modified, body hash, standard-library redirects, and timeout handling.
    - Implements A3-A4.
 7. Postgres adapter — completed with injected-connector tests
    - Read-only validation, statement timeout, canonical rows, ordered/unordered query semantics.
@@ -37,8 +37,8 @@ Issues are ordered for a single initial milestone. Each item should become one G
 9. Concurrency isolation — completed for concurrent thread guards
    - Concurrent guards, run IDs, SQLite access, context propagation.
    - Implements A10.
-10. Public exception hierarchy
-    - Configuration, adapter, storage, schema, and enforcement exceptions.
+10. Public exception hierarchy — completed for v0.1 behaviors
+    - Configuration, storage-conflict, filesystem-boundary, audit, and enforcement exceptions.
 11. Store migrations
     - Schema version table, forward migration command, corruption handling.
 12. Shared adapter conformance tests
@@ -63,4 +63,4 @@ Issues are ordered for a single initial milestone. Each item should become one G
 - Python 3.10-3.13 CI passes.
 - Wheel and source distribution install cleanly.
 - No required account, telemetry, or model framework.
-- License, security policy, changelog, API contract, schemas, and migration notes are present.
+- License, security policy, changelog, API contract, and schemas are present. Store migrations remain future work because v0.1 has no prior public schema.

@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "freshctx"
 version = "0.1.0"
 description = "Freshness enforcement for AI agent observations and reasoning"
-authors = [{name = "FreshCtx contributors"}]
+authors = [{name = "Hyperwise LLC and FreshCtx contributors"}]
 requires-python = ">=3.10"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
@@ -21,15 +21,17 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Hyperwise-LLC/freshctx"
+Homepage = "https://freshctx.com"
 Documentation = "https://github.com/Hyperwise-LLC/freshctx/blob/main/README.md"
-Repository = "https://github.com/Hyperwise-LLC/freshctx.git"
+Source = "https://github.com/Hyperwise-LLC/freshctx"
+"Corporate owner" = "https://hyperwise.io"
 Issues = "https://github.com/Hyperwise-LLC/freshctx/issues"
 Changelog = "https://github.com/Hyperwise-LLC/freshctx/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.1,<4"]
-dev = ["build>=1,<2"]
+test = ["jsonschema>=4.23,<5", "rfc3339-validator>=0.1.4,<1"]
+dev = ["build>=1,<2", "jsonschema>=4.23,<5", "rfc3339-validator>=0.1.4,<1"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

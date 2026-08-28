@@ -8,7 +8,7 @@ FreshCtx complements GitHub, pull requests, branch protection, and CI/CD. It clo
 
 ## How is FreshCtx different from agent memory?
 
-Memory tells an agent what it knew. FreshCtx tells it whether that knowledge is still current. FreshCtx records declared observations, connects dependent reasoning to them, and checks those dependencies again at a protected boundary.
+Memory systems retain information for later use. FreshCtx is not a memory, context-capture, restoration, or model-portability system. It records fingerprints for declared observations, connects dependent reasoning to them, and checks reachable dependencies again at a protected boundary.
 
 ## Does FreshCtx verify that an agent's reasoning is correct?
 
@@ -39,3 +39,7 @@ No. FreshCtx v0.1 is local-first, model-neutral, framework-neutral, requires no 
 No. FreshCtx™ is an independent Apache-2.0 open-source project initially stewarded by Hyperwise. The complete usable v0.1 runtime and its five initial adapters are part of the open project.
 
 Possible future Hyperwise services—such as centralized governance, managed deployment, enterprise integrations, implementation support, and SLAs—are separate from FreshCtx core and do not exist in v0.1.
+
+## What does `CURRENT` prove?
+
+Only that every reachable declared dependency was revalidated as equivalent under its configured adapter at check time. It does not prove source truth, reasoning correctness, authorization, safety, compliance, or global reality.
