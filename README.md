@@ -1,14 +1,14 @@
 # FreshCtx™
 
-Never let an AI agent reason or act on stale reality.
+Don’t let AI agents act on stale reasoning.
 
 ![FreshCtx freshness boundary intercepting stale inputs before an agent action](docs/assets/freshctx-social-preview.png)
 
-FreshCtx™ is an independent open-source project initially stewarded by Hyperwise. It is not a proprietary Hyperwise product. The software is model-neutral, framework-neutral, local-first, requires no account, and sends no telemetry.
+FreshCtx™ is Apache-2.0 software owned and stewarded by Hyperwise LLC as an independent open-source project. The software is model-neutral, framework-neutral, local-first, requires no account, and sends no telemetry.
 
 FreshCtx is a pre-action freshness and dependency-validation layer for AI agents. It records source observations, links reasoning to those observations, and revalidates declared dependencies before a protected action or output.
 
-## 60-second quickstart
+## Quickstart
 
 Prerequisites: Python 3.10–3.13 and Git. The Git executable is required by the Git adapter and its compatibility tests.
 
@@ -90,7 +90,7 @@ with TemporaryDirectory() as directory:
 
 ## Current implementation
 
-The frozen v0.1 contract includes `ObservationToken`, `ReasoningNode`, `DependencyEdge`, and `FreshnessStatus`, with these statuses: `CURRENT`, `STALE_SOURCE`, `STALE_REASONING`, and `UNVERIFIABLE`.
+The frozen v0.1 contract includes `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus`. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
 
 The first v0.1 vertical slice includes:
 
@@ -149,6 +149,7 @@ procurement, customer service, IT/security, and legal operations. See
 Run the complete test suite from an installed checkout:
 
 ```console
+python -m pip install '.[test]'
 python -m unittest discover -s tests -v
 ```
 
@@ -160,9 +161,9 @@ GitHub branch protection and CI/CD determine whether a particular commit passed 
 
 FreshCtx does not replace GitHub, pull requests, branch protection, or CI/CD. It closes the reasoning-to-action freshness gap, including for mutable sources outside Git. Path-scoped Git validation prevents an unrelated repository change from invalidating every observation.
 
-Memory tells an agent what it knew. FreshCtx tells it whether that knowledge is still current.
+Memory systems can retain what an agent knew. FreshCtx is not memory: it checks whether reachable, declared evidence still matches its recorded fingerprint.
 
-FreshCtx does not prove that reasoning is logically correct or that reality is globally correct. It revalidates declared observations, invalidates reasoning that depends on stale observations, and produces auditable evidence that declared sources were revalidated at decision time. If a source cannot be checked, `UNVERIFIABLE` fails safely according to the configured policy and never silently becomes `CURRENT`.
+`CURRENT` proves only that every reachable, declared dependency was successfully revalidated as equivalent under its configured adapter at check time. It does not prove source truth, reasoning correctness, authorization, safety, compliance, or global reality. If a source cannot be checked, `UNVERIFIABLE` follows the configured policy and never silently becomes `CURRENT`.
 
 See [`docs/FAQ.md`](docs/FAQ.md) for concise answers about CI/CD, memory, selective invalidation, compliance controls, and optional adapters.
 
@@ -179,6 +180,8 @@ with guard(audit_path="var/audit/freshctx.jsonl") as ctx:
 
 Each line is one event such as `observed`, `policy_applied`, or `action_allowed`. Treat audit files as application data: restrict access, define retention, and avoid putting them in source control.
 
+SQLite records are written to `.freshctx/freshctx.db` unless a store path is supplied; SQLite may also create `-wal` and `-shm` companion files. Records and audit events can contain absolute local paths. To remove local FreshCtx data, stop every process using the store, then delete the database, its `-wal`/`-shm` companions, and the configured JSONL audit file. Deletion is irreversible; follow your application retention policy first.
+
 ## Adapter quick reference
 
 All adapters use the same `observe()` entry point. Revalidation occurs when `ctx.check()`, `ctx.run()`, or a protected boundary evaluates the token or dependent reasoning.
@@ -193,9 +196,11 @@ from freshctx import guard, observe
 
 ```python
 with guard(policy="allow") as ctx:
-    token = observe("README.md")
+    token = observe("README.md", root=".")
     print(ctx.check(token).state.value)
 ```
+
+The filesystem adapter streams file hashing and defaults to 16 MiB per file, 64 MiB total, and 10,000 traversed entries. Symlinks are fingerprinted without following them by default. If `follow_symlinks=True`, resolved file symlinks must remain inside `root`; directory symlink traversal is rejected as unsupported. Limit or boundary failures are `UNVERIFIABLE`, never `CURRENT`. Raw file contents are not stored, but absolute paths and safe fingerprint metadata are. Supply only trusted, intentionally scoped paths; FreshCtx does not secret-scan observed files.
 
 ### Git
 
@@ -242,6 +247,8 @@ with guard(policy="allow") as ctx:
 
 Postgres validation is read-only. DSNs, raw query text, and parameters are not persisted in observation tokens.
 
+Postgres is an optional observed-source adapter, not a FreshCtx storage backend. Revalidation state such as credentials remains process-local; after restart, the application must reconstruct the configured adapter state or checks safely return `UNVERIFIABLE`.
+
 ### MCP
 
 Pass a safe, read-only callable from the application's MCP client:
@@ -266,10 +273,21 @@ with guard(policy="allow") as ctx:
 
 Unsafe or non-idempotent MCP operations are `UNVERIFIABLE`; do not use them as validation readers. See `docs/ADAPTER_CONTRACT.md` for the complete extension contract.
 
+FreshCtx does not provide an MCP transport or client. The application supplies and reconstructs the safe-reader callback after process restart. External network calls occur only when the application explicitly selects an external adapter such as HTTP, Postgres, or MCP.
+
+## Project, support, and commercial inquiries
+
+- FreshCtx product site: <https://freshctx.com> (the complete site is being developed separately)
+- Source repository: <https://github.com/Hyperwise-LLC/freshctx>
+- Hyperwise LLC corporate site: <https://hyperwise.io>
+- Community support: see [`SUPPORT.md`](SUPPORT.md)
+
+Community includes the complete v0.1 runtime, five adapters, schemas, examples, and compatibility tests for local developer use. Using FreshCtx in a consequential or regulated workflow? Hyperwise LLC is working with design partners on organizational freshness controls, managed integrations, evidence, and deployment support. Contact `freshctx@hyperwise.io`. This does not announce a hosted service, control plane, enterprise edition, or SLA.
+
 ## Developer documentation
 
 - `ARCHITECTURE.md` — components, data flow, trust boundaries, and extension model
-- `API.md` — provisional public Python API contract
+- `API.md` — frozen v0.1 Python API contract
 - `schemas/` — machine-readable v0.1 object contracts
 - `adr/` — accepted architecture decisions
 - `BACKLOG.md` — issue-ready implementation and release plan

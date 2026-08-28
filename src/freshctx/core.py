@@ -1,18 +1,17 @@
 from __future__ import annotations
-import contextvars, hashlib, json, warnings
+import contextvars, hashlib, json, math, warnings
 from contextlib import AbstractContextManager
 from dataclasses import asdict
 from pathlib import Path
 from uuid import uuid4
 from .adapters import ADAPTERS
+from .errors import AuditFailure, ConfigurationError, FreshCtxError
 from .model import AdapterResult, CheckResult, FreshnessState, ObservationToken, ReasoningNode, utcnow
 from .redaction import redact
 from .store import SQLiteStore
 
 _active=contextvars.ContextVar("freshctx_guard",default=None)
-class FreshCtxError(RuntimeError):pass
-class AuditFailure(FreshCtxError):pass
-class ConfigurationError(FreshCtxError):pass
+DIGEST_DOMAIN = "freshctx.reasoning-digest.v1"
 class FreshnessBlocked(FreshCtxError):
     def __init__(self,result):self.result=result;super().__init__(f"FreshCtx blocked {result.subject_id}: {result.state.value}")
 
@@ -29,10 +28,10 @@ class Guard(AbstractContextManager):
             if self._ctx_token is not None:_active.reset(self._ctx_token)
         return False
     def _subject(self,value,depends_on,boundary):
-        ids=tuple(_id(x) for x in depends_on)
+        ids=_normalize_dependencies(depends_on)
         if not ids:raise ConfigurationError("depends_on must not be empty")
         if len(ids)==1:return ids[0]
-        node=ReasoningNode("protected_boundary",ids,_digest(repr(value)),{"boundary":boundary});self.store.put_reasoning(node);return node.id
+        metadata={"boundary":boundary};node=ReasoningNode("protected_boundary",ids,_reasoning_digest("protected_boundary",ids,metadata),metadata);self.store.put_reasoning(node);return node.id
     def protect(self,value=None,*,depends_on,boundary="output"):
         subject=self._subject(value,depends_on,boundary);self.protected.append(subject);self._audit("protected",subject,{"boundary":boundary});return value
     def run(self,action,*args,depends_on,boundary="action",refresh=None,**kwargs):
@@ -87,11 +86,13 @@ class Guard(AbstractContextManager):
             if required:raise AuditFailure("audit sink unavailable") from exc
 
 class ReasoningContext(AbstractContextManager):
-    def __init__(self,kind,depends_on,metadata=None):self.kind=kind;self.dependencies=tuple(_id(x) for x in depends_on);self.metadata=metadata or {};self.node=None
+    def __init__(self,kind,depends_on,metadata=None):
+        raw_metadata=metadata or {};_validate_metadata_keys(raw_metadata)
+        self.kind=kind;self.dependencies=_normalize_dependencies(depends_on);self.metadata=_canonical(redact(raw_metadata));self.node=None
     def __enter__(self):return self
     def __exit__(self,exc_type,exc,tb):
         if exc_type is None:
-            active=_require_guard();self.node=ReasoningNode(self.kind,self.dependencies,_digest(self.kind+repr(self.metadata)),redact(self.metadata));active.store.put_reasoning(self.node)
+            active=_require_guard();self.node=ReasoningNode(self.kind,self.dependencies,_reasoning_digest(self.kind,self.dependencies,self.metadata),self.metadata);active.store.put_reasoning(self.node)
         return False
     @property
     def id(self):return self.node.id if self.node else None
@@ -112,4 +113,25 @@ def _id(value):
         if value.node is None:raise FreshCtxError("reasoning context has not completed")
         return value.node.id
     return value.id
-def _digest(value):return hashlib.sha256(value.encode()).hexdigest()
+def _normalize_dependencies(values):return tuple(sorted(set(_id(value) for value in values)))
+def _validate_metadata_keys(value):
+    if isinstance(value,dict):
+        if not all(isinstance(key,str) for key in value):raise ConfigurationError("reasoning metadata keys must be strings")
+        for item in value.values():_validate_metadata_keys(item)
+    elif isinstance(value,(list,tuple,set,frozenset)):
+        for item in value:_validate_metadata_keys(item)
+def _canonical(value):
+    if isinstance(value,dict):
+        if not all(isinstance(key,str) for key in value):raise ConfigurationError("reasoning metadata keys must be strings")
+        return {key:_canonical(value[key]) for key in sorted(value)}
+    if isinstance(value,(set,frozenset)):
+        items=[_canonical(item) for item in value]
+        return sorted(items,key=lambda item:json.dumps(item,sort_keys=True,separators=(",",":"),ensure_ascii=False))
+    if isinstance(value,(list,tuple)):return [_canonical(item) for item in value]
+    if isinstance(value,float) and not math.isfinite(value):raise ConfigurationError("reasoning metadata must not contain non-finite numbers")
+    if value is None or isinstance(value,(str,int,float,bool)):return value
+    raise ConfigurationError(f"unsupported reasoning metadata type: {type(value).__name__}")
+def _reasoning_digest(kind,dependencies,metadata):
+    payload={"domain":DIGEST_DOMAIN,"kind":str(kind),"dependencies":list(_normalize_dependencies(dependencies)),"metadata":_canonical(metadata)}
+    encoded=json.dumps(payload,sort_keys=True,separators=(",",":"),ensure_ascii=False,allow_nan=False).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()

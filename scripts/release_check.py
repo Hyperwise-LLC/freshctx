@@ -13,6 +13,7 @@ REQUIRED = [
     "LICENSE", "NOTICE", "README.md", "SECURITY.md", "CONTRIBUTING.md",
     "ARCHITECTURE.md", "API.md", "BACKLOG.md", "PROJECT_STATUS.md", "SPEC.md",
     "TRADEMARKS.md", "GOVERNANCE.md", "RELEASING.md", "CODE_OF_CONDUCT.md",
+    "SUPPORT.md", "THIRD_PARTY_NOTICES.md",
     "docs/ADAPTER_CONTRACT.md", "docs/SECURITY_MODEL.md", "docs/PERFORMANCE.md",
     "docs/FAQ.md", "docs/SUCCESS_CASES.md",
     "docs/evidence/success-cases-v0.1.json",

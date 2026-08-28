@@ -22,3 +22,8 @@ All notable FreshCtx changes will be documented here.
 - Wheel packaging and release automation
 - External developer gate coverage for selective invalidation and safe connection-loss behavior
 - Three executable reference demos for file, configuration/API, and audit reasoning drift
+- Versioned deterministic reasoning digests over normalized dependencies and redacted metadata
+- Immutable-by-ID SQLite and memory-store writes with conflict errors
+- Runtime-produced JSON Schema conformance and negative-fixture coverage
+- Bounded streaming filesystem traversal with explicit symlink and root policy
+- Community security, conduct, support, ownership, trademark, and third-party notices

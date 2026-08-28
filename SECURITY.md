@@ -1,19 +1,21 @@
 # Security Policy
 
-## Supported versions
+## Supported version
 
-FreshCtx is pre-release software. Security fixes currently target the latest code on the default branch.
+Security fixes target the latest `0.1.x` release and, before publication, the latest code on the default branch. Older pre-release commits are not supported.
 
-## Reporting a vulnerability
+## Report a vulnerability
 
-Do not open a public issue for a suspected vulnerability involving credential disclosure, validation bypass, unsafe adapter behavior, audit tampering, or policy enforcement failure.
+Email `security@hyperwise.io`. Do not use a public GitHub issue for an undisclosed vulnerability. This address is for security reports, not general support.
 
-Until a private reporting address is published, contact the repository owner privately through their Git hosting profile. Include reproduction steps, affected versions, likely impact, and any proposed mitigation.
+Include the affected version or commit, component, reproduction steps, likely impact, and any suggested mitigation. Do not include credentials, production data, or sensitive customer information unless it is strictly necessary and agreed in advance.
+
+Hyperwise LLC targets acknowledgment within three business days. This is a response target, not a contractual service level. Please allow time for investigation and coordinated disclosure before publishing details.
 
 ## Security principles
 
 - The default policy fails closed.
 - Validation must not mutate observed systems.
 - Unknown conditions become `UNVERIFIABLE`, never `CURRENT`.
-- Credentials and common secrets are excluded from stored tokens and audit events.
-- FreshCtx requires no hosted account or telemetry.
+- Common credentials are redacted, but callers remain responsible for safe inputs and storage access.
+- FreshCtx requires no hosted account and sends no telemetry.

@@ -1,6 +1,6 @@
 # FreshCtx Python API contract
 
-Status: provisional v0.1. Breaking changes are allowed until v0.1 is released, but changes must update this document, schemas, tests, and changelog together.
+Status: frozen v0.1 release-candidate contract.
 
 ## `guard()`
 
@@ -42,6 +42,7 @@ Current adapter options:
 observe("config.yaml")
 observe("/repo", adapter="git", scope="repository")
 observe("/repo", adapter="git", scope="path", path="config.yaml", ref="HEAD")
+observe("config.yaml", root=".", max_file_bytes=16 * 1024 * 1024)
 ```
 
 Unknown adapters raise the public `ConfigurationError` exception.
@@ -58,7 +59,7 @@ reasoning(
 
 Requires an active guard when the context exits. A successful exit persists one `ReasoningNode`. An exceptional exit does not create a valid node. The completed context may be supplied to `depends_on`; using it before completion raises `FreshCtxError`.
 
-The current digest covers the reasoning kind and metadata, not raw prompts or model output. This behavior is provisional and must be finalized before v0.1.
+The digest is SHA-256 of canonical JSON over domain `freshctx.reasoning-digest.v1`, reasoning kind, sorted/deduplicated dependency IDs, and redacted metadata. Metadata keys must be strings; dictionary and set ordering are canonical, sets are stored as sorted lists, list ordering is meaningful, and unsupported or non-finite values raise `ConfigurationError`. It stores no raw prompts, hidden reasoning, model output, or source content. The digest identifies the declared reasoning inputs within this contract; it is not a signature, authorization decision, tamper-proof evidence, or proof of correctness. Source freshness always comes from adapter revalidation.
 
 ## `Guard.protect()`
 
@@ -111,6 +112,10 @@ Raised by the blocking policy. The message is safe and concise; detailed machine
 
 The authoritative fields are defined in `schemas/`. Python dataclasses use immutable instances. IDs are UUID strings in the current implementation; future ULID support must preserve string compatibility.
 
+`ReasoningNode.dependencies` is the canonical graph-edge representation. Stores are immutable by ID: identical repeats are idempotent; different content under an existing ID raises `StorageConflictError` and preserves the original. `SQLiteStore.close()` closes its local connection.
+
+The filesystem adapter accepts `root`, `max_file_bytes` (default 16 MiB), `max_total_bytes` (64 MiB), `max_entries` (10,000), and `follow_symlinks` (false). Followed file symlinks must resolve inside `root`; directory symlink traversal is unsupported. Limit and scope failures validate as `UNVERIFIABLE`. External adapters may keep credentials, readers, or other validation inputs only in process-local state; applications must reconstruct that state after restart.
+
 ## Example
 
 ```python
@@ -126,7 +131,4 @@ except FreshnessBlocked as blocked:
     print(blocked.result.state.value)
 ```
 
-## Known v0.1 API work
-
-- Decide and test asynchronous context behavior.
-- Finalize reasoning digest semantics and redaction options.
+Asynchronous guard support is not part of v0.1.

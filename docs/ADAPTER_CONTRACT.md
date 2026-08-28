@@ -6,6 +6,8 @@ Adapters must not persist plaintext credentials in tokens or audit events. A mis
 
 Secrets and sensitive query inputs needed for revalidation must stay in process-local adapter state or an application-provided secret store. Persisted tokens may contain non-reversible hashes of those inputs. If runtime validation inputs cannot be recovered, validation returns `indeterminate` rather than treating the token as current.
 
+Applications must reconstruct process-local reader, credential, and connector state after a restart. Postgres is an optional observed-source adapter, not a FreshCtx persistence backend. MCP is a callback contract for an application-provided safe reader, not an MCP client or transport. Network calls occur only for adapters the caller explicitly selects.
+
 ## Minimal implementation
 
 ```python
