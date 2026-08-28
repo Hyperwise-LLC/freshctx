@@ -1,6 +1,14 @@
 # Contributing to FreshCtx
 
-FreshCtx is owned and stewarded by Hyperwise LLC and welcomes focused contributions that preserve its core guarantees: explicit freshness states, deterministic evaluation, safe validation, local-first operation, and no required telemetry. Contributors retain rights to their contributions, licensed to the project under Apache-2.0 through submission, unless a different executed agreement applies.
+FreshCtx is owned and stewarded by Hyperwise LLC and welcomes focused contributions that preserve its core guarantees: explicit freshness states, deterministic evaluation, safe validation, local-first operation, and no required telemetry. Contributors retain rights to their contributions. By submitting a contribution, you agree that it is accepted under the project's Apache License 2.0. FreshCtx v0.1 does not require a Contributor License Agreement (CLA) or Developer Certificate of Origin (DCO).
+
+## Contribution licensing
+
+The same Apache-2.0 terms apply to project code and accepted contributions. Hyperwise LLC does not require contributors to grant separate proprietary relicensing rights for v0.1. Commercial services and possible future products remain separate from FreshCtx core.
+
+If Hyperwise LLC later considers a genuine dual-licensing model, it will publish and review any proposed contribution terms before accepting code that would need those additional rights. Existing contributions will not silently receive new terms.
+
+The Apache-2.0 software license does not grant rights to use FreshCtx™ names, logos, or branding beyond truthful reference to the project. See `TRADEMARKS.md`.
 
 ## Development setup
 

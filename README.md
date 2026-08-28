@@ -155,6 +155,14 @@ python -m unittest discover -s tests -v
 
 FreshCtx is licensed under Apache-2.0, model- and framework-neutral, local-first, and free of required accounts or telemetry.
 
+## License & Commercial Use
+
+FreshCtx is licensed under the [Apache License 2.0](LICENSE). You may use, modify, and distribute the software—including in commercial applications—subject to the license terms. No account, paid plan, or commercial agreement with Hyperwise LLC is required to use FreshCtx.
+
+The software license does not grant permission to use the FreshCtx™ name, logo, or branding in a way that implies endorsement or creates confusion about the source of a modified product. See [TRADEMARKS.md](TRADEMARKS.md).
+
+Hyperwise LLC may separately offer architecture, integration, deployment, managed connectors, organizational controls, and support services. These services are optional, are not required to use the open-source FreshCtx runtime, and remain separate from FreshCtx core. Possible future commercial products are not part of the v0.1 open-source project unless expressly released under its license.
+
 ## Why CI/CD is not enough
 
 GitHub branch protection and CI/CD determine whether a particular commit passed its configured checks. FreshCtx determines whether the specific files, Git state, APIs, database rows, or MCP resources supporting an agent's current action are still valid when that action is about to occur.
