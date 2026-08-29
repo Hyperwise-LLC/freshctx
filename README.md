@@ -1,55 +1,78 @@
 # FreshCtx™
 
-Don’t let AI agents act on stale reasoning.
+**Stop AI agents from acting on reasoning that is no longer true.**
+
+[![CI](https://github.com/Hyperwise-LLC/freshctx/actions/workflows/ci.yml/badge.svg)](https://github.com/Hyperwise-LLC/freshctx/actions/workflows/ci.yml)
+[![Python 3.10–3.13](https://img.shields.io/badge/python-3.10%E2%80%933.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![No telemetry](https://img.shields.io/badge/telemetry-none-17b897)](#local-audit-trail)
 
 ![FreshCtx freshness boundary intercepting stale inputs before an agent action](docs/assets/freshctx-social-preview.png)
 
-FreshCtx™ is Apache-2.0 software owned and stewarded by Hyperwise LLC as an independent open-source project. The software is model-neutral, framework-neutral, local-first, requires no account, and sends no telemetry.
+An agent can make the right decision from accurate information and still take the wrong action: the file, database row, API response, or MCP resource it relied on changed between **reasoning** and **execution**.
 
-FreshCtx is a pre-action freshness and dependency-validation layer for AI agents. It records source observations, links reasoning to those observations, and revalidates declared dependencies before a protected action or output.
+FreshCtx is an open-source Python runtime for closing that gap. It records the evidence behind a decision, revalidates the declared dependencies immediately before a protected action, and blocks or flags the action when the reasoning has become stale.
+
+```text
+observe evidence → reason from it → revalidate dependencies → act or block
+```
+
+- **Model- and framework-neutral** — wrap an existing agent instead of replacing it.
+- **Local-first** — no account, hosted control plane, or telemetry.
+- **Explicit and auditable** — you choose which evidence matters; FreshCtx records what was checked.
+- **Useful beyond files** — adapters cover filesystem, Git, HTTP, Postgres, and safe MCP reads.
+
+FreshCtx is Apache-2.0 software owned and stewarded by Hyperwise LLC as an independent open-source project.
+
+## The failure mode
+
+This is a time-of-check/time-of-use problem for agent reasoning:
+
+1. An agent reads a deployment configuration and decides to deploy to staging.
+2. The configuration changes to production while the agent is planning.
+3. The agent executes the old staging decision against the new environment.
+
+Prompting cannot reliably close this gap because the relevant state can change after the prompt has been evaluated. FreshCtx adds a freshness boundary immediately before the action.
+
+## See it block stale reasoning
+
+The smallest useful pattern is:
+
+```python
+from freshctx import guard, observe, reasoning
+
+with guard(policy="block") as ctx:
+    config = observe("config.yaml")
+
+    with reasoning("choose_deployment_target", depends_on=[config]) as decision:
+        target = choose_target(config)
+
+    # Revalidates config and the dependent decision before agent.run executes.
+    result = ctx.run(agent.run, target, depends_on=[decision])
+```
+
+If `config.yaml` changes before `ctx.run()`, FreshCtx marks the observation `STALE_SOURCE`, marks the decision `STALE_REASONING`, and raises `FreshnessBlocked` under the default blocking policy.
+
+**Good first use cases:** deployment agents, coding agents, approval workflows, database-backed operations, browser agents, and MCP workflows that act on mutable resources.
+
+[Read the API](API.md) · [Run the examples](examples) · [Understand the security model](docs/SECURITY_MODEL.md) · [See the roadmap](BACKLOG.md) · [Ask a question](https://github.com/Hyperwise-LLC/freshctx/discussions)
 
 ## Quickstart
 
 Prerequisites: Python 3.10–3.13 and Git. The Git executable is required by the Git adapter and its compatibility tests.
 
-After FreshCtx v0.1.0 is published to PyPI, install the release package with:
-
-```console
-python -m pip install freshctx==0.1.0
-```
-
-Until publication—or when working from source—clone and install the repository:
+FreshCtx v0.1.0 is currently installed from source. Clone the repository, create an environment, and run the executable quickstart:
 
 ```console
 git clone https://github.com/Hyperwise-LLC/freshctx.git
 cd freshctx
 python -m venv .venv
-```
-
-Activate the environment on macOS or Linux:
-
-```console
 source .venv/bin/activate
-```
-
-On Windows PowerShell:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-On Windows Command Prompt:
-
-```bat
-.venv\Scripts\activate.bat
-```
-
-Install the source checkout and run the executable quickstart:
-
-```console
 python -m pip install .
 python examples/quickstart.py
 ```
+
+On Windows PowerShell, activate the environment with `.\.venv\Scripts\Activate.ps1`; in Command Prompt, use `.venv\Scripts\activate.bat`.
 
 Expected output includes:
 
