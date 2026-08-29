@@ -10,6 +10,6 @@ try:
     __version__ = version("freshctx")
 except PackageNotFoundError:
     # Supports running examples and adapter tests directly from a source checkout.
-    __version__ = "0.1.0"
+    __version__ = "0.1.1"
 
 __all__ = ["AuditFailure", "CheckResult", "ConfigurationError", "FilesystemLimitExceeded", "FilesystemScopeError", "FreshCtxError", "FreshnessBlocked", "FreshnessState", "FreshnessStatus", "MemoryStore", "ObservationToken", "ReasoningNode", "SQLiteStore", "StorageConflictError", "__version__", "guard", "observe", "reasoning", "register_adapter"]
