@@ -2,6 +2,18 @@
 
 All notable FreshCtx changes will be documented here.
 
+## 0.1.1 - 2026-08-29
+
+### Added
+
+- A minimal LangGraph action-node integration demonstrating stale configuration blocking
+- A `langgraph` optional dependency and release-gate coverage for the integration
+
+### Changed
+
+- PyPI installation is now the primary README onboarding path
+- Package discovery metadata and release verification documentation were improved
+
 ## 0.1.0 - 2026-08-27
 
 ### Added
