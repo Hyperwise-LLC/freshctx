@@ -41,8 +41,9 @@ Changelog = "https://github.com/Hyperwise-LLC/freshctx/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.1,<4"]
-test = ["jsonschema>=4.23,<5", "rfc3339-validator>=0.1.4,<1"]
-dev = ["build>=1,<2", "jsonschema>=4.23,<5", "rfc3339-validator>=0.1.4,<1"]
+langgraph = ["langgraph>=1,<2"]
+test = ["jsonschema>=4.23,<5", "langgraph>=1,<2", "rfc3339-validator>=0.1.4,<1"]
+dev = ["build>=1,<2", "jsonschema>=4.23,<5", "langgraph>=1,<2", "rfc3339-validator>=0.1.4,<1"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

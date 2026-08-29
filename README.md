@@ -3,6 +3,7 @@
 **Stop AI agents from acting on reasoning that is no longer true.**
 
 [![CI](https://github.com/Hyperwise-LLC/freshctx/actions/workflows/ci.yml/badge.svg)](https://github.com/Hyperwise-LLC/freshctx/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/freshctx.svg)](https://pypi.org/project/freshctx/)
 [![Python 3.10–3.13](https://img.shields.io/badge/python-3.10%E2%80%933.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![No telemetry](https://img.shields.io/badge/telemetry-none-17b897)](#local-audit-trail)
@@ -61,14 +62,14 @@ If `config.yaml` changes before `ctx.run()`, FreshCtx marks the observation `STA
 
 Prerequisites: Python 3.10–3.13 and Git. The Git executable is required by the Git adapter and its compatibility tests.
 
-FreshCtx v0.1.0 is currently installed from source. Clone the repository, create an environment, and run the executable quickstart:
+Install FreshCtx from PyPI and run the executable quickstart:
 
 ```console
-git clone https://github.com/Hyperwise-LLC/freshctx.git
-cd freshctx
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install .
+python -m pip install freshctx
+git clone https://github.com/Hyperwise-LLC/freshctx.git
+cd freshctx
 python examples/quickstart.py
 ```
 
@@ -109,6 +110,29 @@ with TemporaryDirectory() as directory:
 
     print(f"FreshCtx state: {ctx.result.state.value}")
     print(f"Audit events: {sum(1 for _ in audit.open(encoding='utf-8'))}")
+```
+
+### LangGraph
+
+Install the optional integration dependency and run the controlled stale-state scenario:
+
+```console
+python -m pip install 'freshctx[langgraph]'
+python examples/langgraph_stale_config.py
+```
+
+The LangGraph workflow deliberately changes a deployment configuration between planning and its action node. Expected output:
+
+```text
+BLOCKED: STALE_REASONING
+```
+
+The protected node uses the same framework-neutral boundary:
+
+```python
+def deploy_node(state):
+    ctx.run(deploy, state["target"], depends_on=[decision])
+    return {"deployed": True}
 ```
 
 ## Current implementation
