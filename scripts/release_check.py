@@ -19,6 +19,7 @@ REQUIRED = [
     "docs/evidence/success-cases-v0.1.json",
     "docs/evidence/banking-postgres-v0.1.json",
     "docs/assets/freshctx-social-preview.png", "examples/quickstart.py",
+    "examples/langgraph_stale_config.py", "tests/test_langgraph_integration.py",
     "examples/real_world_success_cases.py", "tests/test_success_cases.py",
     "scripts/banking_postgres_success_case.py",
     "pyproject.toml", ".github/workflows/ci.yml", ".github/workflows/release.yml",
@@ -55,6 +56,13 @@ def main() -> int:
     quickstart = subprocess.run([sys.executable, str(ROOT / "examples" / "quickstart.py")], cwd=ROOT, env=env)
     if quickstart.returncode:
         return quickstart.returncode
+    langgraph = subprocess.run(
+        [sys.executable, str(ROOT / "examples" / "langgraph_stale_config.py")],
+        cwd=ROOT,
+        env=env,
+    )
+    if langgraph.returncode:
+        return langgraph.returncode
     return subprocess.run(
         [sys.executable, str(ROOT / "examples" / "real_world_success_cases.py")],
         cwd=ROOT,
