@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Feedback-driven v0.2 development. PyPI v0.2.0 is public; v0.2.1 corrects the synthetic benchmark's concurrency declaration before external test invitations.
+FreshCtx Core 0.3.0 completion after the public v0.2.1 release. Version 0.2.1 is available on PyPI and has been verified from a clean public installation. Version 0.3.0 adds bounded hardening and developer tooling; it is not yet published.
 
 ## Implemented
 
@@ -25,7 +25,7 @@ Feedback-driven v0.2 development. PyPI v0.2.0 is public; v0.2.1 corrects the syn
 - Postgres canonical query-result adapter contract
 - MCP safe-reader and non-idempotent operation contract
 - Packaging and tag-triggered release automation
-- Private-phase workflow is build-only; public package publishing is disabled
+- Public releases use protected pull requests, passing CI, and a separate explicitly authorized PyPI publication step
 
 ## Validated for the private v0.1 candidate
 
@@ -37,7 +37,7 @@ Feedback-driven v0.2 development. PyPI v0.2.0 is public; v0.2.1 corrects the syn
 - Dependency, secret, license, and package-content scans
 - External developer workflow using only the README
 
-The v0.2 branch adds opt-in bounded adapter concurrency without changing the synchronous guard contract. Native async contexts and independent third-party security review remain future hardening work.
+The current development branch adds native async entry points without changing the synchronous guard contract. Independent third-party validation remains evidence work and must stay distinct from maintainer verification.
 
 ## Canonical documents
 

@@ -53,8 +53,8 @@ def run(width, workers, delay_ms, iterations, shape):
     timings = []
     for _ in range(iterations):
         started = time.perf_counter()
-        with guard(store=store, audit_path="/dev/null", validation_workers=workers) as ctx:
-            ctx.check(node)
+        with guard(store=store, audit_path="/dev/null", validation_workers=workers, max_graph_depth=max(100, width * 2)) as ctx:
+            result = ctx.check(node)
         timings.append((time.perf_counter() - started) * 1000)
     return {
         "width": width,
@@ -63,6 +63,7 @@ def run(width, workers, delay_ms, iterations, shape):
         "source_delay_ms": delay_ms,
         "iterations": iterations,
         "adapter_calls": adapter.calls,
+        "state": result.state.value,
         "mean_ms": round(statistics.mean(timings), 3),
         "p50_ms": round(percentile(timings, 0.50), 3),
         "p95_ms": round(percentile(timings, 0.95), 3),

@@ -8,6 +8,23 @@ permissions:
   contents: read
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install development tooling
+        run: python -m pip install -e '.[dev]'
+      - name: Static analysis
+        run: |
+          python -m ruff check src tests scripts examples
+          python -m mypy src/freshctx
+      - name: Dependency audit
+        run: python -m pip_audit .
+
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -54,6 +71,11 @@ jobs:
           /tmp/freshctx-wheel/bin/pip install --no-deps dist/freshctx-*.whl
           /tmp/freshctx-wheel/bin/python -m freshctx version
           /tmp/freshctx-wheel/bin/python -m freshctx demo
+          /tmp/freshctx-wheel/bin/freshctx doctor
+      - name: Verify package metadata
+        run: |
+          python -m pip install twine
+          python -m twine check dist/*
 
   windows-onboarding:
     runs-on: windows-latest

@@ -82,3 +82,27 @@ class CheckResult:
         value["causes"] = list(self.causes)
         value["adapter_results"] = list(self.adapter_results)
         return value
+
+
+@dataclass(frozen=True)
+class ValidationReport:
+    """Portable record for a bounded external FreshCtx validation."""
+
+    scenario: str
+    freshctx_version: str
+    installation: str
+    environment: dict[str, Any]
+    expected: str
+    observed: str
+    verdict: str
+    limitations: tuple[str, ...] = ()
+    evidence: tuple[str, ...] = ()
+    validator: str | None = None
+    created_at: str = field(default_factory=utcnow)
+    schema_version: int = 1
+
+    def to_dict(self) -> dict[str, Any]:
+        value = asdict(self)
+        value["limitations"] = list(self.limitations)
+        value["evidence"] = list(self.evidence)
+        return value

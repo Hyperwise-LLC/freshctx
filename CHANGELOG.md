@@ -2,6 +2,23 @@
 
 All notable FreshCtx changes will be documented here.
 
+## 0.3.0 - Unreleased
+
+### Added
+
+- Forward-only SQLite schema versioning, legacy-store migration, and integrity diagnostics
+- Native async guard, check, and protected-action entry points
+- `freshctx check`, `freshctx audit`, and `freshctx doctor` commands
+- Portable bounded-validation report schema
+- Shared adapter contract validation and fail-closed invalid-result handling
+- Large-graph, migration, async, CLI, and v0.1 compatibility coverage
+- Enforced static-analysis, package, and release-quality gates
+
+### Compatibility
+
+- Existing synchronous calls and default single-worker behavior remain unchanged.
+- Existing v0.1 SQLite object tables migrate in place without rewriting stored objects.
+
 ## 0.2.1 - 2026-08-30
 
 ### Fixed

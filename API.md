@@ -110,6 +110,10 @@ Guard.check(subject: dependency | None = None) -> CheckResult
 
 Evaluates a subject without automatically raising. If omitted, the latest protected subject is used. The caller may inspect `state`, `causes`, `adapter_results`, and `policy_decision`. Adapter evidence includes measured `duration_ms` and the selected freshness strategy.
 
+## Async entry points
+
+`Guard` supports `async with`. `await ctx.check_async(subject)` performs adapter validation outside the event-loop thread, and `await ctx.run_async(action, ..., depends_on=[...])` preserves the same pre-action enforcement boundary for synchronous or awaitable actions. Policies, audit requirements, refresh limits, and fail-closed behavior match `check()` and `run()`.
+
 ## `FreshnessBlocked`
 
 ```python
@@ -142,4 +146,4 @@ except FreshnessBlocked as blocked:
     print(blocked.result.state.value)
 ```
 
-The context-manager API remains synchronous. Bounded parallel adapter validation is opt-in through `validation_workers`; a native async context-manager API is not part of v0.2.
+The original synchronous API remains the compatibility default. Bounded parallel adapter validation is opt-in through `validation_workers`; async entry points are additive.

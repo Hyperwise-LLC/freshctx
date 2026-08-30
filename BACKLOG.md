@@ -13,13 +13,13 @@ Completed in the current development tree:
 - booking, voice-agent, and performance artifacts;
 - backward-compatibility tests and enterprise boundary documentation.
 
-Still requiring external evidence before release claims:
+Still requiring independent evidence before broader validation claims:
 
-- clean PyPI installation reproduction against the v0.2 artifact;
+- independent clean PyPI installation reproduction against the v0.2.1 artifact;
 - payment and booking scenarios run by external developers;
 - manual pre-flight comparison reviewed by an external developer;
 - deep-versus-wide benchmark review and production-shaped measurements;
-- native async API design, if opt-in worker concurrency is insufficient.
+- production-shaped measurements supplied by users of real adapters.
 
 Issues are ordered for a single initial milestone. Each item should become one Git-hosting issue and reference the technical specification.
 
@@ -60,22 +60,22 @@ Issues are ordered for a single initial milestone. Each item should become one G
    - Implements A10.
 10. Public exception hierarchy — completed for v0.1 behaviors
     - Configuration, storage-conflict, filesystem-boundary, audit, and enforcement exceptions.
-11. Store migrations
+11. Store migrations — completed in the Core-completion branch
     - Schema version table, forward migration command, corruption handling.
-12. Shared adapter conformance tests
+12. Shared adapter conformance tests — completed baseline in the Core-completion branch
     - Equivalent/changed/indeterminate, timeouts, redaction, side-effect safety.
 
 ## P2 — packaging and developer experience
 
-13. CLI
+13. CLI — completed baseline in the Core-completion branch
     - `freshctx check`, `freshctx audit`, `freshctx doctor`, and schema version reporting.
-14. Type-checking and formatting
+14. Type-checking and formatting — completed baseline in the Core-completion branch
     - Add Ruff and mypy or Pyright configuration after dependency policy is approved.
-15. Package build verification
+15. Package build verification — automated in CI and release checks
     - Build wheel and source distribution; install into a clean environment.
-16. Documentation examples
+16. Documentation examples — completed baseline; expand only from user demand
     - Filesystem, Git, HTTP, Postgres, MCP, and framework-neutral agent examples.
-17. Performance baseline
+17. Performance baseline — completed synthetic baseline; production evidence remains external
     - Graph traversal, hash cost, validation latency, and large-directory behavior.
 
 ## Release gate
