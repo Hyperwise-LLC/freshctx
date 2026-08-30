@@ -1,4 +1,5 @@
 import json
+import runpy
 import tempfile
 import time
 import unittest
@@ -159,6 +160,11 @@ class FeedbackFeatureTests(unittest.TestCase):
         applied = [event for event in events if event["event_type"] == "policy_applied"][-1]
         self.assertEqual(applied["schema_version"], 1)
         self.assertEqual(applied["details"]["validation"]["workers"], 2)
+
+    def test_benchmark_adapter_explicitly_opts_into_concurrency(self):
+        script = Path(__file__).resolve().parents[1] / "scripts" / "benchmark_validation.py"
+        module = runpy.run_path(script)
+        self.assertIs(module["DelayedAdapter"].thread_safe, True)
 
 
 if __name__ == "__main__":

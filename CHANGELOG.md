@@ -2,7 +2,14 @@
 
 All notable FreshCtx changes will be documented here.
 
-## 0.2.0 - Unreleased
+## 0.2.1 - 2026-08-30
+
+### Fixed
+
+- Mark the synthetic benchmark adapter as thread-safe so requested worker concurrency is actually measured.
+- Add a release test preventing the benchmark from silently reverting to sequential validation.
+
+## 0.2.0 - 2026-08-30
 
 ### Added
 
