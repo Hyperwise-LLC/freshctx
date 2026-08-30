@@ -1,6 +1,6 @@
 # FreshCtx™
 
-**Stop AI agents from acting on reasoning that is no longer true.**
+**Don't let AI agents act on stale reasoning.**
 
 [![CI](https://github.com/Hyperwise-LLC/freshctx/actions/workflows/ci.yml/badge.svg)](https://github.com/Hyperwise-LLC/freshctx/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/freshctx.svg)](https://pypi.org/project/freshctx/)
@@ -56,7 +56,7 @@ If `config.yaml` changes before `ctx.run()`, FreshCtx marks the observation `STA
 
 **Good first use cases:** deployment agents, coding agents, approval workflows, database-backed operations, browser agents, and MCP workflows that act on mutable resources.
 
-[Read the API](API.md) · [Run the examples](examples) · [Understand the security model](docs/SECURITY_MODEL.md) · [See the roadmap](BACKLOG.md) · [Ask a question](https://github.com/Hyperwise-LLC/freshctx/discussions)
+[Read the API](API.md) · [Run the examples](examples) · [Understand the boundaries](docs/FEEDBACK_BOUNDARIES.md) · [Run the payment example](docs/PAYMENT_EXAMPLE.md) · [Ask a question](https://github.com/Hyperwise-LLC/freshctx/discussions)
 
 For an independent control-versus-behavior test, run the
 [JSONL assurance experiment](docs/OPSWATCH_ASSURANCE_EXPERIMENT.md). It produces
@@ -288,7 +288,7 @@ Install the optional dependency first:
 python -m pip install '.[postgres]'
 ```
 
-After the public package is available, the equivalent command is `python -m pip install 'freshctx[postgres]==0.1.0'`.
+For the current public package, the equivalent command is `python -m pip install 'freshctx[postgres]==0.1.1'`.
 
 ```python
 import os
@@ -356,6 +356,11 @@ Community includes the complete v0.1 runtime, five adapters, schemas, examples, 
 - `docs/ADAPTER_CONTRACT.md` — adapter behavior and failure contract
 - `docs/SECURITY_MODEL.md` — trust boundaries and fail-closed behavior
 - `docs/PERFORMANCE.md` — intended scale and performance boundaries
+- `docs/COMPATIBILITY_BASELINE.md` — preserved public behavior and starting state
+- `docs/CLEAN_INSTALL_EVIDENCE.md` — isolated PyPI reproduction evidence
+- `docs/FEEDBACK_BOUNDARIES.md` — OCC, truth, recovery, and enforcement boundaries
+- `docs/PAYMENT_EXAMPLE.md` — fully simulated payment freshness tutorial
+- `docs/FEEDBACK_ROADMAP.md` — living engineering feedback register, not a product roadmap
 - `docs/FAQ.md` — product boundaries and common implementation questions
 - `GOVERNANCE.md` and `RELEASING.md` — stewardship and private-to-public release process
 

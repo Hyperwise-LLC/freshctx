@@ -1,0 +1,111 @@
+{
+  "method": "time.perf_counter_ns; two warmups excluded; each check writes JSONL audit evidence",
+  "warm_cold": "warm process and adapter state; filesystem cache not flushed",
+  "environment": {
+    "python": "3.13.13",
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "machine": "arm64"
+  },
+  "repository_sha": "fc682d8f6da65de124b2071fa4fa85b38d72f115",
+  "parameters": {
+    "iterations": 20,
+    "depth": 50,
+    "width": 100
+  },
+  "internal_processing": {
+    "deep_graph": {
+      "topology": {
+        "depth": 50,
+        "dependency_count": 1
+      },
+      "iterations": 20,
+      "median_ms": 0.1643335,
+      "mean_ms": 0.1674541,
+      "min_ms": 0.15875,
+      "p95_ms": 0.188458,
+      "max_ms": 0.188458
+    },
+    "wide_graph": {
+      "topology": {
+        "depth": 1,
+        "dependency_count": 100
+      },
+      "iterations": 20,
+      "median_ms": 2.3367500000000003,
+      "mean_ms": 2.34158345,
+      "min_ms": 2.290375,
+      "p95_ms": 2.450584,
+      "max_ms": 2.450584
+    },
+    "shared_dependency_paths": {
+      "topology": {
+        "reasoning_paths": 100,
+        "unique_dependency_count": 1
+      },
+      "iterations": 20,
+      "median_ms": 1.2644994999999999,
+      "mean_ms": 1.2780624,
+      "min_ms": 1.241458,
+      "p95_ms": 1.340792,
+      "max_ms": 1.340792
+    }
+  },
+  "adapter_validation": {
+    "filesystem_validation": {
+      "config": {
+        "bytes": 4096
+      },
+      "iterations": 20,
+      "median_ms": 0.2209375,
+      "mean_ms": 0.22066035,
+      "min_ms": 0.201583,
+      "p95_ms": 0.237333,
+      "max_ms": 0.237333
+    },
+    "git_validation": {
+      "config": {
+        "scope": "path"
+      },
+      "iterations": 20,
+      "median_ms": 27.858542,
+      "mean_ms": 28.14575835,
+      "min_ms": 27.107292,
+      "p95_ms": 31.619833,
+      "max_ms": 31.619833
+    },
+    "http_validation_local": {
+      "config": {
+        "transport": "loopback",
+        "external_latency_included": true
+      },
+      "iterations": 20,
+      "median_ms": 0.40531249999999996,
+      "mean_ms": 0.41477085,
+      "min_ms": 0.359291,
+      "p95_ms": 0.508084,
+      "max_ms": 0.508084
+    },
+    "mcp_reader_validation": {
+      "config": {
+        "reader": "in_process",
+        "transport_latency": false
+      },
+      "iterations": 20,
+      "median_ms": 0.4200835,
+      "mean_ms": 0.44006255,
+      "min_ms": 0.365916,
+      "p95_ms": 0.570417,
+      "max_ms": 0.570417
+    },
+    "postgres_validation": {
+      "status": "not_run",
+      "limitation": "No disposable Postgres service was available; results are not fabricated."
+    }
+  },
+  "limitations": [
+    "Single machine and process; not a capacity claim.",
+    "HTTP uses loopback and includes request latency.",
+    "MCP exercises the current safe-reader contract without a transport.",
+    "Postgres is omitted without real infrastructure."
+  ]
+}

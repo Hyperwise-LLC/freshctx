@@ -1,0 +1,24 @@
+# Engineering feedback register
+
+This is a living engineering feedback register, not a committed product roadmap. Feedback creates hypotheses; tests and measurements create evidence. Compatibility values are `NONE`, `ADDITIVE`, `EXPERIMENTAL`, `SEMANTIC_CHANGE`, and `BREAKING`. Decision values are `BUILD`, `DOCUMENT`, `BENCHMARK`, `DEFER`, and `REJECT`.
+
+| Contributor | Observation/problem | Proposed improvement | Category | Priority | Evidence required | Compatibility impact | Decision | GitHub issue/PR | Status | Rationale |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Jason / SuperMcG / OpsWatch | Installation and control evidence should be independently reproducible | Clean PyPI run plus JSONL assurance cases | Assurance | High | Isolated import path/version, stale decision, JSONL, downstream effect observation | NONE | BUILD | This PR | Done | Uses current API and event schema |
+| Jason / SuperMcG / OpsWatch | Correlation across systems could be easier | Callback and correlation ID APIs | API | Medium | Concrete consumer contract and compatibility design | ADDITIVE | DEFER | — | Deferred | Not required to reproduce current evidence; no new API authorized |
+| AshtonDev | OCC analogy, partial staleness, graph scaling, and adapter latency need evidence | Document lineage; benchmark existing traversal, shared dependencies, and adapters | Performance | High | Reproducible harness, topology, distribution, limitations | NONE | BENCHMARK | This PR | Done | Measures current behavior without optimization |
+| AshtonDev | Parallel validation might reduce external latency | Async/parallel adapter architecture | Architecture | Medium | Ordering, audit, failure, and compatibility specification | SEMANTIC_CHANGE | DEFER | — | Deferred | Could alter timing, ordering, and source semantics |
+| Eva_Nomados | Payment state can change after reasoning and manual refetch is messy | Simulated payment boundary example | Example | High | Current/balance/approval/unrelated scenarios with audit evidence | NONE | BUILD | This PR | Done | Demonstrates current runtime only |
+| Eva_Nomados | Applications may want execution wrappers or helpers | New payment/workflow helpers | API | Low | Cross-domain requirements and stable contract | ADDITIVE | DEFER | — | Deferred | `Guard.run()` already demonstrates the minimal boundary |
+| Gregory Scott Henson | OCC/CAS lineage and audit strategy require precision | Document OCC analogy and audit schema stability | Documentation | High | Exact current schema and bounded claims | NONE | DOCUMENT | This PR | Done | OCC/CAS predates FreshCtx; audit is not tamper-evident |
+| Gregory Scott Henson | Strategic audit evidence may need tamper evidence | Signing or tamper-evident audit architecture | Security | Medium | Threat model, key lifecycle, verification contract | EXPERIMENTAL | REJECT | — | Out of scope | Explicitly forbidden for this hardening effort |
+| Amanda | Machine-verifiable evidence must be separated from soft context | Document evidence and truth boundaries | Documentation | High | State, adapter, and audit contract review | NONE | DOCUMENT | This PR | Done | FreshCtx checks declared evidence equivalence, not truth |
+| Amanda | Applications could make attestations | General application-attestation API | API | Low | Attestation semantics and verifier design | EXPERIMENTAL | DEFER | — | Deferred | Not necessary for freshness detection |
+| Eric | Recompute, abort, or renewed approval are recovery choices | Document recovery boundary | Documentation | High | Examples showing detection separated from response | NONE | DOCUMENT | This PR | Done | Recovery belongs to the application/orchestrator |
+| Eric | Automatic recovery could collapse detection into orchestration | Replanning or intent classification | Architecture | Low | Separate product and safety design | SEMANTIC_CHANGE | REJECT | — | Out of scope | FreshCtx does not replan or classify intent |
+| Ryan Shrott / Dictaflow | Explicit revalidation fits hard dependencies; softer context may need time-based plans | Document hard-evidence pattern; assess TTL recipe | Documentation | Medium | Existing mechanism capable of safe time validation | NONE | DOCUMENT | This PR | Partial | Hard evidence documented; no built-in time adapter exists |
+| Ryan Shrott / Dictaflow | General TTL might cover soft context | Generalized TTL/soft-context ontology | Architecture | Low | Semantics and adapter contract | SEMANTIC_CHANGE | DEFER | — | Deferred | Current mechanisms do not provide generalized TTL |
+
+## Deliberate boundaries
+
+No work item here authorizes automatic replanning, workflow orchestration, execution enforcement, payment authorization, approval engines, agent frameworks, memory systems, context portability, soft-context interpretation, intent ontologies, generalized TTL, asynchronous adapters, signing, hosted services, TypeScript SDKs, or unrelated integrations.
