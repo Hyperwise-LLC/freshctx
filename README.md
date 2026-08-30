@@ -58,6 +58,11 @@ If `config.yaml` changes before `ctx.run()`, FreshCtx marks the observation `STA
 
 [Read the API](API.md) · [Run the examples](examples) · [Understand the security model](docs/SECURITY_MODEL.md) · [See the roadmap](BACKLOG.md) · [Ask a question](https://github.com/Hyperwise-LLC/freshctx/discussions)
 
+For an independent control-versus-behavior test, run the
+[JSONL assurance experiment](docs/OPSWATCH_ASSURANCE_EXPERIMENT.md). It produces
+the normal FreshCtx audit stream and two bounded outcomes: a runner that respects
+the block and a deliberately noncompliant runner that acts after the block.
+
 ## Quickstart
 
 Prerequisites: Python 3.10–3.13 and Git. The Git executable is required by the Git adapter and its compatibility tests.
