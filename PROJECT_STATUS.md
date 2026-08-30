@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Feedback-driven v0.2 development. PyPI v0.1.1 remains the current public compatibility baseline.
+Feedback-driven v0.2 development. PyPI v0.2.0 is public; v0.2.1 corrects the synthetic benchmark's concurrency declaration before external test invitations.
 
 ## Implemented
 

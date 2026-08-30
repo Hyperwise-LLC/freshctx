@@ -14,6 +14,7 @@ from freshctx.model import AdapterResult, ObservationToken
 
 class DelayedAdapter:
     name = "benchmark-delay"
+    thread_safe = True
 
     def __init__(self, delay_ms):
         self.delay = delay_ms / 1000
