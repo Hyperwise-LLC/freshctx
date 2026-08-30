@@ -1,4 +1,25 @@
-# FreshCtx v0.1 implementation backlog
+# FreshCtx implementation backlog
+
+## Feedback-driven v0.2
+
+Completed in the current development tree:
+
+- standalone installed-package demo;
+- per-dependency and total validation timing;
+- opt-in bounded concurrent validation;
+- total validation budgets with fail-closed outcomes;
+- explicit freshness strategies including TTL and deliberately unverifiable context;
+- application-owned replan and renewed-approval responses;
+- booking, voice-agent, and performance artifacts;
+- backward-compatibility tests and enterprise boundary documentation.
+
+Still requiring external evidence before release claims:
+
+- clean PyPI installation reproduction against the v0.2 artifact;
+- payment and booking scenarios run by external developers;
+- manual pre-flight comparison reviewed by an external developer;
+- deep-versus-wide benchmark review and production-shaped measurements;
+- native async API design, if opt-in worker concurrency is insufficient.
 
 Issues are ordered for a single initial milestone. Each item should become one Git-hosting issue and reference the technical specification.
 

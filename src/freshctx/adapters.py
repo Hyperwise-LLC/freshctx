@@ -12,6 +12,7 @@ def _canonical(value: Any) -> bytes: return json.dumps(value, sort_keys=True, se
 
 class FilesystemAdapter:
     name = "filesystem"
+    thread_safe = True
     @staticmethod
     def _within(path:Path,root:Path)->bool:
         try:path.relative_to(root);return True
@@ -73,6 +74,7 @@ class FilesystemAdapter:
 
 class GitAdapter:
     name="git"
+    thread_safe=True
     @staticmethod
     def _run(repo,*args):return subprocess.run(["git","-C",str(repo),*args],check=True,capture_output=True,text=True,timeout=5).stdout.strip()
     def _snapshot(self,repo,scope,path,ref):
@@ -96,6 +98,7 @@ class GitAdapter:
 
 class HTTPAdapter:
     name="http"
+    thread_safe=True
     def __init__(self):self._runtime_headers={}
     @staticmethod
     def _safe_url(url):
@@ -126,6 +129,7 @@ class HTTPAdapter:
 
 class PostgresAdapter:
     name="postgres"
+    thread_safe=True
     def __init__(self,connect:Callable|None=None):self.connect=connect;self._dsns={};self._validation_inputs={}
     def _connector(self):
         if self.connect:return self.connect
@@ -158,6 +162,10 @@ class PostgresAdapter:
 
 class MCPAdapter:
     name="mcp"
+    # The application-supplied reader may wrap a session or transport that is
+    # not safe for concurrent calls. Keep it sequential unless an application
+    # provides a custom adapter with an explicit thread-safety guarantee.
+    thread_safe=False
     def __init__(self):self._validators={}
     def observe(self,locator,*,name,arguments=None,reader=None,safe=True,version=None):
         arguments=arguments or {};key=_sha(_canonical([locator,name,arguments]));metadata={"server":str(locator),"name":name,"arguments":redact(arguments),"arguments_sha256":_sha(_canonical(arguments)),"safe":safe,"version":version,"validator_key":key}

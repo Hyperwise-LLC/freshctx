@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Private v0.1 release candidate. Public release requires the user's explicit permission.
+Feedback-driven v0.2 development. PyPI v0.1.1 remains the current public compatibility baseline.
 
 ## Implemented
 
@@ -37,7 +37,7 @@ Private v0.1 release candidate. Public release requires the user's explicit perm
 - Dependency, secret, license, and package-content scans
 - External developer workflow using only the README
 
-Async guard support and independent third-party security review remain future hardening work; neither is part of the frozen v0.1 scope.
+The v0.2 branch adds opt-in bounded adapter concurrency without changing the synchronous guard contract. Native async contexts and independent third-party security review remain future hardening work.
 
 ## Canonical documents
 

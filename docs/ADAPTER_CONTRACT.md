@@ -2,6 +2,14 @@
 
 An adapter exposes `observe(locator, **options) -> ObservationToken` and `validate(token) -> AdapterResult`. Validation must be read-only, bounded by a timeout where external I/O is involved, deterministic for equivalent evidence, and return only `equivalent`, `changed`, or `indeterminate`.
 
+Custom adapters are treated as sequential by default, even when a guard enables multiple validation workers. An adapter may opt into parallel validation only by declaring:
+
+```python
+thread_safe = True
+```
+
+This declaration means concurrent `validate()` calls are safe across tokens, use no shared transaction or cursor, mutate no unprotected state, and remain read-only. A false declaration can corrupt evidence or external client state. The built-in Filesystem, Git, HTTP, and Postgres adapters declare thread safety for their independent validation operations. MCP remains sequential because its application-supplied reader may wrap a non-thread-safe client or transport. Registration never infers thread safety from implementation details.
+
 Adapters must not persist plaintext credentials in tokens or audit events. A missing credential, unavailable validator, timeout, permission error, malformed response, unsafe/non-idempotent MCP operation, or unsupported state returns `indeterminate`; it must not be treated as current. Adapter implementations own canonicalization and evidence-specific equivalence rules.
 
 Secrets and sensitive query inputs needed for revalidation must stay in process-local adapter state or an application-provided secret store. Persisted tokens may contain non-reversible hashes of those inputs. If runtime validation inputs cannot be recovered, validation returns `indeterminate` rather than treating the token as current.
@@ -19,6 +27,7 @@ from freshctx.model import AdapterResult
 
 class KeyValueAdapter:
     name = "key_value"
+    thread_safe = True  # Only if reader() supports concurrent read calls.
 
     def __init__(self, reader):
         self.reader = reader
@@ -55,4 +64,5 @@ An adapter is compatible when tests demonstrate:
 - observation and validation are read-only;
 - locators, metadata, evidence, and audit events contain no credentials;
 - validation completes within a documented timeout;
+- parallel validation is disabled or `thread_safe=True` is justified and tested;
 - registration works through the public `register_adapter()` API.

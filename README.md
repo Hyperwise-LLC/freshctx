@@ -65,17 +65,15 @@ the block and a deliberately noncompliant runner that acts after the block.
 
 ## Quickstart
 
-Prerequisites: Python 3.10–3.13 and Git. The Git executable is required by the Git adapter and its compatibility tests.
+Prerequisites: Python 3.10–3.13. Git is required only by the Git adapter and its compatibility tests.
 
-Install FreshCtx from PyPI and run the executable quickstart:
+Install FreshCtx from PyPI and run the standalone stale-context demo:
 
 ```console
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install freshctx
-git clone https://github.com/Hyperwise-LLC/freshctx.git
-cd freshctx
-python examples/quickstart.py
+python -m freshctx demo
 ```
 
 On Windows PowerShell, activate the environment with `.\.venv\Scripts\Activate.ps1`; in Command Prompt, use `.venv\Scripts\activate.bat`.
@@ -83,12 +81,11 @@ On Windows PowerShell, activate the environment with `.\.venv\Scripts\Activate.p
 Expected output includes:
 
 ```text
-DEPLOYED to staging
-FreshCtx state: CURRENT
-Audit events: 4
+BLOCKED: STALE_REASONING
+AUDIT EVENTS: 4
 ```
 
-The complete quickstart is deliberately small:
+The installed-package demo requires no repository clone. The complete API pattern is deliberately small:
 
 ```python
 from pathlib import Path
@@ -142,7 +139,7 @@ def deploy_node(state):
 
 ## Current implementation
 
-The frozen v0.1 contract includes `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus`. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
+The v0.2 development contract preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
 
 The first v0.1 vertical slice includes:
 
@@ -155,6 +152,17 @@ The first v0.1 vertical slice includes:
 - SQLite and in-memory stores
 - local JSONL audit events
 - Filesystem, Git, HTTP, Postgres, and MCP adapters
+
+Feedback-driven v0.2 additions are opt-in or additive:
+
+- bounded concurrent validation through `validation_workers`
+- total validation budgets that become `UNVERIFIABLE` when exceeded
+- per-adapter and total-check timing evidence
+- exact, version, fingerprint, TTL, attestation, and deliberately unverifiable evidence strategies
+- `replan` and `require_approval` responses without new freshness states
+- booking, voice-agent, and performance examples
+
+Existing code remains synchronous unless concurrency is explicitly enabled. See `docs/PERFORMANCE.md`, `docs/FEEDBACK_VALIDATION_PLAN.md`, and `docs/ENTERPRISE_BOUNDARY.md`.
 
 The following conceptual example shows where FreshCtx fits around an existing agent:
 
@@ -288,7 +296,7 @@ Install the optional dependency first:
 python -m pip install '.[postgres]'
 ```
 
-After the public package is available, the equivalent command is `python -m pip install 'freshctx[postgres]==0.1.0'`.
+For the current public package, use `python -m pip install 'freshctx[postgres]'`.
 
 ```python
 import os

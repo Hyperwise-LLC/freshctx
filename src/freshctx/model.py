@@ -22,6 +22,22 @@ class FreshnessStatus(str, Enum):
 FreshnessState = FreshnessStatus
 
 
+class PolicyResponse(str, Enum):
+    """Application-owned response to a freshness result.
+
+    These values deliberately remain separate from ``FreshnessStatus``: evidence
+    can be stale regardless of whether an application blocks, replans, or asks
+    for renewed approval.
+    """
+
+    ALLOW = "allow"
+    WARN = "warn"
+    REFRESH = "refresh"
+    BLOCK = "block"
+    REPLAN = "replan"
+    REQUIRE_APPROVAL = "require_approval"
+
+
 @dataclass(frozen=True)
 class ObservationToken:
     adapter: str

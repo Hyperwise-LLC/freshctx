@@ -1,6 +1,6 @@
 # FreshCtx Python API contract
 
-Status: frozen v0.1 release-candidate contract.
+Status: backward-compatible v0.2 contract. Existing v0.1 calls retain their behavior.
 
 ## `guard()`
 
@@ -10,6 +10,8 @@ guard(
     store: Store | None = None,
     run_id: str | None = None,
     audit_path: str | Path = ".freshctx/audit.jsonl",
+    validation_workers: int = 1,
+    validation_budget_ms: float | None = None,
 ) -> Guard
 ```
 
@@ -21,6 +23,12 @@ Supported policies:
 - `warn`: emit `RuntimeWarning` and permit exit.
 - `allow`: permit exit and retain the non-current audit result.
 - `refresh`: invoke one registered callback, recheck once, and block unless the replacement subject becomes current.
+- `replan`: block the action and return `policy_decision="replan"`.
+- `require_approval`: block the action and return `policy_decision="require_approval"`.
+
+Validation remains synchronous and ordered by default. Set `validation_workers` above one to opt into bounded concurrent validation of unique observation tokens from adapters that declare `thread_safe=True`. Custom adapters remain sequential by default.
+
+`validation_budget_ms` defines the decision-validity budget. Checks unfinished at the deadline become `UNVERIFIABLE` with `validation_budget_exceeded`. FreshCtx waits for already-started validators to reach their adapter-specific timeout before returning, discards late results, and leaves no background validation work. The budget is therefore not a hard wall-clock cancellation guarantee.
 
 `Guard.result` contains the final `CheckResult` after automatic enforcement.
 
@@ -34,7 +42,7 @@ observe(
 ) -> ObservationToken
 ```
 
-Requires an active guard. If `adapter` is omitted, v0.1 selects `filesystem`. The adapter observes the source, the token is persisted, and an audit event is emitted.
+Requires an active guard. If `adapter` is omitted, FreshCtx selects `filesystem`. The adapter observes the source, the token is persisted, and an audit event is emitted.
 
 Current adapter options:
 
@@ -43,7 +51,10 @@ observe("config.yaml")
 observe("/repo", adapter="git", scope="repository")
 observe("/repo", adapter="git", scope="path", path="config.yaml", ref="HEAD")
 observe("config.yaml", root=".", max_file_bytes=16 * 1024 * 1024)
+observe("quote.json", adapter="http", freshness_strategy="ttl", max_age_seconds=5)
 ```
+
+Every adapter accepts `freshness_strategy`. Supported values are `exact` (default), `version`, `fingerprint`, `ttl`, `attestation`, and `unverifiable`. `ttl` expires locally after a positive `max_age_seconds`; `unverifiable` deliberately prevents the observation from becoming `CURRENT`. The other values declare adapter-owned comparison semantics. FreshCtx records them but does not invent a universal version, fingerprint, or attestation authority. The adapter remains responsible for returning `equivalent`, `changed`, or `indeterminate` correctly.
 
 Unknown adapters raise the public `ConfigurationError` exception.
 
@@ -89,7 +100,7 @@ Guard.run(
 ) -> object
 ```
 
-This is the required API for protected side effects. It resolves freshness and records the allow decision before invoking `action`. Under `block` or `refresh`, a non-current result or required audit failure raises `FreshnessBlocked` and the callable is not invoked. Refresh is attempted at most once.
+This is the required API for protected side effects. It resolves freshness and records the allow decision before invoking `action`. Under `block`, `refresh`, `replan`, or `require_approval`, a non-current result or required audit failure raises `FreshnessBlocked` and the callable is not invoked. Refresh is attempted at most once.
 
 ## `Guard.check()`
 
@@ -97,7 +108,7 @@ This is the required API for protected side effects. It resolves freshness and r
 Guard.check(subject: dependency | None = None) -> CheckResult
 ```
 
-Evaluates a subject without automatically raising. If omitted, the latest protected subject is used. The caller may inspect `state`, `causes`, `adapter_results`, and `policy_decision`.
+Evaluates a subject without automatically raising. If omitted, the latest protected subject is used. The caller may inspect `state`, `causes`, `adapter_results`, and `policy_decision`. Adapter evidence includes measured `duration_ms` and the selected freshness strategy.
 
 ## `FreshnessBlocked`
 
@@ -131,4 +142,4 @@ except FreshnessBlocked as blocked:
     print(blocked.result.state.value)
 ```
 
-Asynchronous guard support is not part of v0.1.
+The context-manager API remains synchronous. Bounded parallel adapter validation is opt-in through `validation_workers`; a native async context-manager API is not part of v0.2.

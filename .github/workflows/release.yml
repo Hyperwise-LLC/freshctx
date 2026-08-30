@@ -24,7 +24,8 @@ jobs:
         run: |
           python -m venv /tmp/freshctx-release
           /tmp/freshctx-release/bin/pip install dist/*.whl
-          /tmp/freshctx-release/bin/python -c "import freshctx; print(freshctx.__all__)"
+          /tmp/freshctx-release/bin/python -m freshctx version
+          /tmp/freshctx-release/bin/python -m freshctx demo
       - uses: actions/upload-artifact@v4
         with:
           name: distributions

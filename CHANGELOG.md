@@ -2,6 +2,29 @@
 
 All notable FreshCtx changes will be documented here.
 
+## 0.2.0 - Unreleased
+
+### Added
+
+- Opt-in bounded concurrent validation with synchronous v0.1 behavior retained by default
+- Total validation budgets that fail closed as `UNVERIFIABLE`
+- Per-adapter and total-check timing evidence
+- Exact, version, fingerprint, TTL, attestation, and deliberately unverifiable evidence strategies
+- Application-owned `replan` and `require_approval` responses without adding freshness states
+- Standalone installed-package demo requiring no repository clone
+- Sequential/concurrent benchmark harness
+- Booking renewed-approval and live voice-agent examples
+- Feedback-driven compatibility and performance tests
+- Capability-gated concurrency; custom and MCP adapters remain sequential unless safety is explicit
+- Validator cleanup guarantees so no started validation survives beyond `check()`
+
+### Compatibility
+
+- Existing API calls retain their v0.1 defaults.
+- Audit events remain schema version 1; existing fields and event names are unchanged.
+- `FreshnessBlocked` remains the enforcement exception for every blocking response.
+- Validation budgets are decision-validity budgets, not unsafe hard thread cancellation.
+
 ## 0.1.1 - 2026-08-29
 
 ### Added
