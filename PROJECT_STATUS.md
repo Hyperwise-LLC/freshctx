@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-FreshCtx Core 0.3.0 completion after the public v0.2.1 release. Version 0.2.1 is available on PyPI and has been verified from a clean public installation. Version 0.3.0 adds bounded hardening and developer tooling; it is not yet published.
+FreshCtx Core 0.3.0 release candidate after the public v0.2.1 release. Version 0.2.1 is available on PyPI and has been verified from a clean public installation. Version 0.3.0 adds bounded hardening and developer tooling; its protected CI and local release gates pass, but it is not yet published to PyPI.
 
 ## Implemented
 

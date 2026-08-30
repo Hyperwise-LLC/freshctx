@@ -2,7 +2,7 @@
 
 All notable FreshCtx changes will be documented here.
 
-## 0.3.0 - Unreleased
+## 0.3.0 - 2026-08-30
 
 ### Added
 
