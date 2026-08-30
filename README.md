@@ -56,7 +56,7 @@ If `config.yaml` changes before `ctx.run()`, FreshCtx marks the observation `STA
 
 **Good first use cases:** deployment agents, coding agents, approval workflows, database-backed operations, browser agents, and MCP workflows that act on mutable resources.
 
-[Read the API](API.md) · [Run the examples](examples) · [Understand the security model](docs/SECURITY_MODEL.md) · [See the roadmap](BACKLOG.md) · [Ask a question](https://github.com/Hyperwise-LLC/freshctx/discussions)
+[Read the API](API.md) · [Use the CLI](docs/CLI.md) · [Integrate frameworks](docs/INTEGRATIONS.md) · [Understand the security model](docs/SECURITY_MODEL.md) · [See the roadmap](BACKLOG.md) · [Ask a question](https://github.com/Hyperwise-LLC/freshctx/discussions)
 
 For an independent control-versus-behavior test, run the
 [JSONL assurance experiment](docs/OPSWATCH_ASSURANCE_EXPERIMENT.md). It produces

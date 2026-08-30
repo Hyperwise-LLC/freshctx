@@ -28,3 +28,11 @@ PYTHONPATH=src python scripts/benchmark_validation.py --width 8 --workers 4 --de
 The harness reports mean, p50, p95, and adapter-call counts for sequential and concurrent checks. It compares releases and graph shapes; it is not a claim about production HTTP, Postgres, or MCP latency.
 
 Production benchmarks should vary graph depth and width, adapter mix, source availability, adapter and total timeouts, concurrency limits, and p50/p95/p99 protected-boundary latency.
+
+For a larger synthetic graph, increase `--width`; the harness raises its graph-depth safety bound only for the generated graph and reports the resulting freshness state so a timing result cannot hide an invalid evaluation:
+
+```console
+PYTHONPATH=src python scripts/benchmark_validation.py --width 128 --workers 8 --delay-ms 2 --iterations 20
+```
+
+This remains a reproducible engineering baseline, not a production latency claim. Publish real-adapter measurements with environment, source behavior, timeouts, and failure outcomes.

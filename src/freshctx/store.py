@@ -6,8 +6,11 @@ import threading
 from dataclasses import asdict
 from pathlib import Path
 
-from .errors import StorageConflictError
+from .errors import StorageConflictError, StorageCorruptionError, StorageMigrationError
 from .model import ObservationToken, ReasoningNode
+
+
+SCHEMA_VERSION = 1
 
 
 class SQLiteStore:
@@ -16,9 +19,63 @@ class SQLiteStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
         self.db = sqlite3.connect(self.path, check_same_thread=False)
-        self.db.execute("PRAGMA journal_mode=WAL")
-        self.db.execute("CREATE TABLE IF NOT EXISTS objects (id TEXT PRIMARY KEY, kind TEXT NOT NULL, payload TEXT NOT NULL)")
-        self.db.commit()
+        try:
+            self.db.execute("PRAGMA journal_mode=WAL")
+            self._verify_integrity()
+            self._migrate()
+        except (StorageCorruptionError, StorageMigrationError):
+            self.db.close()
+            raise
+        except sqlite3.DatabaseError as exc:
+            self.db.close()
+            raise StorageCorruptionError(f"invalid FreshCtx SQLite store: {self.path}") from exc
+
+    def _verify_integrity(self) -> None:
+        result = self.db.execute("PRAGMA quick_check").fetchone()
+        if result is None or result[0] != "ok":
+            raise StorageCorruptionError(f"FreshCtx SQLite integrity check failed: {result}")
+
+    def _migrate(self) -> None:
+        """Apply forward-only, transactional schema migrations."""
+        try:
+            self.db.execute("BEGIN IMMEDIATE")
+            self.db.execute(
+                "CREATE TABLE IF NOT EXISTS freshctx_schema "
+                "(singleton INTEGER PRIMARY KEY CHECK (singleton = 1), version INTEGER NOT NULL)"
+            )
+            row = self.db.execute(
+                "SELECT version FROM freshctx_schema WHERE singleton = 1"
+            ).fetchone()
+            version = 0 if row is None else int(row[0])
+            if version > SCHEMA_VERSION:
+                raise StorageMigrationError(
+                    f"store schema {version} is newer than supported schema {SCHEMA_VERSION}"
+                )
+            if version < 1:
+                self.db.execute(
+                    "CREATE TABLE IF NOT EXISTS objects "
+                    "(id TEXT PRIMARY KEY, kind TEXT NOT NULL, payload TEXT NOT NULL)"
+                )
+                self.db.execute(
+                    "INSERT OR REPLACE INTO freshctx_schema(singleton, version) VALUES (1, 1)"
+                )
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
+
+    @property
+    def schema_version(self) -> int:
+        with self._lock:
+            row = self.db.execute(
+                "SELECT version FROM freshctx_schema WHERE singleton = 1"
+            ).fetchone()
+        return int(row[0]) if row else 0
+
+    def integrity_check(self) -> bool:
+        with self._lock:
+            self._verify_integrity()
+        return True
 
     def put_observation(self, token: ObservationToken) -> None:
         self._put(token.id, "observation", asdict(token))
@@ -58,8 +115,8 @@ class SQLiteStore:
 
 
 class MemoryStore:
-    def __init__(self) -> None: self.objects: dict[str, object] = {}; self._lock = threading.RLock()
-    def _put(self, value: object) -> None:
+    def __init__(self) -> None: self.objects: dict[str, ObservationToken | ReasoningNode] = {}; self._lock = threading.RLock()
+    def _put(self, value: ObservationToken | ReasoningNode) -> None:
         with self._lock:
             existing = self.objects.get(value.id)
             if existing is not None and existing != value:

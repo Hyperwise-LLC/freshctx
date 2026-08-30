@@ -9,7 +9,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
 from jsonschema.exceptions import ValidationError
 
-from freshctx import FreshnessState, MemoryStore, guard, observe, reasoning
+from freshctx import FreshnessState, MemoryStore, ValidationReport, guard, observe, reasoning
 from freshctx.redaction import REDACTED
 
 
@@ -43,7 +43,7 @@ class SchemaConformanceTests(unittest.TestCase):
     def validate(self, schema_name, value): self.validators[schema_name].validate(value)
 
     def test_all_schema_files_have_required_identity(self):
-        self.assertEqual(len(self.schemas), 4)
+        self.assertEqual(len(self.schemas), 5)
         for schema in self.schemas.values():
             self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
             self.assertIn("$id", schema); self.assertEqual(schema["type"], "object")
@@ -70,6 +70,18 @@ class SchemaConformanceTests(unittest.TestCase):
         events = [json.loads(line) for line in self.audit.read_text(encoding="utf-8").splitlines()]
         self.assertGreaterEqual(len(events), 4)
         for event in events: self.validate("audit-event.schema.json", event)
+
+    def test_validation_report_conforms(self):
+        report = ValidationReport(
+            scenario="schema test",
+            freshctx_version="0.2.1",
+            installation="pypi",
+            environment={"python": "3.12"},
+            expected="block",
+            observed="block",
+            verdict="pass",
+        )
+        self.validate("validation-report.schema.json", report.to_dict())
 
     def test_negative_fixtures_reject_missing_wrong_and_additional_fields(self):
         token = asdict(self.token)

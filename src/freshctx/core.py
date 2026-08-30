@@ -1,18 +1,20 @@
 from __future__ import annotations
-import contextvars, hashlib, json, math, time, warnings
+import asyncio, contextvars, hashlib, inspect, json, math, time, warnings
 from concurrent.futures import ThreadPoolExecutor, wait
 from contextlib import AbstractContextManager
 from dataclasses import asdict, replace
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
 from .adapters import ADAPTERS
+from .conformance import normalize_adapter_result
 from .errors import AuditFailure, ConfigurationError, FreshCtxError
 from .model import AdapterResult, CheckResult, FreshnessState, ObservationToken, ReasoningNode, utcnow
 from .redaction import redact
 from .store import SQLiteStore
 
-_active=contextvars.ContextVar("freshctx_guard",default=None)
+_active:contextvars.ContextVar[Any]=contextvars.ContextVar("freshctx_guard",default=None)
 DIGEST_DOMAIN = "freshctx.reasoning-digest.v1"
 class FreshnessBlocked(FreshCtxError):
     def __init__(self,result):self.result=result;super().__init__(f"FreshCtx blocked {result.subject_id}: {result.state.value}")
@@ -32,6 +34,15 @@ class Guard(AbstractContextManager):
         finally:
             if self._ctx_token is not None:_active.reset(self._ctx_token)
         return False
+    async def __aenter__(self):
+        return self.__enter__()
+    async def __aexit__(self,exc_type,exc,tb):
+        try:
+            if exc_type is None and self.protected:
+                self.result=await asyncio.to_thread(self._resolve_policy,self.protected[-1],self.refresh_callback)
+        finally:
+            if self._ctx_token is not None:_active.reset(self._ctx_token)
+        return False
     def _subject(self,value,depends_on,boundary):
         ids=_normalize_dependencies(depends_on)
         if not ids:raise ConfigurationError("depends_on must not be empty")
@@ -45,6 +56,18 @@ class Guard(AbstractContextManager):
         except AuditFailure:
             failed=CheckResult(FreshnessState.UNVERIFIABLE,subject,("audit_failure",),(),"block");self.result=failed;raise FreshnessBlocked(failed)
         return action(*args,**kwargs)
+    async def check_async(self,subject=None):
+        """Run synchronous adapter validation without blocking the event loop."""
+        return await asyncio.to_thread(self.check,subject)
+    async def run_async(self,action,*args,depends_on,boundary="action",refresh=None,**kwargs):
+        """Validate, then invoke a synchronous or asynchronous protected action."""
+        subject=self._subject(None,depends_on,boundary)
+        result=await asyncio.to_thread(self._resolve_policy,subject,refresh or self.refresh_callback);self.result=result
+        try:self._audit("action_allowed",subject,{"action":getattr(action,"__name__",type(action).__name__)},required=self.policy in {"block","refresh","replan","require_approval"})
+        except AuditFailure:
+            failed=CheckResult(FreshnessState.UNVERIFIABLE,subject,("audit_failure",),(),"block");self.result=failed;raise FreshnessBlocked(failed)
+        value=action(*args,**kwargs)
+        return await value if inspect.isawaitable(value) else value
     def check(self,subject=None):
         subject_id=_id(subject) if subject is not None else self.protected[-1]
         if self._audit_failed and self.policy in {"block","refresh","replan","require_approval"}:return CheckResult(FreshnessState.UNVERIFIABLE,subject_id,("audit_failure",),(),self._blocked_decision())
@@ -79,7 +102,7 @@ class Guard(AbstractContextManager):
         adapter=ADAPTERS.get(obj.adapter)
         if adapter is None:return AdapterResult("indeterminate",error_code="adapter_missing")
         started=time.monotonic()
-        try:result=adapter.validate(obj)
+        try:result=normalize_adapter_result(adapter.validate(obj))
         except Exception as exc:result=AdapterResult("indeterminate",error_code=type(exc).__name__)
         evidence=dict(result.evidence);evidence.setdefault("duration_ms",round((time.monotonic()-started)*1000,3));evidence.setdefault("freshness_strategy",strategy);evidence.setdefault("validation_execution",execution)
         return replace(result,evidence=evidence)
@@ -120,7 +143,7 @@ class Guard(AbstractContextManager):
                 visiting.remove(object_id)
         collect(subject_id,set(),0)
         observations=[obj for obj in objects.values() if isinstance(obj,ObservationToken)]
-        parallel=[];sequential=[]
+        parallel:list[ObservationToken]=[];sequential:list[ObservationToken]=[]
         for obj in observations:
             adapter=ADAPTERS.get(obj.adapter)
             (parallel if adapter is not None and getattr(adapter,"thread_safe",False) else sequential).append(obj)
@@ -140,7 +163,7 @@ class Guard(AbstractContextManager):
                 result=AdapterResult("indeterminate",evidence={"validation_execution":"sequential","started":False},error_code="validation_budget_exceeded")
             else:result=self._validate_observation(obj,"sequential")
             leaf[obj.id]=self._observation_value(obj,result)
-        memo={}
+        memo:dict[str,tuple[FreshnessState,list[str],list[dict[str,Any]]]]={}
         def aggregate(object_id,visiting,depth):
             if object_id in memo:return memo[object_id]
             if object_id in problems:return FreshnessState.UNVERIFIABLE,[object_id,problems[object_id]],[]

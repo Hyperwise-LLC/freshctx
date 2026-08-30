@@ -40,7 +40,7 @@ class FilesystemAdapter:
         if not self._within(resolved,boundary):raise FilesystemScopeError(f"resolved path is outside root: {boundary}")
         stat=resolved.stat();total=0;count=0
         if resolved.is_dir():
-            entries=[]
+            entries:list[tuple[Any,...]]=[]
             for item in sorted(resolved.rglob("*"),key=lambda candidate:str(candidate.relative_to(resolved))):
                 count+=1
                 if count>max_entries:raise FilesystemLimitExceeded(f"directory exceeds max_entries={max_entries}")
@@ -130,7 +130,7 @@ class HTTPAdapter:
 class PostgresAdapter:
     name="postgres"
     thread_safe=True
-    def __init__(self,connect:Callable|None=None):self.connect=connect;self._dsns={};self._validation_inputs={}
+    def __init__(self,connect:Callable|None=None):self.connect=connect;self._dsns:dict[str,str]={};self._validation_inputs:dict[str,tuple[str,Any]]={}
     def _connector(self):
         if self.connect:return self.connect
         try:
@@ -179,5 +179,5 @@ class MCPAdapter:
         except Exception as exc:return AdapterResult("indeterminate",error_code=type(exc).__name__)
         return AdapterResult("equivalent" if fingerprint==token.fingerprint else "changed",evidence={"fingerprint":fingerprint,"server":token.locator,"name":token.metadata.get("name")})
 
-ADAPTERS={"filesystem":FilesystemAdapter(),"git":GitAdapter(),"http":HTTPAdapter(),"postgres":PostgresAdapter(),"mcp":MCPAdapter()}
+ADAPTERS:dict[str,Any]={"filesystem":FilesystemAdapter(),"git":GitAdapter(),"http":HTTPAdapter(),"postgres":PostgresAdapter(),"mcp":MCPAdapter()}
 def register_adapter(name,adapter):ADAPTERS[name]=adapter

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://freshctx.com/schemas/validation-report.schema.json",
+  "title": "FreshCtx bounded validation report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "scenario",
+    "freshctx_version",
+    "installation",
+    "environment",
+    "expected",
+    "observed",
+    "verdict",
+    "limitations",
+    "evidence",
+    "created_at"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "scenario": {"type": "string", "minLength": 1},
+    "freshctx_version": {"type": "string", "minLength": 1},
+    "installation": {"enum": ["pypi", "wheel", "source", "reproduction"]},
+    "environment": {"type": "object"},
+    "expected": {"type": "string", "minLength": 1},
+    "observed": {"type": "string", "minLength": 1},
+    "verdict": {"enum": ["pass", "fail", "inconclusive"]},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "evidence": {"type": "array", "items": {"type": "string"}},
+    "validator": {"type": ["string", "null"]},
+    "created_at": {"type": "string", "format": "date-time"}
+  }
+}
