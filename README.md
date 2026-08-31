@@ -137,6 +137,33 @@ def deploy_node(state):
     return {"deployed": True}
 ```
 
+### Agno
+
+The optional Agno integration is available on `main` and is planned for the next package release. From a source checkout, install the integration and run the model-free tool-hook scenario:
+
+```console
+python -m pip install -e '.[agno]'
+python examples/agno_stale_tool.py
+```
+
+The example uses Agno's real tool execution chain. A deployment source changes after the decision is made, and the FreshCtx hook blocks the tool before its body runs. Attach the hook only to tools whose declared dependencies it protects:
+
+```python
+from freshctx.integrations.agno import agno_tool_hook
+
+freshness_hook = agno_tool_hook(
+    depends_on=[decision],
+    store=store,
+    audit_path="freshctx-agno-audit.jsonl",
+)
+
+@tool(tool_hooks=[freshness_hook])
+def deploy(target: str) -> str:
+    return f"deployed:{target}"
+```
+
+FreshCtx does not replace Agno's internal run-state, concurrency, transaction, or idempotency controls. This hook protects the external evidence explicitly declared by the application at the tool boundary.
+
 ## Current implementation
 
 The v0.4 contract preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.

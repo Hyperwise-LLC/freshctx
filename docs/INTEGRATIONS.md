@@ -4,6 +4,22 @@
 
 Place `Guard.run()` or `await Guard.run_async()` in the action node immediately before the external write. Keep observation and reasoning IDs in graph state. See `examples/langgraph_stale_config.py`.
 
+## Agno
+
+Use `agno_tool_hook()` for synchronous Agno tools and `agno_async_tool_hook()` for asynchronous tools. Each hook wraps Agno's actual tool continuation with a FreshCtx protected-action boundary. Attach a hook to the specific tool whose declared dependencies it protects, or use it at agent level only when the same dependency set genuinely applies to every tool.
+
+```python
+from freshctx.integrations.agno import agno_tool_hook
+
+hook = agno_tool_hook(depends_on=[decision], store=store)
+
+@tool(tool_hooks=[hook])
+def write_record(record_id: str) -> str:
+    return record_id
+```
+
+The application must preserve the FreshCtx store and dependency identifiers from observation through tool execution. A stale or unverifiable dependency blocks before Agno invokes the tool body under the default policy. FreshCtx does not repair Agno's internal lifecycle state, prevent concurrent invocation by itself, or replace transactions and idempotency. See `examples/agno_stale_tool.py` for a model-free test using Agno's real tool execution chain.
+
 ## MCP
 
 Use only resources or tools that are safe, read-only validators. Non-idempotent MCP operations are deliberately `UNVERIFIABLE`. Recreate readers after a process restart. Do not label an operation thread-safe unless its client and transport support concurrent calls.

@@ -45,8 +45,10 @@ freshctx = "freshctx.__main__:main"
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.1,<4"]
 langgraph = ["langgraph>=1,<2"]
-test = ["jsonschema>=4.23,<5", "langgraph>=1,<2", "rfc3339-validator>=0.1.4,<1"]
+agno = ["agno>=2.9,<3"]
+test = ["agno>=2.9,<3", "jsonschema>=4.23,<5", "langgraph>=1,<2", "rfc3339-validator>=0.1.4,<1"]
 dev = [
+  "agno>=2.9,<3",
   "build>=1,<2",
   "jsonschema>=4.23,<5",
   "langgraph>=1,<2",

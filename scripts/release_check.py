@@ -29,6 +29,7 @@ REQUIRED = [
     "docs/assets/freshctx-social-preview.png", "examples/quickstart.py",
     "examples/async_protected_action.py",
     "examples/langgraph_stale_config.py", "tests/test_langgraph_integration.py",
+    "examples/agno_stale_tool.py", "tests/test_agno_integration.py",
     "examples/stripe_subscription_drift.py", "tests/test_stripe_subscription_adapter.py",
     "examples/document_source_drift.py", "tests/test_document_source_drift.py",
     "examples/live_document_source_validation.py", "tests/test_live_document_source_validation.py",

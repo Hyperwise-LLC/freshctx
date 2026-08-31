@@ -15,6 +15,7 @@ This plan converts public developer feedback into bounded, reproducible evidence
 | Stripe webhook drift | Compare cached webhook state with the authoritative Subscription before action | `examples/stripe_subscription_drift.py`; external review pending |
 | Deployment ownership drift | Revalidate job ownership and the smallest blocking dependency set without turning pre-flight into another orchestrator | Bounded external scenario pending |
 | Research-brief source drift | Map claims to named sources and flag only claims whose source changed, without interpreting the revised source | Controlled boundary accepted by the external researcher; `examples/document_source_drift.py` and `examples/live_document_source_validation.py`; independent live rerun pending |
+| Agno external dependency drift | Revalidate declared external evidence in Agno's tool-hook chain before the tool body runs | `examples/agno_stale_tool.py` and `tests/test_agno_integration.py`; Agno maintainer review pending |
 
 ## Evidence ladder
 
