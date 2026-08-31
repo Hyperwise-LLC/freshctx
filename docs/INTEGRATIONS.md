@@ -24,6 +24,24 @@ Validate speech understanding separately from source freshness. Convert the spok
 
 Represent each named source as an observation and each claim or section as reasoning that declares only the sources it uses. A changed source invalidates dependent claims without automatically invalidating unrelated claims. FreshCtx establishes that the source moved or could not be verified; it does not decide whether revised material still supports the claim. See `examples/document_source_drift.py` for a controlled three-source example.
 
+For the bounded live-source pattern, treat a registration wall, HTTP 401/403, timeout, or inaccessible source as `UNVERIFIABLE`; never hash a wall page as if it were article content. Keep optional authentication headers process-local. For DOI-backed academic claims, prefer selected Crossref metadata, including formal update, correction, and retraction relationships, over rendered publisher HTML. This avoids false invalidation from publisher layout changes. See `examples/live_document_source_validation.py`; its network access is opt-in and is not part of CI.
+
+Run the public three-source check with:
+
+```bash
+python examples/live_document_source_validation.py --output live-document-result.json
+```
+
+If the C&EN article requires an authenticated session, place the complete Cookie header in an environment variable and name that variable without putting its value on the command line:
+
+```bash
+python examples/live_document_source_validation.py \
+  --cen-cookie-env CEN_SESSION_COOKIE \
+  --output live-document-result.json
+```
+
+The runner never writes the cookie value to a token, audit event, or result. A wall or inaccessible source remains `UNVERIFIABLE`. The bounded pass condition is that the claim states identify the same affected claim set as the researcher's same-day manual re-check; FreshCtx does not evaluate the research conclusion.
+
 ## Async services
 
 Use `async with guard(...)` and `await ctx.run_async(...)`. FreshCtx moves synchronous adapter validation off the event-loop thread; adapter-specific timeouts and the total validation budget still apply.

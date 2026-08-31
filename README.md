@@ -340,7 +340,7 @@ The adapter performs read-only `GET /v1/subscriptions/{id}` validation. API keys
 
 ### Research-document sources
 
-A document workflow can model each named source as an observation and each claim as reasoning that declares only the sources it uses. When one source changes, FreshCtx can flag the dependent claims while unrelated claims remain current. FreshCtx does not interpret whether revised material still supports a claim. See `examples/document_source_drift.py` for a controlled three-source pattern based on public developer feedback.
+A document workflow can model each named source as an observation and each claim as reasoning that declares only the sources it uses. When one source changes, FreshCtx can flag the dependent claims while unrelated claims remain current. `examples/document_source_drift.py` demonstrates the controlled mapping. `examples/live_document_source_validation.py` adds an opt-in live pattern: walled or inaccessible articles become `UNVERIFIABLE`, optional access headers remain process-local, and DOI records use selected Crossref metadata instead of publisher HTML. Both examples flag source movement without interpreting whether revised material still supports a claim. The live runner is an integration pattern above FreshCtx Core, not a managed research or truth-verification service.
 
 ### MCP
 

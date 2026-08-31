@@ -7,6 +7,7 @@ All notable FreshCtx changes will be documented here.
 ### Added
 
 - Controlled research-document example showing claim-level invalidation when one declared source changes, without interpreting the revised source
+- Opt-in live research-source runner with registration-wall fail-closed handling, process-local access headers, Crossref metadata fingerprints, and selective-invalidation tests
 
 ## 0.4.0 - 2026-08-30
 
