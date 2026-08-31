@@ -8,6 +8,7 @@ All notable FreshCtx changes will be documented here.
 
 - Controlled research-document example showing claim-level invalidation when one declared source changes, without interpreting the revised source
 - Opt-in live research-source runner with registration-wall fail-closed handling, process-local access headers, Crossref metadata fingerprints, and selective-invalidation tests
+- Optional Agno 2.9 tool-hook integration with synchronous and asynchronous protected-action boundaries and a model-free stale-deployment example
 
 ## 0.4.0 - 2026-08-30
 
