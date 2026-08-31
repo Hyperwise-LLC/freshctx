@@ -12,6 +12,8 @@ This plan converts public developer feedback into bounded, reproducible evidence
 | Soft contextual evidence | Distinguish checkable, TTL, attested, and unverifiable context | Evidence strategies and tests |
 | Live voice conversation | Keep semantic output validation separate from source freshness | `examples/voice_agent_live_record.py` |
 | Multi-step booking agent | Propagate source staleness through later reasoning | `examples/stale_booking_approval.py` and external review pending |
+| Stripe webhook drift | Compare cached webhook state with the authoritative Subscription before action | `examples/stripe_subscription_drift.py`; external review pending |
+| Deployment ownership drift | Revalidate job ownership and the smallest blocking dependency set without turning pre-flight into another orchestrator | Bounded external scenario pending |
 
 ## Evidence ladder
 

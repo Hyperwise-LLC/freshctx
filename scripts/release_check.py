@@ -14,6 +14,7 @@ SECRET_PATTERNS = {
     "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     "PyPI token": re.compile(r"pypi-[A-Za-z0-9_-]{40,}"),
     "GitHub token": re.compile(r"gh[oprsu]_[A-Za-z0-9]{30,}"),
+    "Stripe secret key": re.compile(r"sk_(?:live|test)_[A-Za-z0-9]{16,}"),
 }
 REQUIRED = [
     "LICENSE", "NOTICE", "README.md", "SECURITY.md", "CONTRIBUTING.md",
@@ -28,6 +29,7 @@ REQUIRED = [
     "docs/assets/freshctx-social-preview.png", "examples/quickstart.py",
     "examples/async_protected_action.py",
     "examples/langgraph_stale_config.py", "tests/test_langgraph_integration.py",
+    "examples/stripe_subscription_drift.py", "tests/test_stripe_subscription_adapter.py",
     "examples/real_world_success_cases.py", "tests/test_success_cases.py",
     "scripts/banking_postgres_success_case.py",
     "pyproject.toml", ".github/workflows/ci.yml", ".github/workflows/release.yml",

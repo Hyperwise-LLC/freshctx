@@ -53,6 +53,7 @@ jobs:
           python examples/stale_booking_approval.py
           python examples/voice_agent_live_record.py
           python examples/manual_preflight_comparison.py
+          python examples/stripe_subscription_drift.py
 
   package:
     runs-on: ubuntu-latest

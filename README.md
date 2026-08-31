@@ -139,7 +139,7 @@ def deploy_node(state):
 
 ## Current implementation
 
-The v0.2 development contract preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
+The v0.4 contract preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
 
 The first v0.1 vertical slice includes:
 
@@ -151,9 +151,9 @@ The first v0.1 vertical slice includes:
 - default blocking policy plus `warn` and `allow`
 - SQLite and in-memory stores
 - local JSONL audit events
-- Filesystem, Git, HTTP, Postgres, and MCP adapters
+- Filesystem, Git, HTTP, Postgres, Stripe Subscription, and MCP adapters
 
-Feedback-driven v0.2 additions are opt-in or additive:
+Feedback-driven additions remain opt-in or additive:
 
 - bounded concurrent validation through `validation_workers`
 - total validation budgets that become `UNVERIFIABLE` when exceeded
@@ -317,6 +317,27 @@ Postgres validation is read-only. DSNs, raw query text, and parameters are not p
 
 Postgres is an optional observed-source adapter, not a FreshCtx storage backend. Revalidation state such as credentials remains process-local; after restart, the application must reconstruct the configured adapter state or checks safely return `UNVERIFIABLE`.
 
+### Stripe Subscription
+
+Use the authoritative Stripe Subscription as a selected-field dependency instead of treating a webhook snapshot as current forever:
+
+```python
+import os
+
+with guard(policy="block") as ctx:
+    token = observe(
+        "sub_123",
+        adapter="stripe_subscription",
+        api_key=os.environ["STRIPE_SECRET_KEY"],
+        fields=("status", "customer", "cancel_at_period_end"),
+        include_items=True,
+        timeout=2.0,
+    )
+    print(ctx.check(token).state.value)
+```
+
+The adapter performs read-only `GET /v1/subscriptions/{id}` validation. API keys remain in process memory and are not written to observation tokens or audit events. Tokens contain selected field names and non-reversible fingerprints, not raw Stripe field values. A timeout, rate limit, authentication failure, malformed response, or missing runtime credential becomes `UNVERIFIABLE`; a missing previously observed Subscription is treated as changed. FreshCtx does not reconcile webhook delivery, perform payment retries, or provide idempotency. See `examples/stripe_subscription_drift.py` for a bounded no-network simulation.
+
 ### MCP
 
 Pass a safe, read-only callable from the application's MCP client:
@@ -341,7 +362,7 @@ with guard(policy="allow") as ctx:
 
 Unsafe or non-idempotent MCP operations are `UNVERIFIABLE`; do not use them as validation readers. See `docs/ADAPTER_CONTRACT.md` for the complete extension contract.
 
-FreshCtx does not provide an MCP transport or client. The application supplies and reconstructs the safe-reader callback after process restart. External network calls occur only when the application explicitly selects an external adapter such as HTTP, Postgres, or MCP.
+FreshCtx does not provide an MCP transport or client. The application supplies and reconstructs the safe-reader callback after process restart. External network calls occur only when the application explicitly selects an external adapter such as HTTP, Postgres, Stripe Subscription, or MCP.
 
 ## Project, support, and commercial inquiries
 
@@ -350,7 +371,7 @@ FreshCtx does not provide an MCP transport or client. The application supplies a
 - Hyperwise LLC corporate site: <https://hyperwise.io>
 - Community support: see [`SUPPORT.md`](SUPPORT.md)
 
-Community includes the complete v0.1 runtime, five adapters, schemas, examples, and compatibility tests for local developer use. Using FreshCtx in a consequential or regulated workflow? Hyperwise LLC is working with design partners on organizational freshness controls, managed integrations, evidence, and deployment support. Contact `freshctx@hyperwise.io`. This does not announce a hosted service, control plane, enterprise edition, or SLA.
+Community includes the complete Core runtime, six adapters, schemas, examples, and compatibility tests for local developer use. Using FreshCtx in a consequential or regulated workflow? Hyperwise LLC is working with design partners on organizational freshness controls, managed integrations, evidence, and deployment support. Contact `freshctx@hyperwise.io`. This does not announce a hosted service, control plane, enterprise edition, or SLA.
 
 ## Developer documentation
 

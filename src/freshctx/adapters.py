@@ -2,7 +2,7 @@ from __future__ import annotations
 import hashlib, json, os, subprocess, time, urllib.error, urllib.request
 from pathlib import Path
 from typing import Any, Callable
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import quote, urlsplit, urlunsplit
 from .errors import FilesystemLimitExceeded, FilesystemScopeError
 from .model import AdapterResult, ObservationToken
 from .redaction import redact
@@ -160,6 +160,68 @@ class PostgresAdapter:
         except Exception as exc:return AdapterResult("indeterminate",error_code=type(exc).__name__)
         return AdapterResult("equivalent" if fingerprint==token.fingerprint else "changed",evidence={"fingerprint":fingerprint,**evidence})
 
+class StripeSubscriptionAdapter:
+    """Read-only Stripe Subscription freshness adapter.
+
+    API keys and injected transports remain process-local. Tokens contain only
+    the subscription ID, selected field names, and non-reversible fingerprints.
+    """
+
+    name="stripe_subscription"
+    # An application-provided transport may wrap a client that is not safe for
+    # concurrent calls. Keep the built-in adapter sequential by default.
+    thread_safe=False
+    api_base="https://api.stripe.com/v1"
+    default_fields=("status","customer","cancel_at_period_end")
+
+    def __init__(self):self._runtime={}
+    @staticmethod
+    def _field_hashes(snapshot):return {key:_sha(_canonical(value)) for key,value in snapshot.items()}
+    @staticmethod
+    def _snapshot(payload,subscription_id,fields,include_items):
+        if not isinstance(payload,dict) or payload.get("object")!="subscription" or payload.get("id")!=subscription_id:raise ValueError("invalid Stripe Subscription response")
+        snapshot={field:payload.get(field) for field in fields}
+        if include_items:
+            items=payload.get("items",{});data=items.get("data") if isinstance(items,dict) else None
+            if not isinstance(data,list):raise ValueError("invalid Stripe Subscription items")
+            normalized=[]
+            for item in data:
+                if not isinstance(item,dict):raise ValueError("invalid Stripe Subscription item")
+                price=item.get("price");price_id=price.get("id") if isinstance(price,dict) else price
+                normalized.append({"id":item.get("id"),"price":price_id,"quantity":item.get("quantity")})
+            snapshot["items"]=sorted(normalized,key=lambda value:str(value.get("id")))
+        return snapshot
+    def _retrieve(self,subscription_id,api_key,api_version,timeout):
+        headers={"Authorization":f"Bearer {api_key}","Accept":"application/json","User-Agent":"freshctx-stripe-subscription/1"}
+        if api_version:headers["Stripe-Version"]=api_version
+        request=urllib.request.Request(f"{self.api_base}/subscriptions/{quote(subscription_id,safe='')}",headers=headers,method="GET")
+        with urllib.request.urlopen(request,timeout=timeout) as response:return json.loads(response.read().decode("utf-8"))
+    def observe(self,locator,*,api_key,fields=None,include_items=False,api_version=None,timeout=5.0,transport=None):
+        subscription_id=str(locator);fields=tuple(fields or self.default_fields);timeout=float(timeout)
+        if not subscription_id.startswith("sub_"):raise ValueError("Stripe subscription ID must start with sub_")
+        if not api_key or timeout<=0 or not fields or any(not isinstance(field,str) or not field for field in fields):raise ValueError("Stripe api_key, positive timeout, and fields are required")
+        reader=transport or self._retrieve
+        payload=reader(subscription_id,str(api_key),api_version,timeout)
+        snapshot=self._snapshot(payload,subscription_id,fields,bool(include_items));field_hashes=self._field_hashes(snapshot)
+        metadata={"fields":list(fields),"include_items":bool(include_items),"api_version":api_version,"timeout":timeout,"field_hashes":field_hashes}
+        token=ObservationToken(self.name,subscription_id,_sha(_canonical(snapshot)),metadata=metadata)
+        self._runtime[token.id]=(str(api_key),reader)
+        return token
+    def validate(self,token):
+        runtime=self._runtime.get(token.id)
+        if runtime is None:return AdapterResult("indeterminate",error_code="validation_inputs_unavailable")
+        api_key,reader=runtime;fields=tuple(token.metadata.get("fields",self.default_fields));include_items=bool(token.metadata.get("include_items",False));timeout=float(token.metadata.get("timeout",5));api_version=token.metadata.get("api_version")
+        try:
+            payload=reader(token.locator,api_key,api_version,timeout)
+            snapshot=self._snapshot(payload,token.locator,fields,include_items)
+        except urllib.error.HTTPError as exc:
+            if exc.code==404:return AdapterResult("changed",evidence={"reason":"subscription_missing","status":404,"subscription":token.locator})
+            return AdapterResult("indeterminate",evidence={"status":exc.code,"subscription":token.locator},error_code=f"stripe_http_{exc.code}")
+        except (TimeoutError,urllib.error.URLError,OSError,ValueError,TypeError,json.JSONDecodeError) as exc:
+            return AdapterResult("indeterminate",evidence={"subscription":token.locator},error_code="stripe_timeout" if isinstance(exc,TimeoutError) else type(exc).__name__)
+        fingerprint=_sha(_canonical(snapshot));current_hashes=self._field_hashes(snapshot);previous=dict(token.metadata.get("field_hashes",{}));changed=sorted(key for key,value in current_hashes.items() if previous.get(key)!=value)
+        return AdapterResult("equivalent" if fingerprint==token.fingerprint else "changed",evidence={"fingerprint":fingerprint,"changed_fields":changed,"subscription":token.locator})
+
 class MCPAdapter:
     name="mcp"
     # The application-supplied reader may wrap a session or transport that is
@@ -179,5 +241,5 @@ class MCPAdapter:
         except Exception as exc:return AdapterResult("indeterminate",error_code=type(exc).__name__)
         return AdapterResult("equivalent" if fingerprint==token.fingerprint else "changed",evidence={"fingerprint":fingerprint,"server":token.locator,"name":token.metadata.get("name")})
 
-ADAPTERS:dict[str,Any]={"filesystem":FilesystemAdapter(),"git":GitAdapter(),"http":HTTPAdapter(),"postgres":PostgresAdapter(),"mcp":MCPAdapter()}
+ADAPTERS:dict[str,Any]={"filesystem":FilesystemAdapter(),"git":GitAdapter(),"http":HTTPAdapter(),"postgres":PostgresAdapter(),"stripe_subscription":StripeSubscriptionAdapter(),"mcp":MCPAdapter()}
 def register_adapter(name,adapter):ADAPTERS[name]=adapter
