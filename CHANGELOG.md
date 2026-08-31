@@ -2,6 +2,12 @@
 
 All notable FreshCtx changes will be documented here.
 
+## Unreleased
+
+### Added
+
+- Controlled research-document example showing claim-level invalidation when one declared source changes, without interpreting the revised source
+
 ## 0.4.0 - 2026-08-30
 
 ### Added

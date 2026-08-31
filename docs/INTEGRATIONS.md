@@ -20,6 +20,10 @@ Treat webhook state as notification input, not permanent proof that a Subscripti
 
 Validate speech understanding separately from source freshness. Convert the spoken request into a canonical business record, declare the live records used by the decision, and revalidate those records immediately before booking, payment, or account mutation. See `examples/voice_agent_live_record.py`.
 
+## Research documents
+
+Represent each named source as an observation and each claim or section as reasoning that declares only the sources it uses. A changed source invalidates dependent claims without automatically invalidating unrelated claims. FreshCtx establishes that the source moved or could not be verified; it does not decide whether revised material still supports the claim. See `examples/document_source_drift.py` for a controlled three-source example.
+
 ## Async services
 
 Use `async with guard(...)` and `await ctx.run_async(...)`. FreshCtx moves synchronous adapter validation off the event-loop thread; adapter-specific timeouts and the total validation budget still apply.

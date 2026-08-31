@@ -30,6 +30,7 @@ REQUIRED = [
     "examples/async_protected_action.py",
     "examples/langgraph_stale_config.py", "tests/test_langgraph_integration.py",
     "examples/stripe_subscription_drift.py", "tests/test_stripe_subscription_adapter.py",
+    "examples/document_source_drift.py", "tests/test_document_source_drift.py",
     "examples/real_world_success_cases.py", "tests/test_success_cases.py",
     "scripts/banking_postgres_success_case.py",
     "pyproject.toml", ".github/workflows/ci.yml", ".github/workflows/release.yml",

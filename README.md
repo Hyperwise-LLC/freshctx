@@ -338,6 +338,10 @@ with guard(policy="block") as ctx:
 
 The adapter performs read-only `GET /v1/subscriptions/{id}` validation. API keys remain in process memory and are not written to observation tokens or audit events. Tokens contain selected field names and non-reversible fingerprints, not raw Stripe field values. A timeout, rate limit, authentication failure, malformed response, or missing runtime credential becomes `UNVERIFIABLE`; a missing previously observed Subscription is treated as changed. FreshCtx does not reconcile webhook delivery, perform payment retries, or provide idempotency. See `examples/stripe_subscription_drift.py` for a bounded no-network simulation.
 
+### Research-document sources
+
+A document workflow can model each named source as an observation and each claim as reasoning that declares only the sources it uses. When one source changes, FreshCtx can flag the dependent claims while unrelated claims remain current. FreshCtx does not interpret whether revised material still supports a claim. See `examples/document_source_drift.py` for a controlled three-source pattern based on public developer feedback.
+
 ### MCP
 
 Pass a safe, read-only callable from the application's MCP client:
