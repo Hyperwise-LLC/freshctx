@@ -14,6 +14,7 @@ This plan converts public developer feedback into bounded, reproducible evidence
 | Multi-step booking agent | Propagate source staleness through later reasoning | `examples/stale_booking_approval.py` and external review pending |
 | Stripe webhook drift | Compare cached webhook state with the authoritative Subscription before action | `examples/stripe_subscription_drift.py`; external review pending |
 | Deployment ownership drift | Revalidate job ownership and the smallest blocking dependency set without turning pre-flight into another orchestrator | Bounded external scenario pending |
+| Research-brief source drift | Map claims to named sources and flag only claims whose source changed, without interpreting the revised source | `examples/document_source_drift.py`; external review pending |
 
 ## Evidence ladder
 
