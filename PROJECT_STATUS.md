@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-FreshCtx Core 0.3.0 is public on PyPI. Its protected CI, package gates, and a clean installation from the public PyPI index pass. Version 0.3.0 adds bounded hardening and developer tooling while retaining the v0.1 synchronous compatibility defaults.
+FreshCtx Core 0.4.0 adds a read-only Stripe Subscription adapter and bounded stale-webhook scenario while retaining the v0.1 synchronous compatibility defaults. Local release gates and clean wheel installation pass; public PyPI verification remains pending until the protected 0.4.0 release completes.
 
 ## Implemented
 
@@ -23,6 +23,7 @@ FreshCtx Core 0.3.0 is public on PyPI. Its protected CI, package gates, and a cl
 - Bounded refresh callback behavior
 - Concurrent guard isolation tests
 - Postgres canonical query-result adapter contract
+- Read-only Stripe Subscription selected-field adapter with process-local credentials
 - MCP safe-reader and non-idempotent operation contract
 - Packaging and tag-triggered release automation
 - Public releases use protected pull requests, passing CI, and a separate explicitly authorized PyPI publication step

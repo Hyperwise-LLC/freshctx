@@ -1,6 +1,6 @@
 # FreshCtx Python API contract
 
-Status: backward-compatible v0.2 contract. Existing v0.1 calls retain their behavior.
+Status: backward-compatible v0.4 contract. Existing v0.1 calls retain their behavior.
 
 ## `guard()`
 
@@ -52,7 +52,10 @@ observe("/repo", adapter="git", scope="repository")
 observe("/repo", adapter="git", scope="path", path="config.yaml", ref="HEAD")
 observe("config.yaml", root=".", max_file_bytes=16 * 1024 * 1024)
 observe("quote.json", adapter="http", freshness_strategy="ttl", max_age_seconds=5)
+observe("sub_123", adapter="stripe_subscription", api_key="...", fields=("status",), timeout=2.0)
 ```
+
+The Stripe Subscription adapter accepts `api_key`, `fields`, `include_items`, `api_version`, and a positive `timeout`. Credentials and the transport remain process-local. Persisted tokens contain the Subscription ID, configuration, and fingerprints but not the API key or raw selected values. Reconstruct the observation after restart; otherwise validation safely returns `UNVERIFIABLE`.
 
 Every adapter accepts `freshness_strategy`. Supported values are `exact` (default), `version`, `fingerprint`, `ttl`, `attestation`, and `unverifiable`. `ttl` expires locally after a positive `max_age_seconds`; `unverifiable` deliberately prevents the observation from becoming `CURRENT`. The other values declare adapter-owned comparison semantics. FreshCtx records them but does not invent a universal version, fingerprint, or attestation authority. The adapter remains responsible for returning `equivalent`, `changed`, or `indeterminate` correctly.
 

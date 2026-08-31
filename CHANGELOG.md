@@ -2,6 +2,18 @@
 
 All notable FreshCtx changes will be documented here.
 
+## 0.4.0 - 2026-08-30
+
+### Added
+
+- Read-only Stripe Subscription adapter with selected-field fingerprints, process-local credentials, bounded HTTP validation, and fail-closed error handling
+- Bounded stale-webhook versus authoritative-subscription example and adapter regression coverage
+
+### Compatibility
+
+- Stripe validation is additive and runs only when `adapter="stripe_subscription"` is explicitly selected.
+- Existing adapters, synchronous defaults, policies, stores, schemas, and audit events are unchanged.
+
 ## 0.3.0 - 2026-08-30
 
 ### Added
