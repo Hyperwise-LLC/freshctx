@@ -375,6 +375,8 @@ FreshCtx does not provide an MCP transport or client. The application supplies a
 - Hyperwise LLC corporate site: <https://hyperwise.io>
 - Community support: see [`SUPPORT.md`](SUPPORT.md)
 
+If FreshCtx is useful in your work, consider starring the repository so other developers can find it.
+
 Community includes the complete Core runtime, six adapters, schemas, examples, and compatibility tests for local developer use. Using FreshCtx in a consequential or regulated workflow? Hyperwise LLC is working with design partners on organizational freshness controls, managed integrations, evidence, and deployment support. Contact `freshctx@hyperwise.io`. This does not announce a hosted service, control plane, enterprise edition, or SLA.
 
 ## Developer documentation
