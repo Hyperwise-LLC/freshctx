@@ -4,11 +4,19 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.5.0 - 2026-08-31
+
 ### Added
 
 - Controlled research-document example showing claim-level invalidation when one declared source changes, without interpreting the revised source
 - Opt-in live research-source runner with registration-wall fail-closed handling, process-local access headers, Crossref metadata fingerprints, and selective-invalidation tests
 - Optional Agno 2.9 tool-hook integration with synchronous and asynchronous protected-action boundaries and a model-free stale-deployment example
+
+### Compatibility
+
+- Agno remains an optional dependency and is installed only through the `agno` extra.
+- Existing FreshCtx runtime APIs, adapters, stores, schemas, policies, and synchronous defaults are unchanged.
+- The Agno hook protects application-declared external evidence; it does not replace Agno lifecycle, transaction, concurrency, or idempotency controls.
 
 ## 0.4.0 - 2026-08-30
 

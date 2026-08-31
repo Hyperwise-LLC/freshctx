@@ -139,10 +139,10 @@ def deploy_node(state):
 
 ### Agno
 
-The optional Agno integration is available on `main` and is planned for the next package release. From a source checkout, install the integration and run the model-free tool-hook scenario:
+The optional Agno integration is available in FreshCtx 0.5.0. Install the integration and run the model-free tool-hook scenario:
 
 ```console
-python -m pip install -e '.[agno]'
+python -m pip install 'freshctx[agno]==0.5.0'
 python examples/agno_stale_tool.py
 ```
 
@@ -166,7 +166,7 @@ FreshCtx does not replace Agno's internal run-state, concurrency, transaction, o
 
 ## Current implementation
 
-The v0.4 contract preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
+The v0.5 contract preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
 
 The first v0.1 vertical slice includes:
 
