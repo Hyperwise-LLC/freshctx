@@ -63,6 +63,12 @@ For an independent control-versus-behavior test, run the
 the normal FreshCtx audit stream and two bounded outcomes: a runner that respects
 the block and a deliberately noncompliant runner that acts after the block.
 
+The [independent research-brief r3 record](docs/INDEPENDENT_RESEARCH_BRIEF_R3.md)
+documents a separate bounded result: an unsupported claim remained excluded
+until a named primary-source receipt was supplied, then re-entered the declared
+dependency map on a four-source rerun. Its `CURRENT` results mean only that the
+selected source fingerprints were unchanged.
+
 ## Quickstart
 
 Prerequisites: Python 3.10–3.13. Git is required only by the Git adapter and its compatibility tests.
