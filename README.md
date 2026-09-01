@@ -203,9 +203,38 @@ async def deploy(target: str) -> str:
 
 Stale or unverifiable evidence triggers the SDK's native input-tool tripwire before the function-tool body starts. The FreshCtx result remains available as structured guardrail output. Tool arguments are not stored in FreshCtx integration metadata. This mapping applies to custom function tools; hosted tools, built-in execution tools, handoffs, and `Agent.as_tool()` are outside the SDK's tool-guardrail surface.
 
+### Google Agent Development Kit
+
+FreshCtx 0.8.0 maps the same pre-action contract to Google ADK's native `before_tool_callback` boundary:
+
+```console
+python -m pip install 'freshctx[google-adk]==0.8.0'
+python examples/google_adk_stale_tool.py
+```
+
+```python
+from freshctx.integrations.google_adk import google_adk_tool_callback
+
+freshness = google_adk_tool_callback(
+    depends_on=[decision],
+    store=store,
+    tool_names=["deploy"],
+    audit_path="freshctx-google-adk-audit.jsonl",
+)
+
+agent = Agent(
+    name="deployment_agent",
+    model=model,
+    tools=[deploy],
+    before_tool_callback=freshness,
+)
+```
+
+When evidence is current, the callback returns `None` and ADK runs the tool normally. When evidence is stale or unverifiable under the blocking policy, the callback returns a structured blocked response and ADK skips the tool body. The mapping supports synchronous and asynchronous function tools, correlates ADK's function-call ID, and does not copy tool arguments into FreshCtx metadata. Attach it only to named tools, or at agent level only when the same dependency set genuinely applies to every tool. Built-in tools that do not pass through the agent's before-tool callback are outside this boundary.
+
 ## Current implementation
 
-The v0.7 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
+The v0.8 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
 
 The first v0.1 vertical slice includes:
 
