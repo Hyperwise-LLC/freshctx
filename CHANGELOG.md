@@ -4,6 +4,17 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.5.1 - 2026-08-31
+
+### Fixed
+
+- Live article validation now falls back from thin JSON-LD to normalized semantic article text, so body-only edits are detected without treating navigation changes as source movement.
+- Live research results now state explicitly that `CURRENT` means an unchanged fingerprint, not proof that a claim is supported by the declared source.
+
+### Compatibility
+
+- The correction is limited to the opt-in live research-source example and its documentation. FreshCtx Core, adapters, policies, stores, schemas, and public integration APIs remain unchanged.
+
 ## 0.5.0 - 2026-08-31
 
 ### Added
