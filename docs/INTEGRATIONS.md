@@ -56,6 +56,31 @@ Under the default block policy, stale or unverifiable evidence becomes the SDK's
 
 This bridge covers custom `function_tool` calls only. The Agents SDK does not apply tool guardrails to hosted tools, built-in execution tools, handoffs, or `Agent.as_tool()`. FreshCtx does not own model selection, tool selection, approvals, retries, handoffs, transactions, or idempotency. See `examples/openai_agents_stale_tool.py` for a model-free run through the real SDK function-tool pipeline.
 
+## Google Agent Development Kit
+
+Use `google_adk_tool_callback()` as an ADK agent's `before_tool_callback`. The callback uses ADK's native override behavior: `None` permits normal tool execution, while a structured dictionary skips the tool body and becomes the tool response.
+
+```python
+from freshctx.integrations.google_adk import google_adk_tool_callback
+
+freshness = google_adk_tool_callback(
+    depends_on=[decision],
+    store=store,
+    tool_names=["write_record"],
+)
+
+agent = Agent(
+    name="bounded_agent",
+    model=model,
+    tools=[write_record],
+    before_tool_callback=freshness,
+)
+```
+
+`depends_on` may also be a resolver receiving `(tool, tool_context)` so applications can resolve FreshCtx identifiers from ADK session state without exposing tool arguments. `tool_names` limits the callback to explicitly protected tools. Both synchronous and asynchronous function tools use the same asynchronous pre-tool callback. A blocking response contains the FreshCtx result and experimental contract identifier; current evidence returns no override. The ADK function-call ID is used for audit correlation when available.
+
+FreshCtx does not own ADK model or tool selection, sessions, state, retries, confirmations, long-running operation completion, transactions, or idempotency. Tools that do not traverse the configured agent-level before-tool callback are outside this boundary. See `examples/google_adk_stale_tool.py` for a deterministic run through ADK's real in-memory runner without an external model call.
+
 ## MCP
 
 Use only resources or tools that are safe, read-only validators. Non-idempotent MCP operations are deliberately `UNVERIFIABLE`. Recreate readers after a process restart. Do not label an operation thread-safe unless its client and transport support concurrent calls.

@@ -79,15 +79,15 @@ A framework integration is not considered conformant until installed-framework t
 2. Stale evidence prevents the action body from starting.
 3. Unverifiable evidence follows the configured fail-closed policy.
 4. Sync and async execution are covered when the framework supports them.
-5. The framework's blocking exception retains the FreshCtx result.
+5. The framework's native blocking surface retains the FreshCtx result.
 6. Audit evidence identifies the runtime, action, contract version, and framework execution ID when supplied.
 7. Arguments and credentials are absent from FreshCtx integration metadata.
 8. The documentation states which lifecycle responsibilities remain outside FreshCtx.
 
 ## Current evidence
 
-The Agno 2.9 hook consumes this contract and retains its existing public API and framework-specific `FreshCtxAgnoBlocked` translation. LangGraph is the second mapping: synchronous and asynchronous action-node wrappers resolve dependencies from graph state, correlate an optional graph execution ID, and propagate `FreshnessBlocked` before the node body begins. OpenAI Agents SDK is the third mapping: a function-tool input guardrail correlates the SDK tool-call ID, records the tool name without its arguments, and translates blocking results into the SDK's native input-tool tripwire before the function body starts.
+The Agno 2.9 hook consumes this contract and retains its existing public API and framework-specific `FreshCtxAgnoBlocked` translation. LangGraph is the second mapping: synchronous and asynchronous action-node wrappers resolve dependencies from graph state, correlate an optional graph execution ID, and propagate `FreshnessBlocked` before the node body begins. OpenAI Agents SDK is the third mapping: a function-tool input guardrail correlates the SDK tool-call ID, records the tool name without its arguments, and translates blocking results into the SDK's native input-tool tripwire before the function body starts. Google ADK is the fourth mapping: an agent-level before-tool callback correlates the ADK function-call ID and returns a structured native override that skips the tool body when FreshCtx blocks. Its dependency resolver receives tool identity and context, never the tool arguments.
 
 ## Stability rule
 
-Do not export this module from `freshctx` or `freshctx.integrations`, promise semantic-version stability, or use it as a marketing compatibility claim yet. Stabilization requires successful mappings for Agno, hardened LangGraph, OpenAI Agents SDK, and Google ADK, followed by a comparison of the four implementations.
+Do not export this module from `freshctx` or `freshctx.integrations`, promise semantic-version stability, or use it as a stable integration-author API yet. All four Wave 1 mappings now exist; stabilization still requires a documented comparison, the shared conformance suite across supported Python versions, and independent framework-user validation.

@@ -4,6 +4,18 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+### Added
+
+- Optional Google Agent Development Kit before-tool callback mapped to the experimental pre-action contract
+- Native structured blocking response, ADK function-call correlation, named-tool filtering, and dynamic dependency resolution without exposing tool arguments
+- Deterministic real-runner example plus current sync-tool, stale async-tool, privacy, filter, and configuration coverage
+
+### Compatibility
+
+- Google ADK remains optional and is installed only through the `google-adk` extra.
+- The callback covers tools that traverse the configured agent-level `before_tool_callback`; other tool execution surfaces remain outside this boundary.
+- FreshCtx Core, adapters, stores, policies, schemas, Agno hooks, LangGraph wrappers, and OpenAI Agents SDK guardrails remain unchanged.
+
 ## 0.7.0 - 2026-09-01
 
 ### Added
