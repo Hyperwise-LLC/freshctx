@@ -1,8 +1,24 @@
 # Integration patterns
 
+FreshCtx is testing a small framework-neutral pre-action contract before adding more framework-specific surface. The experimental contract and its conformance requirements are documented in `docs/PRE_ACTION_CONTRACT.md`. It is not part of the stable public API.
+
 ## LangGraph
 
-Place `Guard.run()` or `await Guard.run_async()` in the action node immediately before the external write. Keep observation and reasoning IDs in graph state. See `examples/langgraph_stale_config.py`.
+Use the experimental `langgraph_action_node()` or `langgraph_async_action_node()` mapping around the action node that performs the external write. Keep observation or reasoning IDs in graph state and resolve only the dependencies for that action.
+
+```python
+from freshctx.integrations.langgraph import langgraph_action_node
+
+protected_write = langgraph_action_node(
+    write_record,
+    depends_on=lambda state: [state["freshctx_decision"]],
+    store=store,
+    action_name="write_record",
+    execution_id=lambda state: state.get("run_id"),
+)
+```
+
+The bridge uses the same experimental pre-action contract as Agno. A blocking result propagates as `FreshnessBlocked` before the node body starts. LangGraph continues to own graph routing, checkpointing, interrupts, retries, and state reconciliation. See `examples/langgraph_stale_config.py` for a real installed graph with both blocked and permitted paths.
 
 ## Agno
 
@@ -18,7 +34,7 @@ def write_record(record_id: str) -> str:
     return record_id
 ```
 
-The application must preserve the FreshCtx store and dependency identifiers from observation through tool execution. A stale or unverifiable dependency blocks before Agno invokes the tool body under the default policy. FreshCtx does not repair Agno's internal lifecycle state, prevent concurrent invocation by itself, or replace transactions and idempotency. See `examples/agno_stale_tool.py` for a model-free test using Agno's real tool execution chain.
+The application must preserve the FreshCtx store and dependency identifiers from observation through tool execution. A stale or unverifiable dependency blocks before Agno invokes the tool body under the default policy. Internally, the Agno bridge is the first consumer of the experimental pre-action contract; its existing public hook functions and exception remain unchanged. FreshCtx does not repair Agno's internal lifecycle state, prevent concurrent invocation by itself, or replace transactions and idempotency. See `examples/agno_stale_tool.py` for a model-free test using Agno's real tool execution chain.
 
 ## MCP
 

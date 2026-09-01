@@ -16,6 +16,7 @@ include RELEASING.md
 include SPEC.md
 include TRADEMARKS.md
 recursive-include docs *.md
+exclude docs/DEVELOPMENT_PIPELINE.md
 recursive-include examples *.py
 recursive-include schemas *.json
 recursive-include src/freshctx/schemas *.json

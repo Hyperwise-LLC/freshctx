@@ -8,8 +8,9 @@ from typing import Any
 
 from agno.exceptions import StopAgentRun
 
-from ..core import FreshnessBlocked, guard
+from ..core import FreshnessBlocked
 from ..errors import ConfigurationError
+from .pre_action import PreActionBoundary, PreActionCall
 
 
 class FreshCtxAgnoBlocked(StopAgentRun):
@@ -44,7 +45,14 @@ def agno_tool_hook(
     therefore prevents the tool body from running.
     """
 
-    dependencies = _dependencies(depends_on)
+    boundary = PreActionBoundary(
+        depends_on=_dependencies(depends_on),
+        store=store,
+        policy=policy,
+        audit_path=audit_path,
+        validation_workers=validation_workers,
+        validation_budget_ms=validation_budget_ms,
+    )
 
     def freshctx_agno_hook(
         function_name: str,
@@ -52,19 +60,11 @@ def agno_tool_hook(
         arguments: Mapping[str, Any],
     ) -> Any:
         try:
-            with guard(
-                policy=policy,
-                store=store,
-                audit_path=audit_path,
-                validation_workers=validation_workers,
-                validation_budget_ms=validation_budget_ms,
-            ) as ctx:
-                return ctx.run(
-                    function_call,
-                    depends_on=dependencies,
-                    boundary=f"agno.tool:{function_name}",
-                    **dict(arguments),
-                )
+            return boundary.invoke(
+                PreActionCall(runtime="agno", action=function_name),
+                function_call,
+                **dict(arguments),
+            )
         except FreshnessBlocked as blocked:
             raise FreshCtxAgnoBlocked(blocked) from blocked
 
@@ -82,7 +82,14 @@ def agno_async_tool_hook(
 ) -> Callable[..., Any]:
     """Return an asynchronous Agno tool hook protected by FreshCtx."""
 
-    dependencies = _dependencies(depends_on)
+    boundary = PreActionBoundary(
+        depends_on=_dependencies(depends_on),
+        store=store,
+        policy=policy,
+        audit_path=audit_path,
+        validation_workers=validation_workers,
+        validation_budget_ms=validation_budget_ms,
+    )
 
     async def freshctx_agno_async_hook(
         function_name: str,
@@ -90,19 +97,11 @@ def agno_async_tool_hook(
         arguments: Mapping[str, Any],
     ) -> Any:
         try:
-            async with guard(
-                policy=policy,
-                store=store,
-                audit_path=audit_path,
-                validation_workers=validation_workers,
-                validation_budget_ms=validation_budget_ms,
-            ) as ctx:
-                return await ctx.run_async(
-                    function_call,
-                    depends_on=dependencies,
-                    boundary=f"agno.tool:{function_name}",
-                    **dict(arguments),
-                )
+            return await boundary.invoke_async(
+                PreActionCall(runtime="agno", action=function_name),
+                function_call,
+                **dict(arguments),
+            )
         except FreshnessBlocked as blocked:
             raise FreshCtxAgnoBlocked(blocked) from blocked
 
