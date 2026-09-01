@@ -176,9 +176,36 @@ def deploy(target: str) -> str:
 
 FreshCtx does not replace Agno's internal run-state, concurrency, transaction, or idempotency controls. This hook protects the external evidence explicitly declared by the application at the tool boundary.
 
+### OpenAI Agents SDK
+
+FreshCtx 0.7.0 maps the same pre-action contract to an OpenAI Agents SDK input guardrail for custom function tools:
+
+```console
+python -m pip install 'freshctx[openai-agents]==0.7.0'
+python examples/openai_agents_stale_tool.py
+```
+
+```python
+from agents import function_tool
+from freshctx.integrations.openai_agents import openai_agents_tool_guardrail
+
+freshness = openai_agents_tool_guardrail(
+    depends_on=[decision],
+    store=store,
+    audit_path="freshctx-openai-agents-audit.jsonl",
+)
+
+@function_tool(tool_input_guardrails=[freshness])
+async def deploy(target: str) -> str:
+    """Deploy to the selected target."""
+    return f"deployed:{target}"
+```
+
+Stale or unverifiable evidence triggers the SDK's native input-tool tripwire before the function-tool body starts. The FreshCtx result remains available as structured guardrail output. Tool arguments are not stored in FreshCtx integration metadata. This mapping applies to custom function tools; hosted tools, built-in execution tools, handoffs, and `Agent.as_tool()` are outside the SDK's tool-guardrail surface.
+
 ## Current implementation
 
-The v0.6 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
+The v0.7 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
 
 The first v0.1 vertical slice includes:
 

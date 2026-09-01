@@ -86,7 +86,7 @@ A framework integration is not considered conformant until installed-framework t
 
 ## Current evidence
 
-The Agno 2.9 hook consumes this contract and retains its existing public API and framework-specific `FreshCtxAgnoBlocked` translation. LangGraph is the second mapping: synchronous and asynchronous action-node wrappers resolve dependencies from graph state, correlate an optional graph execution ID, and propagate `FreshnessBlocked` before the node body begins. OpenAI Agents SDK is the next portability test.
+The Agno 2.9 hook consumes this contract and retains its existing public API and framework-specific `FreshCtxAgnoBlocked` translation. LangGraph is the second mapping: synchronous and asynchronous action-node wrappers resolve dependencies from graph state, correlate an optional graph execution ID, and propagate `FreshnessBlocked` before the node body begins. OpenAI Agents SDK is the third mapping: a function-tool input guardrail correlates the SDK tool-call ID, records the tool name without its arguments, and translates blocking results into the SDK's native input-tool tripwire before the function body starts.
 
 ## Stability rule
 
