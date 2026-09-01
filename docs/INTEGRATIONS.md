@@ -36,6 +36,26 @@ def write_record(record_id: str) -> str:
 
 The application must preserve the FreshCtx store and dependency identifiers from observation through tool execution. A stale or unverifiable dependency blocks before Agno invokes the tool body under the default policy. Internally, the Agno bridge is the first consumer of the experimental pre-action contract; its existing public hook functions and exception remain unchanged. FreshCtx does not repair Agno's internal lifecycle state, prevent concurrent invocation by itself, or replace transactions and idempotency. See `examples/agno_stale_tool.py` for a model-free test using Agno's real tool execution chain.
 
+## OpenAI Agents SDK
+
+Use `openai_agents_tool_guardrail()` as an input guardrail on a custom SDK function tool. The SDK supplies the actual tool name and tool-call ID; FreshCtx validates the declared dependencies immediately before the SDK invokes the tool body.
+
+```python
+from agents import function_tool
+from freshctx.integrations.openai_agents import openai_agents_tool_guardrail
+
+freshness = openai_agents_tool_guardrail(depends_on=[decision], store=store)
+
+@function_tool(tool_input_guardrails=[freshness])
+async def write_record(record_id: str) -> str:
+    """Write one record."""
+    return record_id
+```
+
+Under the default block policy, stale or unverifiable evidence becomes the SDK's native `ToolInputGuardrailTripwireTriggered`, and the function-tool body does not start. The exception's `output.output_info["freshctx"]` contains the FreshCtx check result. Raw tool arguments are not copied into FreshCtx metadata or audit evidence.
+
+This bridge covers custom `function_tool` calls only. The Agents SDK does not apply tool guardrails to hosted tools, built-in execution tools, handoffs, or `Agent.as_tool()`. FreshCtx does not own model selection, tool selection, approvals, retries, handoffs, transactions, or idempotency. See `examples/openai_agents_stale_tool.py` for a model-free run through the real SDK function-tool pipeline.
+
 ## MCP
 
 Use only resources or tools that are safe, read-only validators. Non-idempotent MCP operations are deliberately `UNVERIFIABLE`. Recreate readers after a process restart. Do not label an operation thread-safe unless its client and transport support concurrent calls.

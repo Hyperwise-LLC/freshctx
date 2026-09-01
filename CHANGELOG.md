@@ -4,6 +4,20 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.7.0 - 2026-09-01
+
+### Added
+
+- Optional OpenAI Agents SDK function-tool input guardrail mapped to the experimental pre-action contract
+- Native SDK tripwire translation with structured FreshCtx result evidence and tool-call correlation
+- Model-free real-runner example plus current, stale, async-tool, privacy, and configuration coverage
+
+### Compatibility
+
+- The SDK is optional and installed only through the `openai-agents` extra.
+- The bridge covers custom function tools only; SDK hosted tools, built-in execution tools, handoffs, and `Agent.as_tool()` remain outside this tool-guardrail boundary.
+- FreshCtx Core, adapters, stores, policies, schemas, Agno hooks, and LangGraph wrappers remain unchanged.
+
 ## 0.6.0 - 2026-08-31
 
 ### Added
