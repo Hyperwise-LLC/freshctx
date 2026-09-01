@@ -116,10 +116,10 @@ with TemporaryDirectory() as directory:
 
 ### LangGraph
 
-Install the optional integration dependency and run the controlled stale-state scenario:
+FreshCtx 0.6.0 includes synchronous and asynchronous LangGraph action-node wrappers. Install the optional integration dependency and run the controlled stale-state scenario:
 
 ```console
-python -m pip install 'freshctx[langgraph]'
+python -m pip install 'freshctx[langgraph]==0.6.0'
 python examples/langgraph_stale_config.py
 ```
 
@@ -132,17 +132,29 @@ BLOCKED: STALE_REASONING
 The protected node uses the same framework-neutral boundary:
 
 ```python
+from freshctx.integrations.langgraph import langgraph_action_node
+
 def deploy_node(state):
-    ctx.run(deploy, state["target"], depends_on=[decision])
+    deploy(state["target"])
     return {"deployed": True}
+
+protected_deploy = langgraph_action_node(
+    deploy_node,
+    depends_on=lambda state: [state["freshctx_decision"]],
+    store=store,
+    action_name="deploy",
+    execution_id=lambda state: state.get("run_id"),
+)
 ```
+
+A stale or unverifiable dependency raises `FreshnessBlocked` before the node body starts. FreshCtx does not replace LangGraph routing, checkpointing, interrupts, retries, transactions, or idempotency.
 
 ### Agno
 
-The optional Agno integration is available in FreshCtx 0.5.0. Install the integration and run the model-free tool-hook scenario:
+The optional Agno integration remains available in FreshCtx 0.6.0. Install the integration and run the model-free tool-hook scenario:
 
 ```console
-python -m pip install 'freshctx[agno]==0.5.0'
+python -m pip install 'freshctx[agno]==0.6.0'
 python examples/agno_stale_tool.py
 ```
 
@@ -166,7 +178,7 @@ FreshCtx does not replace Agno's internal run-state, concurrency, transaction, o
 
 ## Current implementation
 
-The v0.5 contract preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
+The v0.6 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
 
 The first v0.1 vertical slice includes:
 

@@ -4,6 +4,23 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.6.0 - 2026-08-31
+
+### Added
+
+- Experimental framework-neutral pre-action integration contract with non-sensitive action identity, sync/async continuations, audit correlation, conformance requirements, and an explicit stability boundary
+- Experimental LangGraph action-node mapping with state-resolved dependencies, optional execution-ID correlation, and real synchronous and asynchronous graph coverage
+
+### Changed
+
+- The Agno 2.9 hooks now consume the experimental contract internally without changing their public call shapes or framework-specific blocking exception
+- Optional framework integration names are loaded lazily so the framework-neutral contract can be imported without installing Agno
+
+### Compatibility
+
+- The contract is available only from `freshctx.integrations.pre_action` and is not exported as stable public API.
+- Existing runtime, Agno hook, adapter, store, policy, schema, and synchronous-default behavior remains unchanged.
+
 ## 0.5.1 - 2026-08-31
 
 ### Fixed
