@@ -4,6 +4,8 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.8.0 - 2026-09-01
+
 ### Added
 
 - Optional Google Agent Development Kit before-tool callback mapped to the experimental pre-action contract
