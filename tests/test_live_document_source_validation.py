@@ -36,6 +36,20 @@ def _article(body="Article body", headers=None):
     return FetchResponse(200, html.encode(), headers or {}, CEN_URL)
 
 
+def _thin_json_ld_article(body="Article body", navigation="Home Products About"):
+    payload = {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "headline": "Serotonin article",
+        "datePublished": "2026-03-16",
+    }
+    html = (
+        f'<html><script type="application/ld+json">{json.dumps(payload)}</script>'
+        f"<body><nav>{navigation}</nav><article>{body}</article></body></html>"
+    )
+    return FetchResponse(200, html.encode(), {}, CEN_URL)
+
+
 class _SequenceFetcher:
     def __init__(self, responses):
         self.responses = {key: list(value) for key, value in responses.items()}
@@ -62,11 +76,11 @@ class LiveDocumentSourceValidationTests(unittest.TestCase):
     def test_same_live_metadata_keeps_all_claims_current(self):
         result = run_live_scenario(fetcher=_SequenceFetcher(self.base_responses()))
         self.assertEqual({name: value["state"] for name, value in result["claims"].items()}, {
-            "claim-treatment-timing": "CURRENT",
             "claim-review-conclusion": "CURRENT",
             "claim-rebuttal-exists": "CURRENT",
             "claim-current-probe-status": "CURRENT",
         })
+        self.assertIn("claim-treatment-timing", result["excluded_claims"])
 
     def test_registration_wall_is_unverifiable_and_flags_only_news_claims(self):
         responses = self.base_responses()
@@ -74,19 +88,34 @@ class LiveDocumentSourceValidationTests(unittest.TestCase):
         responses[CEN_URL] = [wall]
         result = run_live_scenario(fetcher=_SequenceFetcher(responses))
         self.assertEqual(result["sources"]["news-report"]["state"], "UNVERIFIABLE")
-        self.assertEqual(result["claims"]["claim-treatment-timing"]["state"], "UNVERIFIABLE")
         self.assertEqual(result["claims"]["claim-current-probe-status"]["state"], "UNVERIFIABLE")
         self.assertEqual(result["claims"]["claim-review-conclusion"]["state"], "CURRENT")
         self.assertEqual(result["claims"]["claim-rebuttal-exists"]["state"], "CURRENT")
 
-    def test_article_change_marks_exactly_two_claims_stale(self):
+    def test_article_change_marks_only_supported_news_claim_stale(self):
         responses = self.base_responses()
         responses[CEN_URL] = [_article("Original"), _article("Revised")]
         result = run_live_scenario(fetcher=_SequenceFetcher(responses))
-        self.assertEqual(result["claims"]["claim-treatment-timing"]["state"], "STALE_REASONING")
         self.assertEqual(result["claims"]["claim-current-probe-status"]["state"], "STALE_REASONING")
         self.assertEqual(result["claims"]["claim-review-conclusion"]["state"], "CURRENT")
         self.assertEqual(result["claims"]["claim-rebuttal-exists"]["state"], "CURRENT")
+        self.assertIn("claim-treatment-timing", result["excluded_claims"])
+
+    def test_thin_json_ld_falls_back_to_visible_article_body(self):
+        responses = self.base_responses()
+        responses[CEN_URL] = [_thin_json_ld_article("Original"), _thin_json_ld_article("Revised")]
+        result = run_live_scenario(fetcher=_SequenceFetcher(responses))
+        self.assertEqual(result["sources"]["news-report"]["state"], "STALE_SOURCE")
+        self.assertEqual(result["claims"]["claim-current-probe-status"]["state"], "STALE_REASONING")
+
+    def test_navigation_redesign_does_not_change_article_fingerprint(self):
+        responses = self.base_responses()
+        responses[CEN_URL] = [
+            _thin_json_ld_article("Stable article body", "Home Products About"),
+            _thin_json_ld_article("Stable article body", "New navigation Sign in Search"),
+        ]
+        result = run_live_scenario(fetcher=_SequenceFetcher(responses))
+        self.assertEqual(result["sources"]["news-report"]["state"], "CURRENT")
 
     def test_crossref_wrapper_and_layout_noise_do_not_change_fingerprint(self):
         responses = self.base_responses()
@@ -107,7 +136,7 @@ class LiveDocumentSourceValidationTests(unittest.TestCase):
         result = run_live_scenario(fetcher=_SequenceFetcher(responses))
         self.assertEqual(result["claims"]["claim-review-conclusion"]["state"], "STALE_REASONING")
         self.assertEqual(result["claims"]["claim-rebuttal-exists"]["state"], "CURRENT")
-        self.assertEqual(result["claims"]["claim-treatment-timing"]["state"], "CURRENT")
+        self.assertIn("claim-treatment-timing", result["excluded_claims"])
 
     def test_article_credentials_remain_process_local(self):
         fetcher = _SequenceFetcher(self.base_responses())

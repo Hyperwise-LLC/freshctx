@@ -40,10 +40,13 @@ REVIEW_DOI = "10.1038/s41380-022-01661-0"
 REBUTTAL_DOI = "10.1038/s41380-023-02095-y"
 
 CLAIM_SOURCES = {
-    "claim-treatment-timing": ("news-report",),
     "claim-review-conclusion": ("review",),
     "claim-rebuttal-exists": ("rebuttal",),
     "claim-current-probe-status": ("news-report",),
+}
+
+EXCLUDED_CLAIMS = {
+    "claim-treatment-timing": "No defensible receipt was found in the declared C&EN source or its available snapshots.",
 }
 
 WALL_MARKERS = (
@@ -91,21 +94,37 @@ class _VisibleTextParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self._ignored = 0
+        self._article_depth = 0
         self.parts: list[str] = []
+        self.article_parts: list[str] = []
 
     def handle_starttag(self, tag: str, _attrs: list[tuple[str, str | None]]) -> None:
-        if tag in {"script", "style", "noscript", "svg"}:
+        if tag == "article" and not self._ignored:
+            self._article_depth += 1
+        if tag in {"script", "style", "noscript", "svg", "nav", "header", "footer", "aside", "form"}:
             self._ignored += 1
 
     def handle_endtag(self, tag: str) -> None:
-        if tag in {"script", "style", "noscript", "svg"} and self._ignored:
+        if tag in {"script", "style", "noscript", "svg", "nav", "header", "footer", "aside", "form"} and self._ignored:
             self._ignored -= 1
+        if tag == "article" and self._article_depth:
+            self._article_depth -= 1
 
     def handle_data(self, data: str) -> None:
         if not self._ignored:
             value = " ".join(data.split())
             if value:
                 self.parts.append(value)
+                if self._article_depth:
+                    self.article_parts.append(value)
+
+
+def _visible_article_text(html: str) -> tuple[str, str]:
+    parser = _VisibleTextParser()
+    parser.feed(html)
+    if parser.article_parts:
+        return " ".join(parser.article_parts), "semantic_article"
+    return " ".join(parser.parts), "visible_page_without_chrome"
 
 
 def _json_ld_articles(html: str) -> list[dict[str, Any]]:
@@ -154,25 +173,29 @@ def _article_fingerprint(response: FetchResponse) -> tuple[str, str, dict[str, A
     articles = _json_ld_articles(html)
     if articles:
         article = articles[0]
-        payload = {
-            "headline": article.get("headline"),
-            "datePublished": article.get("datePublished"),
-            "dateModified": article.get("dateModified"),
-            "articleBody": article.get("articleBody"),
-        }
-        if any(value not in (None, "") for value in payload.values()):
-            return _sha(payload), "article_json_ld", evidence
+        article_body = article.get("articleBody")
+        if article_body not in (None, ""):
+            payload = {
+                "headline": article.get("headline"),
+                "datePublished": article.get("datePublished"),
+                "dateModified": article.get("dateModified"),
+                "articleBody": article_body,
+            }
+            return _sha(payload), "article_json_ld_body", evidence
+
+    visible_text, content_scope = _visible_article_text(html)
+    if visible_text:
+        return (
+            _sha({"visible_text": visible_text}),
+            "normalized_visible_article_text",
+            {**evidence, "content_scope": content_scope},
+        )
 
     etag = response.headers.get("ETag") or response.headers.get("etag")
     if etag and not str(etag).startswith("W/"):
         return _sha({"etag": str(etag)}), "strong_etag", evidence
 
-    parser = _VisibleTextParser()
-    parser.feed(html)
-    visible_text = " ".join(parser.parts)
-    if not visible_text:
-        raise SourceUnavailable("article_content_unavailable", evidence)
-    return _sha({"visible_text": visible_text}), "normalized_visible_text", evidence
+    raise SourceUnavailable("article_content_unavailable", evidence)
 
 
 def _crossref_fingerprint(response: FetchResponse, doi: str) -> tuple[str, str, dict[str, Any]]:
@@ -343,8 +366,10 @@ def _run(
         "scope": "source movement and claim dependency mapping only",
         "sources": source_results,
         "claims": claim_results,
+        "excluded_claims": EXCLUDED_CLAIMS,
         "limitations": [
             "FreshCtx does not determine whether a source or claim is true.",
+            "CURRENT means the selected source fingerprint is unchanged since observation; it does not prove that a claim is supported by that source.",
             "FreshCtx does not interpret whether revised material still supports a claim.",
             "C&EN credentials, when supplied, remain process-local.",
             "A walled or inaccessible source is UNVERIFIABLE, not silently current.",
