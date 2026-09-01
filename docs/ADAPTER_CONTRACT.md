@@ -54,6 +54,26 @@ register_adapter("key_value", KeyValueAdapter(my_read_only_reader))
 
 The registration name, adapter `name`, and the name passed to `observe(..., adapter="key_value")` should match. `observe()` may raise when the initial source cannot be read; `validate()` must convert expected operational failures into `indeterminate`. Do not return `equivalent` from an exception path.
 
+## Raw files versus material configuration changes
+
+The built-in filesystem adapter uses a content fingerprint, so every byte-level
+edit is a change. That is the conservative choice when FreshCtx does not know
+which parts of a file influenced a decision.
+
+For a structured policy or configuration file, a custom adapter may instead
+parse the document, select only the declared decision-relevant fields, and
+fingerprint their canonical representation. The adapter owns that equivalence
+rule; FreshCtx does not infer materiality. Invalid syntax, unreadable evidence,
+or a missing declared field must return `indeterminate`, which FreshCtx reports
+as `UNVERIFIABLE`.
+
+`examples/semantic_config_policy.py` demonstrates both modes side by side:
+
+- a wording-only edit invalidates the raw-file observation;
+- the same edit leaves a selected-field observation current;
+- a selected policy-field edit becomes stale; and
+- invalid JSON or a missing selected field becomes `UNVERIFIABLE`.
+
 ## Compatibility checklist
 
 An adapter is compatible when tests demonstrate:
