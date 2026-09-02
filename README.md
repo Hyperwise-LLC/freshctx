@@ -73,6 +73,12 @@ until a named primary-source receipt was supplied, then re-entered the declared
 dependency map on a four-source rerun. Its `CURRENT` results mean only that the
 selected source fingerprints were unchanged.
 
+The [experimental selection-provenance scenario](examples/selection_provenance/)
+demonstrates a separate boundary: an agent can select a plausible but incorrect
+source and honestly receive `CURRENT` when that selected source remains
+unchanged. Its optional receipt records candidate, inspected, and selected
+sources without claiming that FreshCtx established source correctness.
+
 ## Quickstart
 
 Prerequisites: Python 3.10–3.13. Git is required only by the Git adapter and its compatibility tests.

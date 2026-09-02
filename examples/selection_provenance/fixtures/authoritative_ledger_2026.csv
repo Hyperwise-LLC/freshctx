@@ -1,0 +1,5 @@
+entry_id,date,account,amount,status
+TX-1001,2026-08-27,subscription-revenue,18400,posted
+TX-1002,2026-08-28,cloud-infrastructure,-4200,posted
+TX-1003,2026-08-29,professional-services,9600,posted
+TX-1004,2026-08-30,contractor-expense,-7300,posted

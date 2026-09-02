@@ -15,6 +15,7 @@ This plan converts public developer feedback into bounded, reproducible evidence
 | Stripe webhook drift | Compare cached webhook state with the authoritative Subscription before action | `examples/stripe_subscription_drift.py`; external review pending |
 | Deployment ownership drift | Revalidate job ownership and the smallest blocking dependency set without turning pre-flight into another orchestrator | Bounded external scenario pending |
 | Research-brief source drift | Map claims to named sources and flag only claims whose source changed, without interpreting the revised source | Independent `r3` rerun reported four mapped claims, four sources, an empty excluded set, and all fingerprints `CURRENT` after a defensible receipt restored the timing claim; see `docs/INDEPENDENT_RESEARCH_BRIEF_R3.md` |
+| Wrong-source selection | Keep source selection provenance separate from source freshness; a selected decoy may remain `CURRENT` without being presented as correct | Experimental exact-filename and discovery paths, versioned receipt schema, ledger fixtures, and regression tests in `examples/selection_provenance/` |
 | Agno external dependency drift | Revalidate declared external evidence in Agno's tool-hook chain before the tool body runs | `examples/agno_stale_tool.py` and `tests/test_agno_integration.py`; Agno maintainer review pending |
 
 ## Evidence ladder
