@@ -46,12 +46,14 @@ does not justify a software release.
 
 ## P0 - establish the MCP action boundary
 
-1. Ship the official MCP Python SDK v2 server extension as the first bounded
-   MCP Guard surface.
-2. Prove native `tools/call` interception, blocked-before-handler execution,
-   fail-closed unverifiable evidence, request correlation, and argument privacy.
-3. Validate the same guard through at least one external MCP host and a
-   consequential test tool before broadening transport or deployment claims.
+1. **Implemented in PR #47** - official MCP Python SDK v2 server extension as
+   the first bounded MCP Guard surface.
+2. **Implemented in PR #47** - native `tools/call` interception,
+   blocked-before-handler execution, fail-closed unverifiable evidence, request
+   correlation, argument privacy, multiple tools, and a versioned response.
+3. **Implemented in PR #47** - out-of-process stdio client/server validation
+   and one named-host run through Codex from a clean wheel installation.
+   Additional hosts remain external adoption tests after release.
 4. Keep authorization, identity, transactions, retries, and idempotency outside
    the FreshCtx freshness boundary.
 5. Use the results to specify a deployment-neutral MCP Guard interface before

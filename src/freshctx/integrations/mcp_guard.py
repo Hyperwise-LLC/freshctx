@@ -20,6 +20,7 @@ except ImportError as exc:  # pragma: no cover - exercised by package smoke test
 
 DependencyResolver = Callable[[str], Iterable[Any]]
 DependencySource = Iterable[Any] | Mapping[str, Iterable[Any]] | DependencyResolver
+MCP_GUARD_RESULT_SCHEMA = "freshctx.mcp_guard.result.v1"
 
 
 def _dependency_tuple(value: Iterable[Any], *, tool_name: str) -> tuple[Any, ...]:
@@ -145,6 +146,15 @@ class FreshCtxMCPGuard(Extension):
         except FreshnessBlocked as blocked:
             result = blocked.result.to_dict()
             state = result["state"]
+            public_result = {
+                "schemaVersion": MCP_GUARD_RESULT_SCHEMA,
+                "status": "blocked",
+                "reason": "freshctx_pre_action_blocked",
+                "tool": tool_name,
+                "state": state,
+                "policyDecision": result["policy_decision"],
+                "correlationId": execution_id,
+            }
             return CallToolResult.model_validate(
                 {
                     "content": [
@@ -153,16 +163,12 @@ class FreshCtxMCPGuard(Extension):
                             text=f"FreshCtx blocked {tool_name}: declared evidence is {state}.",
                         )
                     ],
-                    "structuredContent": {
-                    "status": "blocked",
-                    "reason": "freshctx_pre_action_blocked",
-                    "state": state,
-                    "policyDecision": result["policy_decision"],
-                    },
+                    "structuredContent": public_result,
                     "isError": True,
                     "_meta": {
                         "com.freshctx/result": result,
                         "com.freshctx/contract": EXPERIMENTAL_PRE_ACTION_CONTRACT,
+                        "com.freshctx/resultSchema": MCP_GUARD_RESULT_SCHEMA,
                     },
                 }
             )

@@ -4,11 +4,14 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.9.0 - 2026-09-01
+
 ### Added
 
 - Opt-in FreshCtx MCP Guard for the official MCP Python SDK v2 native `tools/call` extension boundary
-- Per-tool dependency declarations, native fail-closed MCP tool results, request correlation, and argument-private audit behavior
-- Real in-process MCP server/client balance-change example plus Python 3.10-3.13 MCP v2 CI coverage
+- Per-tool dependency declarations, a versioned blocked-response schema, native fail-closed MCP tool results, request correlation, and argument-private audit behavior
+- Current, stale, and unavailable-evidence demonstrations with independent protected tools and unprotected pass-through tools
+- Real in-process and out-of-process stdio server/client validation, one named-host Codex run, and Python 3.10-3.13 MCP v2 CI coverage
 
 ### Compatibility
 

@@ -23,6 +23,10 @@ REQUIRED = [
     "SUPPORT.md", "THIRD_PARTY_NOTICES.md",
     "docs/ADAPTER_CONTRACT.md", "docs/SECURITY_MODEL.md", "docs/PERFORMANCE.md",
     "docs/FAQ.md", "docs/SUCCESS_CASES.md", "docs/CLI.md", "docs/INTEGRATIONS.md",
+    "docs/MCP_GUARD.md", "docs/MCP_HOST_VALIDATION.md",
+    "examples/mcp_balance_guard.py",
+    "examples/mcp_guard_stdio_server.py", "examples/mcp_guard_external_host.py",
+    "tests/test_mcp_guard_integration.py",
     "docs/COMPATIBILITY_AUDIT.md", "docs/VALIDATION_REPORT.md",
     "docs/evidence/success-cases-v0.1.json",
     "docs/evidence/banking-postgres-v0.1.json",
@@ -47,8 +51,8 @@ def main() -> int:
         return 1
     root_schemas = sorted((ROOT / "schemas").glob("*.schema.json"))
     packaged = ROOT / "src" / "freshctx" / "schemas"
-    if len(root_schemas) != 5:
-        print("Expected five root schema files", file=sys.stderr); return 1
+    if len(root_schemas) != 6:
+        print("Expected six root schema files", file=sys.stderr); return 1
     for schema in root_schemas:
         json.loads(schema.read_text())
         packaged_schema = packaged / schema.name

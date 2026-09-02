@@ -107,7 +107,7 @@ server = MCPServer(
 
 This integration is currently in the unreleased branch. Install the branch from source with `python -m pip install -e '.[mcp-guard]'`; the PyPI extra becomes available only after the next package release. The dependency resolver receives only the MCP tool name. Tool arguments remain in the MCP SDK and are not copied into FreshCtx metadata. Authentication, authorization, transactions, retries, idempotency, and the correctness of the declared dependency map remain application responsibilities.
 
-See `examples/mcp_balance_guard.py` for a real in-process MCP server and client. The example observes a balance, changes it before a transfer tool call, and verifies that FreshCtx blocks before the transfer body executes.
+See `docs/MCP_GUARD.md` for the blocked-response contract, multiple-tool configuration, and scope. `examples/mcp_balance_guard.py` covers current, stale, and unverifiable evidence in process. `examples/mcp_guard_external_host.py` repeats those outcomes across a real stdio subprocess boundary.
 
 ## Postgres
 

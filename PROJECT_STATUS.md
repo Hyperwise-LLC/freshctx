@@ -3,12 +3,21 @@
 Last updated: 2026-09-01
 Current public release: `0.8.0`
 
+Release candidate: `0.9.0` in protected PR #47
+
 ## Current milestone
 
 FreshCtx 0.8.0 is available on PyPI. It preserves the original synchronous
 Core contract while adding opt-in concurrency, async protected actions,
 validation budgets, stronger developer tooling, six adapters, and native
 pre-action mappings for Agno, LangGraph, the OpenAI Agents SDK, and Google ADK.
+
+The 0.9.0 release candidate adds an official MCP Python SDK v2 server extension
+at the native `tools/call` boundary, a versioned blocked-response schema,
+independent per-tool dependencies, three-outcome demonstrations, and a real
+out-of-process stdio validation. A named-host run through Codex also returned
+the expected FreshCtx stale-evidence block. It is not public until PR #47 is
+merged and the package is published and verified from PyPI.
 
 ## Released runtime
 

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://freshctx.com/schemas/mcp-guard-result.schema.json",
+  "title": "FreshCtx MCP Guard blocked tool result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "status",
+    "reason",
+    "tool",
+    "state",
+    "policyDecision",
+    "correlationId"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "freshctx.mcp_guard.result.v1"},
+    "status": {"const": "blocked"},
+    "reason": {"const": "freshctx_pre_action_blocked"},
+    "tool": {"type": "string", "minLength": 1},
+    "state": {"enum": ["STALE_SOURCE", "STALE_REASONING", "UNVERIFIABLE"]},
+    "policyDecision": {"enum": ["block", "replan", "require_approval"]},
+    "correlationId": {"type": ["string", "null"]}
+  }
+}

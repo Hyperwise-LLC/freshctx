@@ -83,7 +83,10 @@ class MCPGuardIntegrationTests(unittest.TestCase):
         self.assertTrue(result.is_error)
         self.assertEqual(executed, [])
         self.assertEqual(result.structured_content["status"], "blocked")
+        self.assertEqual(result.structured_content["schemaVersion"], "freshctx.mcp_guard.result.v1")
+        self.assertEqual(result.structured_content["tool"], "transfer_money")
         self.assertEqual(result.structured_content["state"], "STALE_REASONING")
+        self.assertIsNotNone(result.structured_content["correlationId"])
         self.assertEqual(result.meta["com.freshctx/result"]["policy_decision"], "block")
         self.assertNotIn("private-beneficiary", self.audit.read_text(encoding="utf-8"))
         self.assertNotIn("private-beneficiary", repr(self.store.objects))
@@ -165,13 +168,60 @@ class MCPGuardIntegrationTests(unittest.TestCase):
 
     def test_bounded_example_runs_through_real_mcp_server(self):
         module = runpy.run_path(ROOT / "examples" / "mcp_balance_guard.py")
-        blocked = asyncio.run(module["run_demo"]())
-        current = asyncio.run(module["run_demo"](change_balance=False))
-        self.assertTrue(blocked["mcp_error"])
-        self.assertEqual(blocked["freshctx_state"], "STALE_REASONING")
-        self.assertEqual(blocked["executed"], [])
+        current = asyncio.run(module["run_demo"]("current"))
+        stale = asyncio.run(module["run_demo"]("stale"))
+        unverifiable = asyncio.run(module["run_demo"]("unverifiable"))
         self.assertFalse(current["mcp_error"])
-        self.assertEqual(current["executed"], [900000])
+        self.assertEqual(current["freshctx_state"], "CURRENT")
+        self.assertEqual(current["executed"], [{"tool": "transfer_money", "amount": 900000}])
+        self.assertTrue(stale["mcp_error"])
+        self.assertEqual(stale["freshctx_state"], "STALE_REASONING")
+        self.assertEqual(stale["executed"], [])
+        self.assertTrue(unverifiable["mcp_error"])
+        self.assertEqual(unverifiable["freshctx_state"], "UNVERIFIABLE")
+        self.assertEqual(unverifiable["executed"], [])
+        self.assertFalse(stale["unprotected_status_error"])
+        self.assertFalse(unverifiable["unprotected_status_error"])
+
+    def test_multiple_protected_tools_use_independent_dependencies(self):
+        module = runpy.run_path(ROOT / "examples" / "mcp_balance_guard.py")
+
+        async def run():
+            server, temporary_directory, executed = module["build_demo_server"]("stale")
+            try:
+                async with Client(server) as client:
+                    transfer = await client.call_tool(
+                        "transfer_money",
+                        {"amount": 900000, "beneficiary": "account-8832"},
+                    )
+                    refund = await client.call_tool("approve_refund", {"refund_id": "refund-117"})
+                return transfer, refund, executed
+            finally:
+                temporary_directory.cleanup()
+
+        transfer, refund, executed = asyncio.run(run())
+        self.assertTrue(transfer.is_error)
+        self.assertFalse(refund.is_error)
+        self.assertEqual(executed, [{"tool": "approve_refund", "refund_id": "refund-117"}])
+
+    def test_external_stdio_host_observes_all_three_outcomes(self):
+        module = runpy.run_path(ROOT / "examples" / "mcp_guard_external_host.py")
+        current = asyncio.run(module["run_external_host"]("current"))
+        stale = asyncio.run(module["run_external_host"]("stale"))
+        unverifiable = asyncio.run(module["run_external_host"]("unverifiable"))
+        self.assertEqual(current["transport"], "stdio-subprocess")
+        self.assertEqual(
+            current["tools"],
+            ["approve_refund", "read_execution_log", "read_status", "transfer_money"],
+        )
+        self.assertFalse(current["mcp_error"])
+        self.assertEqual(current["executed"], [{"tool": "transfer_money", "amount": 900000}])
+        self.assertTrue(stale["mcp_error"])
+        self.assertEqual(stale["freshctx_state"], "STALE_REASONING")
+        self.assertEqual(stale["executed"], [])
+        self.assertTrue(unverifiable["mcp_error"])
+        self.assertEqual(unverifiable["freshctx_state"], "UNVERIFIABLE")
+        self.assertEqual(unverifiable["executed"], [])
 
 
 if __name__ == "__main__":
