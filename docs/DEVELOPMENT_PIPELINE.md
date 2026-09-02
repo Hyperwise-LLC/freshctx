@@ -44,6 +44,19 @@ does not justify a software release.
 4. Promote it to a stable integration-author API only when its shared semantics
    are demonstrated across the released bridges.
 
+## P0 - establish the MCP action boundary
+
+1. Ship the official MCP Python SDK v2 server extension as the first bounded
+   MCP Guard surface.
+2. Prove native `tools/call` interception, blocked-before-handler execution,
+   fail-closed unverifiable evidence, request correlation, and argument privacy.
+3. Validate the same guard through at least one external MCP host and a
+   consequential test tool before broadening transport or deployment claims.
+4. Keep authorization, identity, transactions, retries, and idempotency outside
+   the FreshCtx freshness boundary.
+5. Use the results to specify a deployment-neutral MCP Guard interface before
+   considering a gateway, browser guard, or commercial control plane.
+
 ## P0 - external validation
 
 1. Google ADK 0.8.0 real workflow.
@@ -83,6 +96,10 @@ The next candidates are Microsoft Agent Framework, CrewAI, and PydanticAI,
 followed by specialized ElevenLabs, Hermes, and Claude Agent SDK scenarios.
 They are considerations rather than announced commitments. Each must begin with
 a bounded action-boundary use case and demonstrate demand before implementation.
+
+Framework breadth is no longer the immediate priority after the released Wave 1
+bridges. MCP Guard validation, the shared conformance contract, and independent
+workflow evidence come first.
 
 ## Commercial direction
 

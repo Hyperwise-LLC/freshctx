@@ -4,6 +4,18 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+### Added
+
+- Opt-in FreshCtx MCP Guard for the official MCP Python SDK v2 native `tools/call` extension boundary
+- Per-tool dependency declarations, native fail-closed MCP tool results, request correlation, and argument-private audit behavior
+- Real in-process MCP server/client balance-change example plus Python 3.10-3.13 MCP v2 CI coverage
+
+### Compatibility
+
+- The MCP Guard is optional and installed only through the `mcp-guard` extra.
+- Existing MCP safe-reader behavior is unchanged. The safe-reader validates read-only evidence; the new guard controls consequential MCP tool execution.
+- The official MCP SDK v2 integration is tested in a separate environment because current Google ADK dependencies use the MCP 1.x line.
+
 ## 0.8.0 - 2026-09-01
 
 ### Added

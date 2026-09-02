@@ -85,6 +85,30 @@ FreshCtx does not own ADK model or tool selection, sessions, state, retries, con
 
 Use only resources or tools that are safe, read-only validators. Non-idempotent MCP operations are deliberately `UNVERIFIABLE`. Recreate readers after a process restart. Do not label an operation thread-safe unless its client and transport support concurrent calls.
 
+### MCP tool guard
+
+FreshCtx also provides an opt-in server extension for the official MCP Python SDK v2. It intercepts the SDK's native `tools/call` boundary immediately before the real tool handler. Current evidence proceeds to the handler; stale or unverifiable evidence returns a native MCP tool error without starting the handler.
+
+```python
+from mcp.server.mcpserver import MCPServer
+from freshctx.integrations.mcp_guard import FreshCtxMCPGuard
+
+server = MCPServer(
+    "payments",
+    extensions=[
+        FreshCtxMCPGuard(
+            depends_on={"transfer_money": [approval]},
+            store=store,
+            protected_tools=["transfer_money"],
+        )
+    ],
+)
+```
+
+This integration is currently in the unreleased branch. Install the branch from source with `python -m pip install -e '.[mcp-guard]'`; the PyPI extra becomes available only after the next package release. The dependency resolver receives only the MCP tool name. Tool arguments remain in the MCP SDK and are not copied into FreshCtx metadata. Authentication, authorization, transactions, retries, idempotency, and the correctness of the declared dependency map remain application responsibilities.
+
+See `examples/mcp_balance_guard.py` for a real in-process MCP server and client. The example observes a balance, changes it before a transfer tool call, and verifies that FreshCtx blocks before the transfer body executes.
+
 ## Postgres
 
 Observe a narrow, deterministic, read-only query. Specify whether row order is meaningful and set a bounded statement timeout. Credentials stay in process memory and are not stored in tokens or audit events.
