@@ -23,6 +23,10 @@ observe evidence → reason from it → revalidate dependencies → act or block
 - **Explicit and auditable** — you choose which evidence matters; FreshCtx records what was checked.
 - **Useful beyond files** — six adapters cover filesystem, Git, HTTP, Postgres, Stripe Subscriptions, and safe MCP reads.
 
+![FreshCtx MCP pre-action guard blocking a stale protected tool call](docs/assets/freshctx-mcp-stale-action-demo.gif)
+
+*FreshCtx revalidates declared evidence at the MCP tool boundary and blocks the stale action before its handler executes. [Run the three-outcome MCP demo](examples/mcp_balance_guard.py).*
+
 FreshCtx is Apache-2.0 software owned and stewarded by Hyperwise LLC as an independent open-source project.
 
 ## The failure mode
