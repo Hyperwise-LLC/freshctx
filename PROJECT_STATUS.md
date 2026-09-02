@@ -1,11 +1,10 @@
 # FreshCtx project status
 
 Last updated: 2026-09-02
-Current public package: `0.9.0`
+Current public release: `0.9.0`
 
-PyPI published `0.9.0` on 2026-09-02 after protected PR #47 merged. The
-corresponding Git tag and GitHub Release have not yet been published; the latest
-GitHub Release remains `v0.8.0`.
+PyPI, Git tag `v0.9.0`, and the GitHub Release were published on 2026-09-02
+after protected PR #47 merged.
 
 ## Current milestone
 
