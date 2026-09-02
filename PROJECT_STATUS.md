@@ -1,23 +1,25 @@
 # FreshCtx project status
 
-Last updated: 2026-09-01
-Current public release: `0.8.0`
+Last updated: 2026-09-02
+Current public package: `0.9.0`
 
-Release candidate: `0.9.0` in protected PR #47
+PyPI published `0.9.0` on 2026-09-02 after protected PR #47 merged. The
+corresponding Git tag and GitHub Release have not yet been published; the latest
+GitHub Release remains `v0.8.0`.
 
 ## Current milestone
 
-FreshCtx 0.8.0 is available on PyPI. It preserves the original synchronous
+FreshCtx 0.9.0 is available on PyPI. It preserves the original synchronous
 Core contract while adding opt-in concurrency, async protected actions,
 validation budgets, stronger developer tooling, six adapters, and native
-pre-action mappings for Agno, LangGraph, the OpenAI Agents SDK, and Google ADK.
+pre-action mappings for Agno, LangGraph, the OpenAI Agents SDK, Google ADK, and
+the official MCP Python SDK v2.
 
-The 0.9.0 release candidate adds an official MCP Python SDK v2 server extension
+The 0.9.0 package adds an MCP server extension
 at the native `tools/call` boundary, a versioned blocked-response schema,
 independent per-tool dependencies, three-outcome demonstrations, and a real
 out-of-process stdio validation. A named-host run through Codex also returned
-the expected FreshCtx stale-evidence block. It is not public until PR #47 is
-merged and the package is published and verified from PyPI.
+the expected FreshCtx stale-evidence block.
 
 ## Released runtime
 
@@ -49,8 +51,9 @@ source cannot be checked safely. Unknown conditions never silently become
 - LangGraph synchronous and asynchronous action-node wrappers
 - OpenAI Agents SDK custom function-tool input guardrail
 - Google ADK `before_tool_callback`
+- MCP Python SDK v2 native `tools/call` extension
 
-All four mappings consume the same experimental pre-action contract. The
+All five mappings consume the same experimental pre-action contract. The
 framework-specific bridges are released; the shared integration-author
 contract remains experimental while conformance comparison and external
 framework-user validation continue.
@@ -70,7 +73,7 @@ or general workflow validation.
 
 ## Current priorities
 
-1. Compare all four framework bridges against the shared pre-action conformance
+1. Compare all five framework bridges against the shared pre-action conformance
    requirements.
 2. Obtain independent Google ADK, LangGraph, Agno, Stripe test-mode, booking,
    approval, and voice-workflow runs.

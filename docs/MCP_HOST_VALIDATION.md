@@ -2,7 +2,7 @@
 
 Date: 2026-09-01
 
-Release candidate: FreshCtx 0.9.0
+Package: FreshCtx 0.9.0
 
 Host: OpenAI Codex CLI `0.151.0-alpha.7.2`
 
@@ -22,7 +22,7 @@ The native MCP tool call returned an error result containing:
 FreshCtx blocked transfer_money: declared evidence is STALE_REASONING.
 ```
 
-The protected handler did not proceed. The same release candidate also verifies
+The protected handler did not proceed. The same package also verifies
 handler non-execution through the automated stdio execution-log test.
 
 ## Scope
