@@ -145,22 +145,24 @@ class FreshCtxMCPGuard(Extension):
         except FreshnessBlocked as blocked:
             result = blocked.result.to_dict()
             state = result["state"]
-            return CallToolResult(
-                content=[
-                    TextContent(
-                        type="text",
-                        text=f"FreshCtx blocked {tool_name}: declared evidence is {state}.",
-                    )
-                ],
-                structured_content={
+            return CallToolResult.model_validate(
+                {
+                    "content": [
+                        TextContent(
+                            type="text",
+                            text=f"FreshCtx blocked {tool_name}: declared evidence is {state}.",
+                        )
+                    ],
+                    "structuredContent": {
                     "status": "blocked",
                     "reason": "freshctx_pre_action_blocked",
                     "state": state,
                     "policyDecision": result["policy_decision"],
-                },
-                is_error=True,
-                _meta={
-                    "com.freshctx/result": result,
-                    "com.freshctx/contract": EXPERIMENTAL_PRE_ACTION_CONTRACT,
-                },
+                    },
+                    "isError": True,
+                    "_meta": {
+                        "com.freshctx/result": result,
+                        "com.freshctx/contract": EXPERIMENTAL_PRE_ACTION_CONTRACT,
+                    },
+                }
             )
