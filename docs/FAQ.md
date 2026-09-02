@@ -32,13 +32,13 @@ No. Postgres is an optional adapter integration. The core package has no require
 
 ## Does FreshCtx require an account, hosted service, model, or agent framework?
 
-No. FreshCtx v0.1 is local-first, model-neutral, framework-neutral, requires no account, and sends no telemetry.
+No. FreshCtx is local-first, model-neutral, framework-neutral, requires no account, and sends no telemetry.
 
 ## Is FreshCtx a Hyperwise proprietary product or an open-core edition?
 
-No. FreshCtx™ is an independent Apache-2.0 open-source project owned and stewarded by Hyperwise LLC. The complete usable v0.1 runtime and its five initial adapters are part of the open project.
+No. FreshCtx™ is an independent Apache-2.0 open-source project owned and stewarded by Hyperwise LLC. The complete released runtime, six adapters, framework bridges, schemas, examples, and compatibility tests are part of the open project.
 
-Possible future Hyperwise services—such as centralized governance, managed deployment, enterprise integrations, implementation support, and SLAs—are separate from FreshCtx core and do not exist in v0.1.
+Possible future Hyperwise services—such as centralized governance, managed deployment, enterprise integrations, implementation support, and SLAs—remain separate from the current FreshCtx core release and are not announced hosted capabilities.
 
 ## What does `CURRENT` prove?
 

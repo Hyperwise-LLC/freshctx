@@ -1,87 +1,65 @@
-# FreshCtx implementation backlog
+# FreshCtx backlog
 
-## Feedback-driven v0.2
+Current public release: `0.8.0`
 
-Completed in the current development tree:
+This file is the concise issue-oriented backlog. The ordered roadmap, release
+rules, completed milestones, and evidence priorities are maintained in
+`docs/DEVELOPMENT_PIPELINE.md`.
 
-- standalone installed-package demo;
-- per-dependency and total validation timing;
-- opt-in bounded concurrent validation;
-- total validation budgets with fail-closed outcomes;
-- explicit freshness strategies including TTL and deliberately unverifiable context;
-- application-owned replan and renewed-approval responses;
-- booking, voice-agent, and performance artifacts;
-- backward-compatibility tests and enterprise boundary documentation.
+## P0 - Wave 1 integration conformance
 
-Still requiring independent evidence before broader validation claims:
+1. Compare Agno, LangGraph, OpenAI Agents SDK, and Google ADK against the same
+   pre-action requirements.
+2. Confirm that every bridge checks at the true action boundary, blocks before
+   execution, preserves non-sensitive correlation, and retains application-owned
+   policy decisions.
+3. Decide whether the experimental pre-action contract is ready to become a
+   stable integration-author API.
 
-- independent clean PyPI installation reproduction against the v0.2.1 artifact;
-- payment and booking scenarios run by external developers;
-- manual pre-flight comparison reviewed by an external developer;
-- deep-versus-wide benchmark review and production-shaped measurements;
-- production-shaped measurements supplied by users of real adapters.
+## P0 - independent evidence
 
-Issues are ordered for a single initial milestone. Each item should become one Git-hosting issue and reference the technical specification.
+4. Run Google ADK 0.8.0 with an external ADK user.
+5. Run the released LangGraph boundary in a real external graph workflow.
+6. Run the Stripe Subscription adapter against a safe test-mode scenario.
+7. Run longer booking, approval, and voice-agent workflows with external users.
 
-## Completed v0.1 implementation items
+## P1 - feedback-driven scenarios
 
-1. Protected action wrapper — completed
-   - Validate immediately before invoking a side effect.
-   - Add tests proving blocked actions never execute.
-2. Graph validation — completed
-   - Detect cycles and missing dependencies without recursion failure.
-   - Implements acceptance test A8.
-3. Audit failure behavior — completed
-   - Convert write failures to `UNVERIFIABLE` under block policy.
-   - Implements A11.
-4. Redaction layer — completed baseline
-   - Redact credentials, DSNs, headers, cookies, and configurable keys.
-   - Implements A12.
-5. Refresh policy — completed
-   - One bounded callback cycle; rebuild and recheck; otherwise block.
-   - Implements A9.
+8. Add incident communication with sentence-level dependencies.
+9. Add durable database action-item claim liveness.
+10. Add deployment worker ownership drift.
+11. Expand the booking workflow comparison.
+12. Expand voice-agent canonical-record validation.
 
-## Completed adapter contracts
+## P1 - hardening
 
-6. HTTP adapter — completed
-   - Conditional GET, strong and weak ETag rules, Last-Modified, body hash, standard-library redirects, and timeout handling.
-   - Implements A3-A4.
-7. Postgres adapter — completed with injected-connector tests
-   - Read-only validation, statement timeout, canonical rows, ordered/unordered query semantics.
-   - Implements A6.
-8. MCP adapter — completed with safe-reader tests
-   - Server identity, normalized arguments, safe resource/tool validator, non-idempotent protection.
-   - Implements A7.
+13. Define a machine-readable independent-result schema above the JSONL trail.
+14. Expand benchmarks by adapter type, graph shape, source reachability, worker
+    count, and validation budget.
+15. Strengthen the external adapter-author kit and conformance suite.
+16. Add longer installed-framework loops while preserving explicit action
+    boundaries.
 
-## P1 — runtime quality
+## Future integration candidates
 
-9. Concurrency isolation — completed for concurrent thread guards
-   - Concurrent guards, run IDs, SQLite access, context propagation.
-   - Implements A10.
-10. Public exception hierarchy — completed for v0.1 behaviors
-    - Configuration, storage-conflict, filesystem-boundary, audit, and enforcement exceptions.
-11. Store migrations — completed in the Core-completion branch
-    - Schema version table, forward migration command, corruption handling.
-12. Shared adapter conformance tests — completed baseline in the Core-completion branch
-    - Equivalent/changed/indeterminate, timeouts, redaction, side-effect safety.
+These are considerations, not announced commitments:
 
-## P2 — packaging and developer experience
+- Microsoft Agent Framework
+- CrewAI
+- PydanticAI
+- ElevenLabs
+- Hermes
+- Claude Agent SDK
 
-13. CLI — completed baseline in the Core-completion branch
-    - `freshctx check`, `freshctx audit`, `freshctx doctor`, and schema version reporting.
-14. Type-checking and formatting — completed baseline in the Core-completion branch
-    - Add Ruff and mypy or Pyright configuration after dependency policy is approved.
-15. Package build verification — automated in CI and release checks
-    - Build wheel and source distribution; install into a clean environment.
-16. Documentation examples — completed baseline; expand only from user demand
-    - Filesystem, Git, HTTP, Postgres, MCP, and framework-neutral agent examples.
-17. Performance baseline — completed synthetic baseline; production evidence remains external
-    - Graph traversal, hash cost, validation latency, and large-directory behavior.
+New framework work should reuse the pre-action contract where it fits and begin
+with a bounded, independently testable action scenario.
 
 ## Release gate
 
-- Acceptance tests A1-A12 pass.
-- Python 3.10-3.13 CI passes.
-- Wheel and source distribution install cleanly.
-- No required account, telemetry, or model framework.
-- License, security policy, changelog, API contract, and schemas are present. Store migrations remain future work because v0.1 has no prior public schema.
+- Protected pull request and reviewed diff
+- CI across Python 3.10-3.13
+- Static analysis and dependency audit
+- Wheel and source distribution validation
+- Clean installation of the public artifact
+- README, changelog, examples, and version metadata aligned
+- No unrelated pending work included

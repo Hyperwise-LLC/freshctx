@@ -1,57 +1,90 @@
 # FreshCtx project status
 
+Last updated: 2026-09-01
+Current public release: `0.8.0`
+
 ## Current milestone
 
-FreshCtx Core 0.4.0 adds a read-only Stripe Subscription adapter and bounded stale-webhook scenario while retaining the v0.1 synchronous compatibility defaults. Local release gates and clean wheel installation pass; public PyPI verification remains pending until the protected 0.4.0 release completes.
+FreshCtx 0.8.0 is available on PyPI. It preserves the original synchronous
+Core contract while adding opt-in concurrency, async protected actions,
+validation budgets, stronger developer tooling, six adapters, and native
+pre-action mappings for Agno, LangGraph, the OpenAI Agents SDK, and Google ADK.
 
-## Implemented
+## Released runtime
 
-- `ObservationToken`, `ReasoningNode`, `CheckResult`, and freshness states
-- Filesystem source observation and validation
-- Git repository- and path-scoped observation and validation
-- Transitive stale-reasoning propagation
-- Default blocking policy plus warning and allow policies
-- SQLite and in-memory stores
-- Local JSONL audit trail
-- Context-isolated guard API
-- Complete unit, contract, concurrency, schema, and acceptance test suite
-- Protected pre-action execution through `Guard.run()`
-- Cycle, missing-dependency, and maximum-depth graph validation
-- Fail-closed audit behavior under blocking policies
-- Default secret redaction
-- HTTP conditional validation and timeout handling
-- Bounded refresh callback behavior
-- Concurrent guard isolation tests
-- Postgres canonical query-result adapter contract
-- Read-only Stripe Subscription selected-field adapter with process-local credentials
-- MCP safe-reader and non-idempotent operation contract
-- Packaging and tag-triggered release automation
-- Public releases use protected pull requests, passing CI, and a separate explicitly authorized PyPI publication step
+- `ObservationToken`, `ReasoningNode`, `CheckResult`, and four freshness states
+- selective, transitive dependency invalidation
+- synchronous and asynchronous guards and protected actions
+- default blocking plus `warn`, `allow`, `replan`, and `require_approval` responses
+- bounded concurrent validation, adapter timeouts, and total validation budgets
+- SQLite and in-memory stores with schema migration and integrity diagnostics
+- local JSONL audit events, timing evidence, validation reports, and redaction
+- `freshctx demo`, `freshctx check`, `freshctx audit`, and `freshctx doctor`
 
-## Validated for the private v0.1 candidate
+## Released adapters
 
-- Python 3.10-3.13 compatibility matrix
-- Windows PowerShell and Command Prompt virtual-environment activation on a real Windows CI runner
-- Disposable real-service Postgres validation and connection-loss behavior
-- HTTP and MCP connection-loss behavior
-- Clean wheel and source-distribution installation
-- Dependency, secret, license, and package-content scans
-- External developer workflow using only the README
+- Filesystem
+- Git
+- HTTP
+- Postgres
+- Stripe Subscription
+- MCP safe reader
 
-The current development branch adds native async entry points without changing the synchronous guard contract. Independent third-party validation remains evidence work and must stay distinct from maintainer verification.
+Adapters own their equivalence rules and return indeterminate results when a
+source cannot be checked safely. Unknown conditions never silently become
+`CURRENT`.
+
+## Released framework mappings
+
+- Agno 2.9 tool hooks
+- LangGraph synchronous and asynchronous action-node wrappers
+- OpenAI Agents SDK custom function-tool input guardrail
+- Google ADK `before_tool_callback`
+
+All four mappings consume the same experimental pre-action contract. The
+framework-specific bridges are released; the shared integration-author
+contract remains experimental while conformance comparison and external
+framework-user validation continue.
+
+## Public evidence
+
+- CI covers Python 3.10-3.13, package construction, static analysis, dependency
+  checks, Windows onboarding, and installed-package smoke tests.
+- The OpsWatch JSONL experiment separates a FreshCtx control decision from the
+  downstream agent's observed behavior.
+- The independent research-brief `r3` record documents four claims mapped to
+  four named sources after an unsupported claim remained excluded until a
+  defensible receipt was supplied.
+
+These are bounded results, not claims of production, regulatory, scientific,
+or general workflow validation.
+
+## Current priorities
+
+1. Compare all four framework bridges against the shared pre-action conformance
+   requirements.
+2. Obtain independent Google ADK, LangGraph, Agno, Stripe test-mode, booking,
+   approval, and voice-workflow runs.
+3. Complete bounded incident-communication, durable action-item, deployment
+   ownership, longer booking, and voice-agent scenarios.
+4. Expand the independent-result schema, benchmark matrix, adapter-author kit,
+   and longer framework loops.
+
+See `docs/DEVELOPMENT_PIPELINE.md` for the ordered public plan.
+
+## Product boundary
+
+FreshCtx revalidates application-declared evidence. It does not verify truth,
+reasoning correctness, authorization, safety, compliance, transaction outcome,
+or global reality. It is not a workflow engine, memory system, retry engine, or
+hosted enterprise control plane.
 
 ## Canonical documents
 
-- `docs/FreshCtx_One_Page_Brief.docx`
-- `docs/FreshCtx_v0.1_Technical_Specification.docx`
-
-The technical specification is authoritative when implementation details conflict with summaries or examples.
-
-## Developer handoff contracts
-
-- `ARCHITECTURE.md` defines components, trust boundaries, data flow, and extension rules.
-- `API.md` defines the frozen v0.1 Python contract.
-- `schemas/` defines machine-readable domain and audit structures.
-- `adr/` records accepted architectural decisions.
-- `BACKLOG.md` is the issue-ready v0.1 implementation plan.
-- `.github/workflows/ci.yml` tests Python 3.10-3.13, executes Windows onboarding commands, and builds distributions.
+- `README.md` - current onboarding and capability overview
+- `CHANGELOG.md` - released changes by version
+- `docs/DEVELOPMENT_PIPELINE.md` - current ordered development plan
+- `API.md` and `SPEC.md` - frozen v0.1 compatibility contract
+- `docs/PRE_ACTION_CONTRACT.md` - experimental framework bridge contract
+- `docs/FEEDBACK_VALIDATION_PLAN.md` - bounded validation scenarios
+- `docs/INTEGRATIONS.md` - current framework and adapter patterns

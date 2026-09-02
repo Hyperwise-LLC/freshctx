@@ -21,7 +21,7 @@ observe evidence → reason from it → revalidate dependencies → act or block
 - **Model- and framework-neutral** — wrap an existing agent instead of replacing it.
 - **Local-first** — no account, hosted control plane, or telemetry.
 - **Explicit and auditable** — you choose which evidence matters; FreshCtx records what was checked.
-- **Useful beyond files** — adapters cover filesystem, Git, HTTP, Postgres, and safe MCP reads.
+- **Useful beyond files** — six adapters cover filesystem, Git, HTTP, Postgres, Stripe Subscriptions, and safe MCP reads.
 
 FreshCtx is Apache-2.0 software owned and stewarded by Hyperwise LLC as an independent open-source project.
 
@@ -122,10 +122,10 @@ with TemporaryDirectory() as directory:
 
 ### LangGraph
 
-FreshCtx 0.6.0 includes synchronous and asynchronous LangGraph action-node wrappers. Install the optional integration dependency and run the controlled stale-state scenario:
+FreshCtx includes synchronous and asynchronous LangGraph action-node wrappers. Install the current optional integration dependency and run the controlled stale-state scenario:
 
 ```console
-python -m pip install 'freshctx[langgraph]==0.6.0'
+python -m pip install 'freshctx[langgraph]==0.8.0'
 python examples/langgraph_stale_config.py
 ```
 
@@ -157,10 +157,10 @@ A stale or unverifiable dependency raises `FreshnessBlocked` before the node bod
 
 ### Agno
 
-The optional Agno integration remains available in FreshCtx 0.6.0. Install the integration and run the model-free tool-hook scenario:
+The optional Agno integration is included in FreshCtx 0.8.0. Install the integration and run the model-free tool-hook scenario:
 
 ```console
-python -m pip install 'freshctx[agno]==0.6.0'
+python -m pip install 'freshctx[agno]==0.8.0'
 python examples/agno_stale_tool.py
 ```
 
@@ -184,10 +184,10 @@ FreshCtx does not replace Agno's internal run-state, concurrency, transaction, o
 
 ### OpenAI Agents SDK
 
-FreshCtx 0.7.0 maps the same pre-action contract to an OpenAI Agents SDK input guardrail for custom function tools:
+FreshCtx maps the same pre-action contract to an OpenAI Agents SDK input guardrail for custom function tools:
 
 ```console
-python -m pip install 'freshctx[openai-agents]==0.7.0'
+python -m pip install 'freshctx[openai-agents]==0.8.0'
 python examples/openai_agents_stale_tool.py
 ```
 
@@ -262,6 +262,12 @@ Feedback-driven additions remain opt-in or additive:
 - exact, version, fingerprint, TTL, attestation, and deliberately unverifiable evidence strategies
 - `replan` and `require_approval` responses without new freshness states
 - booking, voice-agent, and performance examples
+- semantic configuration examples for raw-file and selected-field invalidation
+
+`examples/semantic_config_policy.py` shows the configuration boundary directly:
+raw-file mode invalidates on every content edit, selected-field mode invalidates
+only when declared decision-relevant fields change, and invalid or incomplete
+configuration becomes `UNVERIFIABLE`.
 
 Existing code remains synchronous unless concurrency is explicitly enabled. See `docs/PERFORMANCE.md`, `docs/FEEDBACK_VALIDATION_PLAN.md`, and `docs/ENTERPRISE_BOUNDARY.md`.
 
@@ -322,7 +328,7 @@ FreshCtx is licensed under the [Apache License 2.0](LICENSE). You may use, modif
 
 The software license does not grant permission to use the FreshCtx™ name, logo, or branding in a way that implies endorsement or creates confusion about the source of a modified product. See [TRADEMARKS.md](TRADEMARKS.md).
 
-Hyperwise LLC may separately offer architecture, integration, deployment, managed connectors, organizational controls, and support services. These services are optional, are not required to use the open-source FreshCtx runtime, and remain separate from FreshCtx core. Possible future commercial products are not part of the v0.1 open-source project unless expressly released under its license.
+Hyperwise LLC may separately offer architecture, integration, deployment, managed connectors, organizational controls, and support services. These services are optional, are not required to use the open-source FreshCtx runtime, and remain separate from FreshCtx core. Possible future commercial products are not part of the current open-source release unless expressly released under its license.
 
 ## Why CI/CD is not enough
 
@@ -471,7 +477,7 @@ FreshCtx does not provide an MCP transport or client. The application supplies a
 
 ## Project, support, and commercial inquiries
 
-- FreshCtx product site: <https://freshctx.com> (the complete site is being developed separately)
+- FreshCtx product site: <https://freshctx.com>
 - Source repository: <https://github.com/Hyperwise-LLC/freshctx>
 - Hyperwise LLC corporate site: <https://hyperwise.io>
 - Community support: see [`SUPPORT.md`](SUPPORT.md)
@@ -486,8 +492,9 @@ Community includes the complete Core runtime, six adapters, schemas, examples, a
 - `API.md` — frozen v0.1 Python API contract
 - `schemas/` — machine-readable v0.1 object contracts
 - `adr/` — accepted architecture decisions
-- `BACKLOG.md` — issue-ready implementation and release plan
+- `BACKLOG.md` — concise issue-oriented backlog
 - `PROJECT_STATUS.md` — implemented versus remaining work
+- `docs/DEVELOPMENT_PIPELINE.md` — canonical ordered development plan
 - `SPEC.md` — normative, versioned v0.1 specification
 - `docs/ADAPTER_CONTRACT.md` — adapter behavior and failure contract
 - `docs/SECURITY_MODEL.md` — trust boundaries and fail-closed behavior
@@ -503,4 +510,4 @@ python scripts/release_check.py
 python -m build
 ```
 
-The private-phase release workflow is manual and build-only. It tests the release, builds the wheel and source archive, verifies wheel installation, and stores private workflow artifacts. It contains no public publishing job.
+The repository release workflow is manual and build-only. It tests the release, builds the wheel and source archive, verifies wheel installation, and stores workflow artifacts. PyPI publication remains a separate explicitly authorized step.
