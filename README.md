@@ -256,6 +256,7 @@ The first v0.1 vertical slice includes:
 
 Feedback-driven additions remain opt-in or additive:
 
+- Official MCP Python SDK v2 tool-call guard that blocks stale or unverifiable protected tools before execution
 - bounded concurrent validation through `validation_workers`
 - total validation budgets that become `UNVERIFIABLE` when exceeded
 - per-adapter and total-check timing evidence
@@ -474,6 +475,8 @@ with guard(policy="allow") as ctx:
 Unsafe or non-idempotent MCP operations are `UNVERIFIABLE`; do not use them as validation readers. See `docs/ADAPTER_CONTRACT.md` for the complete extension contract.
 
 FreshCtx does not provide an MCP transport or client. The application supplies and reconstructs the safe-reader callback after process restart. External network calls occur only when the application explicitly selects an external adapter such as HTTP, Postgres, Stripe Subscription, or MCP.
+
+To guard an MCP server's consequential tools at the native `tools/call` boundary, attach `FreshCtxMCPGuard` as an official MCP Python SDK v2 extension. Until the next package release, install this branch from source with `python -m pip install -e '.[mcp-guard]'`. See `docs/MCP_GUARD.md` for the stable blocked-response format, multiple-tool configuration, three-outcome demonstration, real stdio subprocess validation, and the named-host Codex run. This server integration is separate from the safe-reader adapter above: the adapter re-reads evidence, while the guard controls whether a tool call may proceed.
 
 ## Project, support, and commercial inquiries
 

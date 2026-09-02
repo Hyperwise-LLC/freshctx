@@ -5,7 +5,7 @@ Contract identifier: `freshctx.pre_action.experimental.v1`
 
 ## Purpose
 
-The contract gives framework bridges one narrow job: place the same FreshCtx validation boundary immediately before the framework invokes a consequential action. It is being tested across Agno, LangGraph, OpenAI Agents SDK, and Google ADK before FreshCtx considers a stable public integration API.
+The contract gives framework and protocol bridges one narrow job: place the same FreshCtx validation boundary immediately before a consequential action. It is being tested across Agno, LangGraph, OpenAI Agents SDK, Google ADK, and the official MCP Python SDK before FreshCtx considers a stable public integration API.
 
 ## Invariant
 
@@ -86,8 +86,8 @@ A framework integration is not considered conformant until installed-framework t
 
 ## Current evidence
 
-The Agno 2.9 hook consumes this contract and retains its existing public API and framework-specific `FreshCtxAgnoBlocked` translation. LangGraph is the second mapping: synchronous and asynchronous action-node wrappers resolve dependencies from graph state, correlate an optional graph execution ID, and propagate `FreshnessBlocked` before the node body begins. OpenAI Agents SDK is the third mapping: a function-tool input guardrail correlates the SDK tool-call ID, records the tool name without its arguments, and translates blocking results into the SDK's native input-tool tripwire before the function body starts. Google ADK is the fourth mapping: an agent-level before-tool callback correlates the ADK function-call ID and returns a structured native override that skips the tool body when FreshCtx blocks. Its dependency resolver receives tool identity and context, never the tool arguments.
+The Agno 2.9 hook consumes this contract and retains its existing public API and framework-specific `FreshCtxAgnoBlocked` translation. LangGraph is the second mapping: synchronous and asynchronous action-node wrappers resolve dependencies from graph state, correlate an optional graph execution ID, and propagate `FreshnessBlocked` before the node body begins. OpenAI Agents SDK is the third mapping: a function-tool input guardrail correlates the SDK tool-call ID, records the tool name without its arguments, and translates blocking results into the SDK's native input-tool tripwire before the function body starts. Google ADK is the fourth mapping: an agent-level before-tool callback correlates the ADK function-call ID and returns a structured native override that skips the tool body when FreshCtx blocks. Its dependency resolver receives tool identity and context, never the tool arguments. The official MCP Python SDK v2 is the fifth mapping: an opt-in server extension intercepts native `tools/call`, resolves evidence from the tool name alone, and returns an MCP tool error without invoking the handler when FreshCtx blocks.
 
 ## Stability rule
 
-Do not export this module from `freshctx` or `freshctx.integrations`, promise semantic-version stability, or use it as a stable integration-author API yet. All four Wave 1 mappings now exist; stabilization still requires a documented comparison, the shared conformance suite across supported Python versions, and independent framework-user validation.
+Do not export this module from `freshctx` or `freshctx.integrations`, promise semantic-version stability, or use it as a stable integration-author API yet. Five mappings now exist; stabilization still requires a documented comparison, the shared conformance suite across supported Python versions, and independent integration-user validation.
