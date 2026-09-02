@@ -1,6 +1,6 @@
 """Demonstrate current, stale, and unverifiable MCP tool calls.
 
-Install the unreleased branch with: python -m pip install -e '.[mcp-guard]'
+Install the public package with: python -m pip install 'freshctx[mcp-guard]==0.9.0'
 """
 
 from __future__ import annotations

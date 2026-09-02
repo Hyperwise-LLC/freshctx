@@ -1,7 +1,10 @@
 # FreshCtx development pipeline
 
-Last updated: 2026-09-01
-Current public release: `0.8.0`
+Last updated: 2026-09-02
+Current public package: `0.9.0`
+
+PyPI published `0.9.0` after protected PR #47 merged. GitHub release metadata
+still ends at `v0.8.0` and must be completed as a separate release action.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
@@ -33,6 +36,10 @@ does not justify a software release.
     invalid or incomplete configuration becoming `UNVERIFIABLE`.
 11. **Independent bounded evidence** - OpsWatch control-versus-behavior and
     Callum Pierce's four-source research-brief `r3` record.
+12. **MCP Guard** - native MCP Python SDK v2 `tools/call` interception,
+    fail-closed blocking, independent per-tool dependencies, request
+    correlation, argument privacy, and in-process plus stdio validation in
+    0.9.0.
 
 ## P0 - stabilize the Wave 1 integration contract
 
@@ -46,14 +53,14 @@ does not justify a software release.
 
 ## P0 - establish the MCP action boundary
 
-1. **Implemented in PR #47** - official MCP Python SDK v2 server extension as
-   the first bounded MCP Guard surface.
-2. **Implemented in PR #47** - native `tools/call` interception,
+1. **Released in 0.9.0** - official MCP Python SDK v2 server extension as the
+   first bounded MCP Guard surface.
+2. **Released in 0.9.0** - native `tools/call` interception,
    blocked-before-handler execution, fail-closed unverifiable evidence, request
    correlation, argument privacy, multiple tools, and a versioned response.
-3. **Implemented in PR #47** - out-of-process stdio client/server validation
+3. **Released in 0.9.0** - out-of-process stdio client/server validation
    and one named-host run through Codex from a clean wheel installation.
-   Additional hosts remain external adoption tests after release.
+   Additional hosts remain external adoption tests.
 4. Keep authorization, identity, transactions, retries, and idempotency outside
    the FreshCtx freshness boundary.
 5. Use the results to specify a deployment-neutral MCP Guard interface before
@@ -61,12 +68,13 @@ does not justify a software release.
 
 ## P0 - external validation
 
-1. Google ADK 0.8.0 real workflow.
-2. LangGraph real workflow.
-3. Agno consequential-tool workflow.
-4. Stripe test-mode Subscription drift.
-5. Longer booking or renewed-approval workflow.
-6. Voice-agent canonical-record workflow.
+1. MCP Guard 0.9.0 independent `tools/call` reproduction.
+2. Google ADK 0.8.0 real workflow.
+3. LangGraph real workflow.
+4. Agno consequential-tool workflow.
+5. Stripe test-mode Subscription drift.
+6. Longer booking or renewed-approval workflow.
+7. Voice-agent canonical-record workflow.
 
 Record package version, environment, declared dependencies, decision, observed
 downstream effect, result, and limitations. Keep maintainer tests separate from
