@@ -11,6 +11,7 @@ All notable FreshCtx changes will be documented here.
 - Optional Google Agent Development Kit before-tool callback mapped to the experimental pre-action contract
 - Native structured blocking response, ADK function-call correlation, named-tool filtering, and dynamic dependency resolution without exposing tool arguments
 - Deterministic real-runner example plus current sync-tool, stale async-tool, privacy, filter, and configuration coverage
+- Semantic configuration example covering raw-file invalidation, selected-field equivalence, and fail-closed invalid or incomplete configuration
 
 ### Compatibility
 

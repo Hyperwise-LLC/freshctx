@@ -1,0 +1,102 @@
+# FreshCtx development pipeline
+
+Last updated: 2026-09-01
+Current public release: `0.8.0`
+
+This is the canonical ordered development plan for FreshCtx. Completed releases
+remain visible so product claims can be traced to public artifacts.
+
+## Release rule
+
+Publish a package only for a coherent product improvement. Every release must
+use a protected pull request, supported-Python CI, reviewed package contents,
+updated documentation, and a clean public-install check. Content cadence alone
+does not justify a software release.
+
+## Completed public milestones
+
+1. **Core boundary and adapters** - observation, reasoning, selective
+   invalidation, protected actions, stores, audit evidence, and six adapters.
+2. **Bounded validation controls** - opt-in concurrency, total budgets, timing,
+   evidence strategies, and explicit application responses.
+3. **Core hardening** - async APIs, migrations, CLI diagnostics, conformance,
+   validation reports, and package gates.
+4. **Stripe Subscription** - read-only selected-field validation and bounded
+   stale-webhook scenario.
+5. **Research-source pattern** - controlled and live source mapping, registration
+   wall handling, semantic article fingerprints, and Crossref metadata.
+6. **Agno** - sync and async tool hooks through the real execution chain.
+7. **LangGraph** - sync and async protected action-node wrappers.
+8. **OpenAI Agents SDK** - custom function-tool input guardrail.
+9. **Google ADK** - native `before_tool_callback` bridge in 0.8.0.
+10. **Semantic configuration** - raw-file and selected-field examples with
+    invalid or incomplete configuration becoming `UNVERIFIABLE`.
+11. **Independent bounded evidence** - OpsWatch control-versus-behavior and
+    Callum Pierce's four-source research-brief `r3` record.
+
+## P0 - stabilize the Wave 1 integration contract
+
+1. Compare Agno, LangGraph, OpenAI Agents SDK, and Google ADK against the same
+   conformance requirements.
+2. Verify true action-boundary placement, blocked-before-execution behavior,
+   privacy, correlation, dynamic dependency resolution, and sync/async behavior.
+3. Revise the experimental contract from the comparison results.
+4. Promote it to a stable integration-author API only when its shared semantics
+   are demonstrated across the released bridges.
+
+## P0 - external validation
+
+1. Google ADK 0.8.0 real workflow.
+2. LangGraph real workflow.
+3. Agno consequential-tool workflow.
+4. Stripe test-mode Subscription drift.
+5. Longer booking or renewed-approval workflow.
+6. Voice-agent canonical-record workflow.
+
+Record package version, environment, declared dependencies, decision, observed
+downstream effect, result, and limitations. Keep maintainer tests separate from
+independent evidence.
+
+## P1 - feedback-driven scenarios
+
+1. Incident communication with sentence-level dependencies.
+2. Durable database action-item claim liveness.
+3. Deployment worker ownership and actionability drift.
+4. Longer booking and approval comparison.
+5. Voice-agent source revalidation after semantic interpretation.
+
+Start with bounded examples using existing adapters. Add runtime or adapter
+surface only when repeated workflows require the same stable behavior.
+
+## P1 - product hardening
+
+1. Independent-result schema above JSONL evidence.
+2. Benchmark matrix by adapter, graph shape, reachability, worker count, and
+   budget.
+3. External adapter-author kit.
+4. Longer installed-framework loops.
+5. Ongoing README, website, PyPI, release, and documentation consistency audits.
+
+## Future integration candidates
+
+The next candidates are Microsoft Agent Framework, CrewAI, and PydanticAI,
+followed by specialized ElevenLabs, Hermes, and Claude Agent SDK scenarios.
+They are considerations rather than announced commitments. Each must begin with
+a bounded action-boundary use case and demonstrate demand before implementation.
+
+## Commercial direction
+
+Possible Hyperwise services include architecture, integration, deployment,
+managed connectors, organizational controls, evidence retention, approval
+routing, and support. These are future product directions, not capabilities of
+the current open-source runtime or an announced hosted service.
+
+## Explicit non-goals
+
+FreshCtx should not become:
+
+- a transaction, retry, lock, or idempotency engine;
+- an automatic replanning or silent agent-rerun system;
+- a truth, reasoning-correctness, authorization, safety, or compliance verifier;
+- a general workflow engine; or
+- a hosted control plane unless that product is separately built and released.
