@@ -41,15 +41,18 @@ does not justify a software release.
     correlation, argument privacy, and in-process plus stdio validation in
     0.9.0.
 
-## P0 - stabilize the Wave 1 integration contract
+## Completed - Wave 1 integration conformance
 
-1. Compare Agno, LangGraph, OpenAI Agents SDK, and Google ADK against the same
-   conformance requirements.
-2. Verify true action-boundary placement, blocked-before-execution behavior,
-   privacy, correlation, dynamic dependency resolution, and sync/async behavior.
-3. Revise the experimental contract from the comparison results.
-4. Promote it to a stable integration-author API only when its shared semantics
-   are demonstrated across the released bridges.
+1. Agno, LangGraph, OpenAI Agents SDK, Google ADK, and MCP now run equivalent
+   conformance scenarios through their real action boundaries.
+2. The matrix verifies exact-once allowed execution, blocked-before-execution
+   behavior for stale and unverifiable evidence, unrelated dependency isolation,
+   argument privacy, normalized decisions, audit evidence, and Agno async blocking.
+3. Protected CI runs the four compatible framework SDKs across Python 3.10-3.13
+   and MCP separately because Google ADK requires MCP 1.x while MCP Guard requires
+   MCP 2.x.
+4. The shared integration-author contract remains experimental until external
+   framework-user runs support stabilization.
 
 ## P0 - establish the MCP action boundary
 

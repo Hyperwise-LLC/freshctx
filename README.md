@@ -248,6 +248,12 @@ agent = Agent(
 
 When evidence is current, the callback returns `None` and ADK runs the tool normally. When evidence is stale or unverifiable under the blocking policy, the callback returns a structured blocked response and ADK skips the tool body. The mapping supports synchronous and asynchronous function tools, correlates ADK's function-call ID, and does not copy tool arguments into FreshCtx metadata. Attach it only to named tools, or at agent level only when the same dependency set genuinely applies to every tool. Built-in tools that do not pass through the agent's before-tool callback are outside this boundary.
 
+Agno, LangGraph, the OpenAI Agents SDK, Google ADK, and MCP are exercised by a
+[shared protected-action conformance matrix](docs/FRAMEWORK_CONFORMANCE.md).
+The matrix verifies equivalent current, stale, unverifiable, unrelated-change,
+exactly-once, audit, and sensitive-argument requirements across their native
+execution boundaries.
+
 ## Current implementation
 
 The v0.8 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
@@ -512,6 +518,7 @@ Community includes the complete Core runtime, six adapters, schemas, examples, a
 - `docs/ADAPTER_CONTRACT.md` — adapter behavior and failure contract
 - `docs/SECURITY_MODEL.md` — trust boundaries and fail-closed behavior
 - `docs/PERFORMANCE.md` — intended scale and performance boundaries
+- `docs/FRAMEWORK_CONFORMANCE.md` — shared conformance matrix for released integrations
 - `docs/FAQ.md` — product boundaries and common implementation questions
 - `GOVERNANCE.md` and `RELEASING.md` — stewardship and private-to-public release process
 

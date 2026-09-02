@@ -96,10 +96,31 @@ jobs:
         run: python -m pip install -e '.[mcp-guard]'
       - name: Run MCP Guard integration tests
         run: python -m unittest tests.test_mcp_guard_integration -v
+      - name: Run MCP through the shared conformance contract
+        env:
+          FRESHCTX_CONFORMANCE_RUNTIMES: mcp
+        run: python -m unittest tests.test_framework_conformance -v
       - name: Run bounded MCP balance-change example
         run: python examples/mcp_balance_guard.py
       - name: Run out-of-process MCP stdio validation
         run: python examples/mcp_guard_external_host.py
+
+  framework-conformance:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install all released framework integrations
+        run: python -m pip install -e '.[conformance]'
+      - name: Run the shared pre-action conformance matrix
+        run: python -m unittest tests.test_framework_conformance -v
 
   windows-onboarding:
     runs-on: windows-latest

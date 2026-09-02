@@ -2,6 +2,9 @@
 
 FreshCtx is testing a small framework-neutral pre-action contract before adding more framework-specific surface. The experimental contract and its conformance requirements are documented in `docs/PRE_ACTION_CONTRACT.md`. It is not part of the stable public API.
 
+All five released mappings run through the shared protected conformance matrix
+documented in `docs/FRAMEWORK_CONFORMANCE.md`.
+
 ## LangGraph
 
 Use the experimental `langgraph_action_node()` or `langgraph_async_action_node()` mapping around the action node that performs the external write. Keep observation or reasoning IDs in graph state and resolve only the dependencies for that action.
