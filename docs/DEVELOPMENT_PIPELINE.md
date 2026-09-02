@@ -1,10 +1,10 @@
 # FreshCtx development pipeline
 
 Last updated: 2026-09-02
-Current public package: `0.9.0`
+Current public release: `0.9.0`
 
-PyPI published `0.9.0` after protected PR #47 merged. GitHub release metadata
-still ends at `v0.8.0` and must be completed as a separate release action.
+PyPI, Git tag `v0.9.0`, and the GitHub Release were published after protected
+PR #47 merged.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
