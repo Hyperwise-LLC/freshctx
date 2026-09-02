@@ -75,7 +75,7 @@ or general workflow validation.
 ## Current priorities
 
 1. Obtain independent Google ADK, LangGraph, Agno, Stripe test-mode, booking,
-   approval, and voice-workflow runs.
+   approval, and ElevenLabs voice-workflow runs.
 2. Complete bounded incident-communication, durable action-item, deployment
    ownership, longer booking, and voice-agent scenarios.
 3. Expand the independent-result schema, benchmark matrix, adapter-author kit,

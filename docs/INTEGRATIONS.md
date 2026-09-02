@@ -2,8 +2,42 @@
 
 FreshCtx is testing a small framework-neutral pre-action contract before adding more framework-specific surface. The experimental contract and its conformance requirements are documented in `docs/PRE_ACTION_CONTRACT.md`. It is not part of the stable public API.
 
-All five released mappings run through the shared protected conformance matrix
+All six supported mappings run through the shared protected conformance matrix
 documented in `docs/FRAMEWORK_CONFORMANCE.md`.
+
+## ElevenLabs
+
+Use `register_elevenlabs_client_tool()` to register a consequential client tool
+through ElevenLabs' official Python SDK. Configure the matching tool in the
+ElevenLabs dashboard with **Wait for response** enabled so the conversation
+receives the allow or structured blocked result.
+
+```python
+from elevenlabs.conversational_ai.conversation import ClientTools
+from freshctx.integrations.elevenlabs import register_elevenlabs_client_tool
+
+client_tools = ClientTools()
+register_elevenlabs_client_tool(
+    client_tools,
+    "confirm_booking",
+    confirm_booking,
+    depends_on=[customer_decision],
+    store=store,
+)
+```
+
+The application owns speech-to-record matching and identity resolution. Feed
+only defensible matches into the reasoning dependency map; represent an
+unresolved match as an unverifiable dependency so the action fails closed.
+FreshCtx then revalidates the declared canonical record immediately inside the
+client-tool handler, before booking, payment, or account mutation. Raw tool
+parameters are not copied into FreshCtx metadata or audit records.
+
+The bridge protects Python client tools only. Webhook tools should place the
+same FreshCtx boundary inside their application endpoint. ElevenLabs system
+tools do not traverse this client-tool boundary. See
+`examples/elevenlabs_voice_customer_guard.py` for a credential-free run through
+the real SDK registry.
 
 ## LangGraph
 

@@ -89,7 +89,9 @@ independent evidence.
 2. Durable database action-item claim liveness.
 3. Deployment worker ownership and actionability drift.
 4. Longer booking and approval comparison.
-5. Voice-agent source revalidation after semantic interpretation.
+5. **Implemented for the next release** - ElevenLabs client-tool boundary and
+   bounded voice-agent customer-record scenario; external voice-workflow
+   validation remains pending.
 
 Start with bounded examples using existing adapters. Add runtime or adapter
 surface only when repeated workflows require the same stable behavior.
@@ -106,7 +108,8 @@ surface only when repeated workflows require the same stable behavior.
 ## Future integration candidates
 
 The next candidates are Microsoft Agent Framework, CrewAI, and PydanticAI,
-followed by specialized ElevenLabs, Hermes, and Claude Agent SDK scenarios.
+followed by specialized Hermes and Claude Agent SDK scenarios. ElevenLabs now
+has a bounded Python client-tool integration awaiting external validation.
 They are considerations rather than announced commitments. Each must begin with
 a bounded action-boundary use case and demonstrate demand before implementation.
 

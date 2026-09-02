@@ -1,7 +1,7 @@
 # Framework integration conformance
 
 Conformance verifies that FreshCtx enforces the same protected-action guarantee
-through every released framework and protocol boundary. It is a reliability and
+through every supported framework and protocol boundary. It is a reliability and
 compatibility test, not a separate runtime feature.
 
 ## Shared guarantee
@@ -11,7 +11,7 @@ compatibility test, not a separate runtime feature.
 
 The suite runs the same source fixture, dependency graph, sensitive argument,
 and four situations through real Agno, LangGraph, OpenAI Agents SDK, Google ADK,
-and MCP execution paths.
+ElevenLabs, and MCP execution paths.
 
 | Situation | Required result |
 | --- | --- |
@@ -41,7 +41,7 @@ Google ADK currently requires MCP 1.x, while MCP Guard requires MCP 2.x. The
 same conformance contract therefore runs in two valid environments rather than
 forcing incompatible SDK versions into one installation.
 
-Run the four agent-framework mappings:
+Run the five agent-framework mappings:
 
 ```console
 python -m pip install -e '.[conformance]'
@@ -63,6 +63,7 @@ FRESHCTX_CONFORMANCE_RUNTIMES=mcp python -m unittest tests.test_framework_confor
 | LangGraph | Action node |
 | OpenAI Agents SDK | Function-tool input guardrail |
 | Google ADK | `before_tool_callback` |
+| ElevenLabs | Python SDK client-tool handler |
 | MCP | Native `tools/call` extension boundary |
 
 Conformance does not make the experimental pre-action contract stable. External

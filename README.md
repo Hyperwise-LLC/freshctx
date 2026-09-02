@@ -248,11 +248,27 @@ agent = Agent(
 
 When evidence is current, the callback returns `None` and ADK runs the tool normally. When evidence is stale or unverifiable under the blocking policy, the callback returns a structured blocked response and ADK skips the tool body. The mapping supports synchronous and asynchronous function tools, correlates ADK's function-call ID, and does not copy tool arguments into FreshCtx metadata. Attach it only to named tools, or at agent level only when the same dependency set genuinely applies to every tool. Built-in tools that do not pass through the agent's before-tool callback are outside this boundary.
 
-Agno, LangGraph, the OpenAI Agents SDK, Google ADK, and MCP are exercised by a
+Agno, LangGraph, the OpenAI Agents SDK, Google ADK, ElevenLabs, and MCP are exercised by a
 [shared protected-action conformance matrix](docs/FRAMEWORK_CONFORMANCE.md).
 The matrix verifies equivalent current, stale, unverifiable, unrelated-change,
 exactly-once, audit, and sensitive-argument requirements across their native
 execution boundaries.
+
+### ElevenLabs voice-agent tools
+
+Protect consequential ElevenLabs Python client tools at their registered
+handler boundary:
+
+```console
+python -m pip install 'freshctx[elevenlabs]'
+python examples/elevenlabs_voice_customer_guard.py
+```
+
+The bounded scenario uses the real ElevenLabs `ClientTools` registry and shows
+three outcomes: a matching current customer record permits one booking action,
+a changed canonical record blocks it, and an unresolved speech-to-record match
+becomes `UNVERIFIABLE` and blocks it. Semantic matching and identity resolution
+remain application-owned. See `docs/INTEGRATIONS.md` for registration and scope.
 
 ## Current implementation
 
@@ -518,7 +534,8 @@ Community includes the complete Core runtime, six adapters, schemas, examples, a
 - `docs/ADAPTER_CONTRACT.md` — adapter behavior and failure contract
 - `docs/SECURITY_MODEL.md` — trust boundaries and fail-closed behavior
 - `docs/PERFORMANCE.md` — intended scale and performance boundaries
-- `docs/FRAMEWORK_CONFORMANCE.md` — shared conformance matrix for released integrations
+- `docs/FRAMEWORK_CONFORMANCE.md` — shared conformance matrix for supported integrations
+- `docs/ELEVENLABS.md` — voice-agent client-tool setup, outcomes, and scope
 - `docs/FAQ.md` — product boundaries and common implementation questions
 - `GOVERNANCE.md` and `RELEASING.md` — stewardship and private-to-public release process
 
