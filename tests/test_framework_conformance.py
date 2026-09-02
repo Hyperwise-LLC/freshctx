@@ -19,7 +19,7 @@ from tests.framework_conformance import (
 
 
 SITUATIONS = ("current", "stale", "unverifiable", "unrelated_changed")
-FRAMEWORK_RUNTIMES = ("agno", "langgraph", "openai_agents", "google_adk")
+FRAMEWORK_RUNTIMES = ("agno", "langgraph", "openai_agents", "google_adk", "elevenlabs")
 RUNTIMES = tuple(
     name.strip()
     for name in os.environ.get(
@@ -57,6 +57,11 @@ if "google_adk" in RUNTIMES:
     from freshctx.integrations.google_adk import google_adk_tool_callback
 else:
     BaseLlm = object
+
+if "elevenlabs" in RUNTIMES:
+    from elevenlabs.conversational_ai.conversation import ClientTools
+
+    from freshctx.integrations.elevenlabs import register_elevenlabs_client_tool
 
 if "mcp" in RUNTIMES:
     from mcp import Client
@@ -278,6 +283,43 @@ def run_google_adk(fixture: ConformanceFixture) -> ConformanceOutcome:
     )
 
 
+def run_elevenlabs(fixture: ConformanceFixture) -> ConformanceOutcome:
+    executed: list[str] = []
+    client_tools = ClientTools()
+
+    def write_record(parameters: dict[str, Any]) -> dict[str, str]:
+        executed.append(parameters["value"])
+        return {"status": "written"}
+
+    register_elevenlabs_client_tool(
+        client_tools,
+        "write_record",
+        write_record,
+        depends_on=fixture.dependencies,
+        store=fixture.store,
+        audit_path=fixture.audit_path,
+    )
+    result = asyncio.run(
+        client_tools.handle("write_record", {"value": SENSITIVE_ARGUMENT})
+    )
+    if result.get("status") == "blocked":
+        blocked = result["freshctx"]
+        return outcome(
+            fixture,
+            runtime="elevenlabs",
+            state=blocked["state"],
+            policy_decision=blocked["policy_decision"],
+            executions=len(executed),
+        )
+    return outcome(
+        fixture,
+        runtime="elevenlabs",
+        state="CURRENT",
+        policy_decision="allow",
+        executions=len(executed),
+    )
+
+
 async def _run_mcp(fixture: ConformanceFixture) -> ConformanceOutcome:
     executed: list[str] = []
     extension = FreshCtxMCPGuard(
@@ -324,6 +366,7 @@ DRIVERS = {
     "langgraph": run_langgraph,
     "openai_agents": run_openai_agents,
     "google_adk": run_google_adk,
+    "elevenlabs": run_elevenlabs,
 }
 if "mcp" in RUNTIMES:
     DRIVERS["mcp"] = run_mcp

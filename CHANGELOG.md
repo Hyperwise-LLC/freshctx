@@ -4,6 +4,20 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+### Added
+
+- Optional ElevenLabs Python SDK client-tool registration mapped to the shared
+  pre-action contract, with synchronous and asynchronous handler support
+- Bounded voice-agent customer-record scenario covering current, stale, and
+  unresolved-match (`UNVERIFIABLE`) outcomes through the real `ClientTools` registry
+
+### Compatibility
+
+- ElevenLabs remains optional and is installed only through the `elevenlabs` extra.
+- The bridge protects registered Python client tools configured to wait for a
+  response. Webhook endpoints can use the same FreshCtx boundary server-side;
+  ElevenLabs system tools are outside this integration.
+
 ## 0.9.0 - 2026-09-02
 
 ### Added

@@ -56,6 +56,7 @@ jobs:
           python examples/stripe_subscription_drift.py
           python examples/document_source_drift.py
           python examples/google_adk_stale_tool.py
+          python examples/elevenlabs_voice_customer_guard.py
 
   package:
     runs-on: ubuntu-latest

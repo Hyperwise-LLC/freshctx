@@ -90,9 +90,15 @@ The Agno 2.9 hook consumes this contract and retains its existing public API and
 
 The shared conformance matrix in `tests/test_framework_conformance.py` now runs
 equivalent current, stale, unverifiable, unrelated-change, exactly-once, audit,
-and sensitive-argument checks through all five installed framework paths. See
+and sensitive-argument checks through all six installed framework paths. See
 `docs/FRAMEWORK_CONFORMANCE.md` for the executable contract and local command.
+
+ElevenLabs is the sixth mapping. It registers a protected handler in the
+official Python SDK `ClientTools` registry and returns a structured tool result
+without invoking the application handler when FreshCtx blocks. Tool parameters
+are passed only to the application continuation and are not copied into
+FreshCtx metadata or audit records.
 
 ## Stability rule
 
-Do not export this module from `freshctx` or `freshctx.integrations`, promise semantic-version stability, or use it as a stable integration-author API yet. Five mappings and their shared protected-CI conformance suite now exist; stabilization still requires independent integration-user validation.
+Do not export this module from `freshctx` or `freshctx.integrations`, promise semantic-version stability, or use it as a stable integration-author API yet. Six mappings and their shared protected-CI conformance suite now exist; stabilization still requires independent integration-user validation.
