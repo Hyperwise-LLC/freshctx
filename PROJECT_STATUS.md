@@ -52,10 +52,12 @@ source cannot be checked safely. Unknown conditions never silently become
 - Google ADK `before_tool_callback`
 - MCP Python SDK v2 native `tools/call` extension
 
-All five mappings consume the same experimental pre-action contract. The
+All five mappings consume the same experimental pre-action contract. A shared
+conformance suite now exercises equivalent allow, stale, unverifiable, and
+unrelated-change scenarios through the real framework boundaries. The
 framework-specific bridges are released; the shared integration-author
-contract remains experimental while conformance comparison and external
-framework-user validation continue.
+contract remains experimental while external framework-user validation
+continues.
 
 ## Public evidence
 
@@ -72,13 +74,11 @@ or general workflow validation.
 
 ## Current priorities
 
-1. Compare all five framework bridges against the shared pre-action conformance
-   requirements.
-2. Obtain independent Google ADK, LangGraph, Agno, Stripe test-mode, booking,
+1. Obtain independent Google ADK, LangGraph, Agno, Stripe test-mode, booking,
    approval, and voice-workflow runs.
-3. Complete bounded incident-communication, durable action-item, deployment
+2. Complete bounded incident-communication, durable action-item, deployment
    ownership, longer booking, and voice-agent scenarios.
-4. Expand the independent-result schema, benchmark matrix, adapter-author kit,
+3. Expand the independent-result schema, benchmark matrix, adapter-author kit,
    and longer framework loops.
 
 See `docs/DEVELOPMENT_PIPELINE.md` for the ordered public plan.

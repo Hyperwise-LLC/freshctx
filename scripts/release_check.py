@@ -27,6 +27,8 @@ REQUIRED = [
     "examples/mcp_balance_guard.py",
     "examples/mcp_guard_stdio_server.py", "examples/mcp_guard_external_host.py",
     "tests/test_mcp_guard_integration.py",
+    "tests/framework_conformance.py", "tests/test_framework_conformance.py",
+    "docs/FRAMEWORK_CONFORMANCE.md",
     "examples/selection_provenance/README.md",
     "examples/selection_provenance/run.py",
     "examples/selection_provenance/selection-receipt.experimental.schema.json",

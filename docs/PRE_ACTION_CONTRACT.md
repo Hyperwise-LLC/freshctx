@@ -88,6 +88,11 @@ A framework integration is not considered conformant until installed-framework t
 
 The Agno 2.9 hook consumes this contract and retains its existing public API and framework-specific `FreshCtxAgnoBlocked` translation. LangGraph is the second mapping: synchronous and asynchronous action-node wrappers resolve dependencies from graph state, correlate an optional graph execution ID, and propagate `FreshnessBlocked` before the node body begins. OpenAI Agents SDK is the third mapping: a function-tool input guardrail correlates the SDK tool-call ID, records the tool name without its arguments, and translates blocking results into the SDK's native input-tool tripwire before the function body starts. Google ADK is the fourth mapping: an agent-level before-tool callback correlates the ADK function-call ID and returns a structured native override that skips the tool body when FreshCtx blocks. Its dependency resolver receives tool identity and context, never the tool arguments. The official MCP Python SDK v2 is the fifth mapping: an opt-in server extension intercepts native `tools/call`, resolves evidence from the tool name alone, and returns an MCP tool error without invoking the handler when FreshCtx blocks.
 
+The shared conformance matrix in `tests/test_framework_conformance.py` now runs
+equivalent current, stale, unverifiable, unrelated-change, exactly-once, audit,
+and sensitive-argument checks through all five installed framework paths. See
+`docs/FRAMEWORK_CONFORMANCE.md` for the executable contract and local command.
+
 ## Stability rule
 
-Do not export this module from `freshctx` or `freshctx.integrations`, promise semantic-version stability, or use it as a stable integration-author API yet. Five mappings now exist; stabilization still requires a documented comparison, the shared conformance suite across supported Python versions, and independent integration-user validation.
+Do not export this module from `freshctx` or `freshctx.integrations`, promise semantic-version stability, or use it as a stable integration-author API yet. Five mappings and their shared protected-CI conformance suite now exist; stabilization still requires independent integration-user validation.
