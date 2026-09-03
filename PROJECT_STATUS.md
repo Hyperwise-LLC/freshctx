@@ -3,9 +3,8 @@
 Last updated: 2026-09-02
 Current public release: `0.10.0`
 
-FreshCtx 0.10.0 was prepared through a protected release pull request on
-2026-09-02. PyPI, Git tag, and GitHub Release publication are the remaining
-release steps.
+PyPI, Git tag `v0.10.0`, and the GitHub Release were published on 2026-09-02
+after protected PR #59 merged.
 
 ## Current milestone
 
