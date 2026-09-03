@@ -260,7 +260,7 @@ Protect consequential ElevenLabs Python client tools at their registered
 handler boundary:
 
 ```console
-python -m pip install 'freshctx[elevenlabs]'
+python -m pip install 'freshctx[elevenlabs]==0.10.0'
 python examples/elevenlabs_voice_customer_guard.py
 ```
 
@@ -272,7 +272,7 @@ remain application-owned. See `docs/INTEGRATIONS.md` for registration and scope.
 
 ## Current implementation
 
-The v0.8 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
+The v0.10 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
 
 The first v0.1 vertical slice includes:
 

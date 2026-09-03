@@ -4,6 +4,8 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.10.0 - 2026-09-02
+
 ### Added
 
 - Optional ElevenLabs Python SDK client-tool registration mapped to the shared
