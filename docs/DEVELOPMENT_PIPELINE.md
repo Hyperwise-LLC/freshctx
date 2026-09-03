@@ -1,10 +1,11 @@
 # FreshCtx development pipeline
 
 Last updated: 2026-09-02
-Current public release: `0.9.0`
+Current public release: `0.10.0`
 
-PyPI, Git tag `v0.9.0`, and the GitHub Release were published after protected
-PR #47 merged.
+FreshCtx 0.10.0 was prepared through a protected release pull request on
+2026-09-02. PyPI, Git tag, and GitHub Release publication remain separate
+explicit release steps.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
@@ -40,6 +41,9 @@ does not justify a software release.
     fail-closed blocking, independent per-tool dependencies, request
     correlation, argument privacy, and in-process plus stdio validation in
     0.9.0.
+13. **ElevenLabs** - Python client-tool registration, synchronous and
+    asynchronous handler protection, and a bounded current/stale/unverifiable
+    customer-record scenario in 0.10.0.
 
 ## Completed - Wave 1 integration conformance
 
@@ -89,9 +93,9 @@ independent evidence.
 2. Durable database action-item claim liveness.
 3. Deployment worker ownership and actionability drift.
 4. Longer booking and approval comparison.
-5. **Implemented for the next release** - ElevenLabs client-tool boundary and
-   bounded voice-agent customer-record scenario; external voice-workflow
-   validation remains pending.
+5. **Released in 0.10.0** - ElevenLabs client-tool boundary and bounded
+   voice-agent customer-record scenario; external voice-workflow validation
+   remains pending.
 
 Start with bounded examples using existing adapters. Add runtime or adapter
 surface only when repeated workflows require the same stable behavior.
@@ -108,8 +112,8 @@ surface only when repeated workflows require the same stable behavior.
 ## Future integration candidates
 
 The next candidates are Microsoft Agent Framework, CrewAI, and PydanticAI,
-followed by specialized Hermes and Claude Agent SDK scenarios. ElevenLabs now
-has a bounded Python client-tool integration awaiting external validation.
+followed by specialized Hermes and Claude Agent SDK scenarios. ElevenLabs has
+a released bounded Python client-tool integration awaiting external validation.
 They are considerations rather than announced commitments. Each must begin with
 a bounded action-boundary use case and demonstrate demand before implementation.
 

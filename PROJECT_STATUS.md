@@ -1,24 +1,32 @@
 # FreshCtx project status
 
 Last updated: 2026-09-02
-Current public release: `0.9.0`
+Current public release: `0.10.0`
 
-PyPI, Git tag `v0.9.0`, and the GitHub Release were published on 2026-09-02
-after protected PR #47 merged.
+FreshCtx 0.10.0 was prepared through a protected release pull request on
+2026-09-02. PyPI, Git tag, and GitHub Release publication are the remaining
+release steps.
 
 ## Current milestone
 
-FreshCtx 0.9.0 is available on PyPI. It preserves the original synchronous
+FreshCtx 0.10.0 preserves the original synchronous
 Core contract while adding opt-in concurrency, async protected actions,
 validation budgets, stronger developer tooling, six adapters, and native
 pre-action mappings for Agno, LangGraph, the OpenAI Agents SDK, Google ADK, and
-the official MCP Python SDK v2.
+the official MCP Python SDK v2, plus an ElevenLabs Python client-tool bridge.
 
 The 0.9.0 package adds an MCP server extension
 at the native `tools/call` boundary, a versioned blocked-response schema,
 independent per-tool dependencies, three-outcome demonstrations, and a real
 out-of-process stdio validation. A named-host run through Codex also returned
 the expected FreshCtx stale-evidence block.
+
+The 0.10.0 package adds an optional ElevenLabs client-tool integration and a
+bounded customer-record scenario. Matching current evidence permits exactly
+one consequential action; changed canonical evidence or an unresolved
+speech-to-record match blocks before the handler runs. Semantic matching and
+identity resolution remain application-owned. A live external voice-workflow
+run remains an adoption test, not a release claim.
 
 ## Released runtime
 
@@ -51,8 +59,9 @@ source cannot be checked safely. Unknown conditions never silently become
 - OpenAI Agents SDK custom function-tool input guardrail
 - Google ADK `before_tool_callback`
 - MCP Python SDK v2 native `tools/call` extension
+- ElevenLabs Python SDK client-tool registration
 
-All five mappings consume the same experimental pre-action contract. A shared
+All six mappings consume the same experimental pre-action contract. A shared
 conformance suite now exercises equivalent allow, stale, unverifiable, and
 unrelated-change scenarios through the real framework boundaries. The
 framework-specific bridges are released; the shared integration-author
