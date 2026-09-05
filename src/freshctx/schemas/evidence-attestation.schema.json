@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://freshctx.com/schemas/evidence-attestation.schema.json",
+  "title": "EvidenceAttestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "attestation_id", "correlation_id", "issuer", "key_id",
+    "algorithm", "payload_digest", "signature", "issued_at", "expires_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "freshctx.evidence_attestation.v1"},
+    "attestation_id": {"type": "string", "minLength": 1},
+    "correlation_id": {"type": "string", "minLength": 1},
+    "issuer": {"type": "string", "minLength": 1},
+    "key_id": {"type": "string", "minLength": 1},
+    "algorithm": {"const": "hmac-sha256"},
+    "payload_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "signature": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"}
+  }
+}

@@ -4,6 +4,8 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.11.0 - 2026-09-05
+
 ### Added
 
 - Versioned action/evidence correlation records for every protected synchronous
@@ -17,6 +19,10 @@ All notable FreshCtx changes will be documented here.
   LangGraph, OpenAI Agents SDK, Google ADK, ElevenLabs, and MCP
 - Portable correlation details on each integration's native blocked surface;
   MCP now separates the FreshCtx correlation ID from the protocol request ID
+- Bounded HMAC-SHA256 evidence attestations that seal one exact correlation
+  record for a named issuer and key ID with an application-selected expiry
+- Independent verification outcomes for valid, expired, mismatched, and
+  incorrectly signed attestations without changing FreshCtx freshness states
 
 ### Compatibility
 
@@ -24,6 +30,9 @@ All notable FreshCtx changes will be documented here.
   established blocked-response fields are unchanged; correlation fields are additive.
 - Action arguments, credentials, source contents, and business payloads are not
   added to correlation records or integration metadata.
+- Attestation keys remain process-local and are never serialized. An attestation
+  proves record integrity and key possession, not truth, correctness, authorization,
+  safety, or compliance.
 
 ## 0.10.0 - 2026-09-02
 

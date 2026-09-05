@@ -112,6 +112,35 @@ IDs, reachable reasoning and observation IDs, unresolved IDs, freshness state,
 policy decision, audit run, and optional framework execution identity. It never
 contains action arguments. See `docs/ACTION_EVIDENCE_CORRELATION.md`.
 
+## Evidence attestation
+
+```python
+attest_correlation(
+    correlation: ActionEvidenceCorrelation,
+    *,
+    issuer: str,
+    key_id: str,
+    key: bytes,
+    ttl_seconds: float,
+    now: str | None = None,
+) -> EvidenceAttestation
+
+verify_attestation(
+    attestation: EvidenceAttestation,
+    correlation: ActionEvidenceCorrelation,
+    *,
+    key: bytes,
+    now: str | None = None,
+) -> AttestationVerification
+```
+
+The signer binds the complete versioned correlation record to a named issuer,
+key ID, and expiry using HMAC-SHA256. Verification reports `verified`,
+`not_yet_valid`, `expired`, `correlation_mismatch`, `payload_mismatch`, `signature_mismatch`, or
+an unsupported contract reason. The key must contain at least 32 bytes and is
+never serialized. This integrity receipt remains separate from freshness,
+source selection, authorization, and compliance decisions.
+
 ## `Guard.check()`
 
 ```python
