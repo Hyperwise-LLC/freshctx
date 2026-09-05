@@ -18,6 +18,7 @@ class FreshCtxAgnoBlocked(StopAgentRun):
 
     def __init__(self, blocked: FreshnessBlocked):
         self.result = blocked.result
+        self.correlation = blocked.correlation
         super().__init__(blocked, agent_message=str(blocked))
 
 

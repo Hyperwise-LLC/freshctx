@@ -24,6 +24,7 @@ REQUIRED = [
     "docs/ADAPTER_CONTRACT.md", "docs/SECURITY_MODEL.md", "docs/PERFORMANCE.md",
     "docs/FAQ.md", "docs/SUCCESS_CASES.md", "docs/CLI.md", "docs/INTEGRATIONS.md",
     "docs/ACTION_EVIDENCE_CORRELATION.md",
+    "docs/CROSS_INTEGRATION_CORRELATION.md",
     "docs/ELEVENLABS.md",
     "docs/MCP_GUARD.md", "docs/MCP_HOST_VALIDATION.md",
     "examples/mcp_balance_guard.py",

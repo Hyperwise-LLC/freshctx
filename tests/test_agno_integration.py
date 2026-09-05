@@ -51,6 +51,8 @@ class AgnoIntegrationTests(unittest.TestCase):
             FunctionCall(function=write_record, arguments={"value": "write"}).execute()
         self.assertEqual(called, [])
         self.assertEqual(raised.exception.result.state.value, "STALE_REASONING")
+        self.assertEqual(raised.exception.correlation.runtime, "agno")
+        self.assertEqual(raised.exception.correlation.boundary_outcome, "blocked")
 
     def test_actual_agno_tool_runs_when_dependency_is_current(self):
         decision = self._decision()
@@ -87,6 +89,7 @@ class AgnoIntegrationTests(unittest.TestCase):
         blocked, called = asyncio.run(scenario())
         self.assertEqual(called, [])
         self.assertEqual(blocked.result.state.value, "STALE_REASONING")
+        self.assertEqual(blocked.correlation.runtime, "agno")
 
     def test_empty_dependency_set_is_rejected_during_configuration(self):
         with self.assertRaises(ConfigurationError):

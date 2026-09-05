@@ -87,6 +87,12 @@ class MCPGuardIntegrationTests(unittest.TestCase):
         self.assertEqual(result.structured_content["tool"], "transfer_money")
         self.assertEqual(result.structured_content["state"], "STALE_REASONING")
         self.assertIsNotNone(result.structured_content["correlationId"])
+        self.assertIsNotNone(result.structured_content["executionId"])
+        self.assertEqual(
+            result.structured_content["correlationId"],
+            result.meta["com.freshctx/correlation"]["correlation_id"],
+        )
+        self.assertEqual(result.meta["com.freshctx/correlation"]["runtime"], "mcp")
         self.assertEqual(result.meta["com.freshctx/result"]["policy_decision"], "block")
         self.assertNotIn("private-beneficiary", self.audit.read_text(encoding="utf-8"))
         self.assertNotIn("private-beneficiary", repr(self.store.objects))

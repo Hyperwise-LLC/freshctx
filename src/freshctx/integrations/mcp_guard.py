@@ -145,6 +145,7 @@ class FreshCtxMCPGuard(Extension):
             )
         except FreshnessBlocked as blocked:
             result = blocked.result.to_dict()
+            correlation = blocked.correlation.to_dict() if blocked.correlation is not None else None
             state = result["state"]
             public_result = {
                 "schemaVersion": MCP_GUARD_RESULT_SCHEMA,
@@ -153,7 +154,8 @@ class FreshCtxMCPGuard(Extension):
                 "tool": tool_name,
                 "state": state,
                 "policyDecision": result["policy_decision"],
-                "correlationId": execution_id,
+                "correlationId": correlation["correlation_id"] if correlation is not None else None,
+                "executionId": execution_id,
             }
             return CallToolResult.model_validate(
                 {
@@ -167,6 +169,7 @@ class FreshCtxMCPGuard(Extension):
                     "isError": True,
                     "_meta": {
                         "com.freshctx/result": result,
+                        "com.freshctx/correlation": correlation,
                         "com.freshctx/contract": EXPERIMENTAL_PRE_ACTION_CONTRACT,
                         "com.freshctx/resultSchema": MCP_GUARD_RESULT_SCHEMA,
                     },

@@ -8,7 +8,11 @@ from typing import Any
 
 from ..core import FreshnessBlocked
 from ..errors import ConfigurationError
-from .pre_action import EXPERIMENTAL_PRE_ACTION_CONTRACT, PreActionBoundary, PreActionCall
+from .pre_action import (
+    PreActionBoundary,
+    PreActionCall,
+    blocked_contract_payload,
+)
 
 
 DependencySource = Iterable[Any] | Callable[[Any, Any], Iterable[Any]]
@@ -102,8 +106,7 @@ def google_adk_tool_callback(
             return {
                 "status": "blocked",
                 "error": "freshctx_pre_action_blocked",
-                "freshctx": blocked.result.to_dict(),
-                "contract": EXPERIMENTAL_PRE_ACTION_CONTRACT,
+                **blocked_contract_payload(blocked),
             }
         return None
 

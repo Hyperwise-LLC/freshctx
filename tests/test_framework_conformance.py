@@ -420,6 +420,38 @@ class FrameworkConformanceTests(unittest.TestCase):
                             applied["details"]["policy_decision"],
                             result.policy_decision,
                         )
+                        correlations = [
+                            event for event in events
+                            if event["event_type"] == "action_evidence_correlated"
+                        ]
+                        self.assertEqual(len(correlations), 1)
+                        correlation = correlations[0]["details"]
+                        self.assertEqual(
+                            correlation["schema_version"],
+                            "freshctx.action_evidence_correlation.v1",
+                        )
+                        self.assertEqual(correlation["runtime"], runtime)
+                        self.assertEqual(correlation["action"], "write_record")
+                        self.assertEqual(correlation["freshness_state"], result.state)
+                        self.assertEqual(
+                            correlation["policy_decision"], result.policy_decision
+                        )
+                        self.assertEqual(
+                            correlation["boundary_outcome"],
+                            "allowed" if expected_allowed else "blocked",
+                        )
+                        self.assertNotIn(SENSITIVE_ARGUMENT, repr(correlation))
+                        if situation == "unverifiable":
+                            self.assertEqual(correlation["observation_ids"], [])
+                            self.assertEqual(
+                                correlation["unresolved_dependency_ids"],
+                                ["missing-conformance-dependency"],
+                            )
+                        else:
+                            self.assertEqual(len(correlation["observation_ids"]), 1)
+                            self.assertEqual(
+                                correlation["unresolved_dependency_ids"], []
+                            )
                         if expected_allowed:
                             self.assertIn("action_allowed", event_names)
                     finally:

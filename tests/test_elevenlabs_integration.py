@@ -66,6 +66,7 @@ class ElevenLabsIntegrationTests(unittest.TestCase):
         result = asyncio.run(tools.handle("confirm_booking", {"booking_id": "B-1"}))
         self.assertEqual(result["status"], "blocked")
         self.assertEqual(result["freshctx"]["state"], "STALE_REASONING")
+        self.assertEqual(result["correlation"]["runtime"], "elevenlabs")
         self.assertEqual(called, [])
 
     def test_unverifiable_dependency_blocks_and_arguments_are_not_persisted(self):
@@ -81,6 +82,7 @@ class ElevenLabsIntegrationTests(unittest.TestCase):
         )
         result = asyncio.run(tools.handle("update_account", {"secret": "voice-secret-9f6d"}))
         self.assertEqual(result["freshctx"]["state"], "UNVERIFIABLE")
+        self.assertEqual(result["correlation"]["freshness_state"], "UNVERIFIABLE")
         self.assertEqual(called, [])
         self.assertNotIn("voice-secret-9f6d", repr(self.store.objects))
         self.assertNotIn("voice-secret-9f6d", self.audit.read_text(encoding="utf-8"))

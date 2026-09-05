@@ -82,8 +82,11 @@ class OpenAIAgentsIntegrationTests(unittest.TestCase):
 
         self.assertEqual(called, [])
         result = raised.exception.output.output_info["freshctx"]
+        correlation = raised.exception.output.output_info["correlation"]
         self.assertEqual(result["state"], "STALE_REASONING")
         self.assertEqual(result["policy_decision"], "block")
+        self.assertEqual(correlation["runtime"], "openai_agents")
+        self.assertEqual(correlation["execution_id"], "call-freshctx-123")
         self.assertNotIn("sensitive-business-value", repr(self.store.objects))
         self.assertNotIn("sensitive-business-value", self.audit.read_text(encoding="utf-8"))
         self.assertIn('"run_id": "call-freshctx-123"', self.audit.read_text(encoding="utf-8"))

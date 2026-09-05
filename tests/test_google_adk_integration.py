@@ -122,6 +122,8 @@ class GoogleADKIntegrationTests(unittest.TestCase):
         self.assertEqual(response["status"], "blocked")
         self.assertEqual(response["freshctx"]["state"], "STALE_REASONING")
         self.assertEqual(response["freshctx"]["policy_decision"], "block")
+        self.assertEqual(response["correlation"]["runtime"], "google_adk")
+        self.assertEqual(response["correlation"]["execution_id"], "adk-call-123")
         self.assertNotIn("sensitive-business-value", repr(self.store.objects))
         self.assertNotIn("sensitive-business-value", self.audit.read_text(encoding="utf-8"))
         self.assertIn('"run_id": "adk-call-123"', self.audit.read_text(encoding="utf-8"))
@@ -165,6 +167,7 @@ class GoogleADKIntegrationTests(unittest.TestCase):
         self.assertEqual(response["status"], "blocked")
         self.assertEqual(response["freshctx"]["state"], "UNVERIFIABLE")
         self.assertEqual(response["freshctx"]["policy_decision"], "block")
+        self.assertEqual(response["correlation"]["freshness_state"], "UNVERIFIABLE")
 
     def test_invalid_configuration_is_rejected(self):
         with self.assertRaises(ConfigurationError):
