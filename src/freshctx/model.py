@@ -85,6 +85,43 @@ class CheckResult:
 
 
 @dataclass(frozen=True)
+class ActionEvidenceCorrelation:
+    """Portable link between one protected action and its checked evidence.
+
+    The record contains identifiers and freshness outcomes only. It deliberately
+    excludes action arguments, source contents, credentials, and any claim that
+    the selected evidence was correct or authoritative.
+    """
+
+    correlation_id: str
+    run_id: str
+    action: str
+    boundary: str
+    subject_id: str
+    declared_dependency_ids: tuple[str, ...]
+    reasoning_ids: tuple[str, ...]
+    observation_ids: tuple[str, ...]
+    unresolved_dependency_ids: tuple[str, ...]
+    freshness_state: FreshnessStatus
+    policy_decision: str
+    boundary_outcome: str
+    runtime: str | None = None
+    execution_id: str | None = None
+    checked_at: str = field(default_factory=utcnow)
+    created_at: str = field(default_factory=utcnow)
+    schema_version: str = "freshctx.action_evidence_correlation.v1"
+
+    def to_dict(self) -> dict[str, Any]:
+        value = asdict(self)
+        value["freshness_state"] = self.freshness_state.value
+        value["declared_dependency_ids"] = list(self.declared_dependency_ids)
+        value["reasoning_ids"] = list(self.reasoning_ids)
+        value["observation_ids"] = list(self.observation_ids)
+        value["unresolved_dependency_ids"] = list(self.unresolved_dependency_ids)
+        return value
+
+
+@dataclass(frozen=True)
 class ValidationReport:
     """Portable record for a bounded external FreshCtx validation."""
 

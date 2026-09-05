@@ -4,6 +4,23 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+### Added
+
+- Versioned action/evidence correlation records for every protected synchronous
+  and asynchronous action boundary, covering allowed and blocked outcomes
+- Portable links across audit runs, optional framework execution IDs, actions,
+  declared dependencies, reachable reasoning nodes, reachable observations,
+  unresolved dependencies, freshness states, and policy decisions
+- Public JSON Schema and runtime access through `Guard.correlation`,
+  `FreshnessBlocked.correlation`, and `PreActionBoundary.last_correlation`
+
+### Compatibility
+
+- Existing `CheckResult`, freshness states, adapter contracts, stores, and
+  framework blocking surfaces are unchanged.
+- Action arguments, credentials, source contents, and business payloads are not
+  added to correlation records or integration metadata.
+
 ## 0.10.0 - 2026-09-02
 
 ### Added

@@ -386,7 +386,14 @@ with guard(audit_path="var/audit/freshctx.jsonl") as ctx:
     ...
 ```
 
-Each line is one event such as `observed`, `policy_applied`, or `action_allowed`. Treat audit files as application data: restrict access, define retention, and avoid putting them in source control.
+Each line is one event such as `observed`, `policy_applied`,
+`action_evidence_correlated`, or `action_allowed`. Every protected `run()` and
+`run_async()` boundary exposes the same versioned correlation record through
+`ctx.correlation`; blocked exceptions expose it through `blocked.correlation`.
+It links the action to declared dependencies and reachable observation IDs
+without storing action arguments. See
+`docs/ACTION_EVIDENCE_CORRELATION.md`. Treat audit files as application data:
+restrict access, define retention, and avoid putting them in source control.
 
 SQLite records are written to `.freshctx/freshctx.db` unless a store path is supplied; SQLite may also create `-wal` and `-shm` companion files. Records and audit events can contain absolute local paths. To remove local FreshCtx data, stop every process using the store, then delete the database, its `-wal`/`-shm` companions, and the configured JSONL audit file. Deletion is irreversible; follow your application retention policy first.
 

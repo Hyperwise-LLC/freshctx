@@ -10,23 +10,23 @@ from uuid import uuid4
 from .adapters import ADAPTERS
 from .conformance import normalize_adapter_result
 from .errors import AuditFailure, ConfigurationError, FreshCtxError
-from .model import AdapterResult, CheckResult, FreshnessState, ObservationToken, ReasoningNode, utcnow
+from .model import ActionEvidenceCorrelation, AdapterResult, CheckResult, FreshnessState, ObservationToken, ReasoningNode, utcnow
 from .redaction import redact
 from .store import SQLiteStore
 
 _active:contextvars.ContextVar[Any]=contextvars.ContextVar("freshctx_guard",default=None)
 DIGEST_DOMAIN = "freshctx.reasoning-digest.v1"
 class FreshnessBlocked(FreshCtxError):
-    def __init__(self,result):self.result=result;super().__init__(f"FreshCtx blocked {result.subject_id}: {result.state.value}")
+    def __init__(self,result,correlation=None):self.result=result;self.correlation=correlation;super().__init__(f"FreshCtx blocked {result.subject_id}: {result.state.value}")
 
 class Guard(AbstractContextManager):
     def __init__(self,policy="block",store=None,run_id=None,audit_path=".freshctx/audit.jsonl",refresh_callback=None,max_graph_depth=100,validation_workers=1,validation_budget_ms=None):
         if policy not in {"block","warn","allow","refresh","replan","require_approval"}:raise ConfigurationError(f"unsupported policy: {policy}")
         if int(validation_workers)<1:raise ConfigurationError("validation_workers must be at least 1")
         if validation_budget_ms is not None and float(validation_budget_ms)<=0:raise ConfigurationError("validation_budget_ms must be positive")
-        self.policy=policy;self.store=store or SQLiteStore();self.run_id=run_id or str(uuid4());self.audit_path=Path(audit_path);self.refresh_callback=refresh_callback;self.max_graph_depth=max_graph_depth
+        self.policy=policy;self.store=store or SQLiteStore();self.execution_id=run_id;self.run_id=run_id or str(uuid4());self.audit_path=Path(audit_path);self.refresh_callback=refresh_callback;self.max_graph_depth=max_graph_depth
         self.validation_workers=int(validation_workers);self.validation_budget_ms=None if validation_budget_ms is None else float(validation_budget_ms)
-        self.protected=[];self.result=None;self._ctx_token=None;self._audit_failed=False
+        self.protected=[];self.result=None;self.correlation=None;self._ctx_token=None;self._audit_failed=False
     def __enter__(self):self._ctx_token=_active.set(self);self._audit("guard_started",None,{"policy":self.policy});return self
     def __exit__(self,exc_type,exc,tb):
         try:
@@ -51,23 +51,64 @@ class Guard(AbstractContextManager):
     def protect(self,value=None,*,depends_on,boundary="output"):
         subject=self._subject(value,depends_on,boundary);self.protected.append(subject);self._audit("protected",subject,{"boundary":boundary});return value
     def run(self,action,*args,depends_on,boundary="action",refresh=None,**kwargs):
-        subject=self._subject(None,depends_on,boundary);result=self._resolve_policy(subject,refresh or self.refresh_callback);self.result=result
-        try:self._audit("action_allowed",subject,{"action":getattr(action,"__name__",type(action).__name__)},required=self.policy in {"block","refresh","replan","require_approval"})
+        dependency_ids=_normalize_dependencies(depends_on);subject=self._subject(None,dependency_ids,boundary)
+        try:result=self._resolve_policy(subject,refresh or self.refresh_callback)
+        except FreshnessBlocked as blocked:
+            self.result=blocked.result;self.correlation=self._correlate(blocked.result.subject_id,dependency_ids,boundary,action,blocked.result,"blocked")
+            raise FreshnessBlocked(blocked.result,self.correlation) from None
+        self.result=result
+        try:self._audit("action_allowed",result.subject_id,{"action":getattr(action,"__name__",type(action).__name__)},required=self.policy in {"block","refresh","replan","require_approval"})
         except AuditFailure:
             failed=CheckResult(FreshnessState.UNVERIFIABLE,subject,("audit_failure",),(),"block");self.result=failed;raise FreshnessBlocked(failed)
+        try:self.correlation=self._correlate(result.subject_id,dependency_ids,boundary,action,result,"allowed")
+        except AuditFailure:
+            self.correlation=None;failed=CheckResult(FreshnessState.UNVERIFIABLE,subject,("audit_failure",),(),"block");self.result=failed;raise FreshnessBlocked(failed) from None
         return action(*args,**kwargs)
     async def check_async(self,subject=None):
         """Run synchronous adapter validation without blocking the event loop."""
         return await asyncio.to_thread(self.check,subject)
     async def run_async(self,action,*args,depends_on,boundary="action",refresh=None,**kwargs):
         """Validate, then invoke a synchronous or asynchronous protected action."""
-        subject=self._subject(None,depends_on,boundary)
-        result=await asyncio.to_thread(self._resolve_policy,subject,refresh or self.refresh_callback);self.result=result
-        try:self._audit("action_allowed",subject,{"action":getattr(action,"__name__",type(action).__name__)},required=self.policy in {"block","refresh","replan","require_approval"})
+        dependency_ids=_normalize_dependencies(depends_on);subject=self._subject(None,dependency_ids,boundary)
+        try:result=await asyncio.to_thread(self._resolve_policy,subject,refresh or self.refresh_callback)
+        except FreshnessBlocked as blocked:
+            self.result=blocked.result;self.correlation=self._correlate(blocked.result.subject_id,dependency_ids,boundary,action,blocked.result,"blocked")
+            raise FreshnessBlocked(blocked.result,self.correlation) from None
+        self.result=result
+        try:self._audit("action_allowed",result.subject_id,{"action":getattr(action,"__name__",type(action).__name__)},required=self.policy in {"block","refresh","replan","require_approval"})
         except AuditFailure:
             failed=CheckResult(FreshnessState.UNVERIFIABLE,subject,("audit_failure",),(),"block");self.result=failed;raise FreshnessBlocked(failed)
+        try:self.correlation=self._correlate(result.subject_id,dependency_ids,boundary,action,result,"allowed")
+        except AuditFailure:
+            self.correlation=None;failed=CheckResult(FreshnessState.UNVERIFIABLE,subject,("audit_failure",),(),"block");self.result=failed;raise FreshnessBlocked(failed) from None
         value=action(*args,**kwargs)
         return await value if inspect.isawaitable(value) else value
+    def _correlation_graph(self,subject):
+        observations=set();reasoning_nodes=set();unresolved=set();integration={};pending=[subject];seen=set()
+        while pending:
+            object_id=pending.pop()
+            if object_id in seen:continue
+            seen.add(object_id);obj=self.store.get(object_id)
+            if obj is None:unresolved.add(object_id);continue
+            if isinstance(obj,ObservationToken):observations.add(obj.id)
+            elif isinstance(obj,ReasoningNode):
+                reasoning_nodes.add(obj.id);pending.extend(obj.dependencies)
+                if obj.metadata.get("contract") and not integration:integration=dict(obj.metadata)
+        return tuple(sorted(reasoning_nodes)),tuple(sorted(observations)),tuple(sorted(unresolved)),integration
+    def _correlate(self,subject,dependency_ids,boundary,action,result,outcome):
+        reasoning_ids,observation_ids,unresolved_ids,integration=self._correlation_graph(subject)
+        correlation=ActionEvidenceCorrelation(
+            correlation_id=str(uuid4()),run_id=self.run_id,
+            runtime=integration.get("runtime"),execution_id=self.execution_id,
+            action=str(integration.get("action") or getattr(action,"__name__",type(action).__name__)),
+            boundary=boundary,subject_id=subject,declared_dependency_ids=dependency_ids,
+            reasoning_ids=reasoning_ids,observation_ids=observation_ids,
+            unresolved_dependency_ids=unresolved_ids,freshness_state=result.state,
+            policy_decision=result.policy_decision,boundary_outcome=outcome,
+            checked_at=result.checked_at,
+        )
+        if not self._audit_failed:self._audit("action_evidence_correlated",subject,correlation.to_dict(),required=self.policy in {"block","refresh","replan","require_approval"})
+        return correlation
     def check(self,subject=None):
         subject_id=_id(subject) if subject is not None else self.protected[-1]
         if self._audit_failed and self.policy in {"block","refresh","replan","require_approval"}:return CheckResult(FreshnessState.UNVERIFIABLE,subject_id,("audit_failure",),(),self._blocked_decision())

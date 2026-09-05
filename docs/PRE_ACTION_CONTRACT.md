@@ -17,6 +17,7 @@ For every protected framework action:
 4. A blocking result prevents the continuation from starting.
 5. A permitted result records `action_allowed` before the continuation starts.
 6. The framework retains ownership of tool selection, retries, handoffs, streaming, transactions, idempotency, and lifecycle state.
+7. FreshCtx produces the same versioned action/evidence correlation record for allowed and blocked continuations.
 
 ## Experimental Python surface
 
@@ -53,6 +54,12 @@ Use `await boundary.invoke_async(...)` for an asynchronous continuation. The asy
 | `continuation` | The framework's real next callable. It must not be invoked before FreshCtx permits it. |
 | arguments | Passed directly to the continuation; never copied into contract metadata. |
 | blocked result | Translated into the framework's supported stop/failure mechanism without invoking the continuation. |
+
+After invocation, `PreActionBoundary.last_correlation` exposes the portable
+`freshctx.action_evidence_correlation.v1` record. It connects the framework
+execution and action to the exact FreshCtx subject, reachable reasoning nodes,
+reachable observations, freshness result, and policy decision without copying
+tool arguments.
 
 ## Result semantics
 
