@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://freshctx.com/schemas/observed-evidence-provenance.schema.json",
+  "title": "ObservedEvidenceReceipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "receipt_id", "correlation_id", "observation_ids",
+    "candidate_sources", "inspected_sources", "selected_source", "cited_sources",
+    "required_sources", "read_events", "freshness_state", "provenance_assessment",
+    "assessment_reasons", "created_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "freshctx.observed_evidence_provenance.v1"},
+    "receipt_id": {"type": "string", "minLength": 1},
+    "correlation_id": {"type": "string", "minLength": 1},
+    "observation_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "candidate_sources": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "inspected_sources": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "selected_source": {"type": ["string", "null"], "minLength": 1},
+    "cited_sources": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "required_sources": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "read_events": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["event_id", "source_id", "accessed_at"],
+        "properties": {
+          "event_id": {"type": "string", "minLength": 1},
+          "source_id": {"type": "string", "minLength": 1},
+          "accessed_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "freshness_state": {"enum": ["CURRENT", "STALE_SOURCE", "STALE_REASONING", "UNVERIFIABLE"]},
+    "provenance_assessment": {"enum": ["CONSISTENT", "INCONSISTENT", "NOT_ASSESSED"]},
+    "assessment_reasons": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "created_at": {"type": "string", "format": "date-time"}
+  }
+}

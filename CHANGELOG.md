@@ -4,6 +4,16 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+### Added
+
+- Observed file-read capture that derives inspected sources from successful
+  access events without retaining source contents, credentials, or action data
+- Versioned evidence-provenance receipts linking inspected, selected, cited,
+  and application-required sources to FreshCtx observations and action/evidence
+  correlation IDs
+- Independent provenance assessments that never change or reinterpret the
+  FreshCtx freshness result, including a right-file-read/wrong-file-cited case
+
 ## 0.11.0 - 2026-09-05
 
 ### Added
