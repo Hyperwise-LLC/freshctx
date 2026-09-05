@@ -13,11 +13,15 @@ All notable FreshCtx changes will be documented here.
   unresolved dependencies, freshness states, and policy decisions
 - Public JSON Schema and runtime access through `Guard.correlation`,
   `FreshnessBlocked.correlation`, and `PreActionBoundary.last_correlation`
+- Cross-integration conformance for the same correlation record across Agno,
+  LangGraph, OpenAI Agents SDK, Google ADK, ElevenLabs, and MCP
+- Portable correlation details on each integration's native blocked surface;
+  MCP now separates the FreshCtx correlation ID from the protocol request ID
 
 ### Compatibility
 
 - Existing `CheckResult`, freshness states, adapter contracts, stores, and
-  framework blocking surfaces are unchanged.
+  established blocked-response fields are unchanged; correlation fields are additive.
 - Action arguments, credentials, source contents, and business payloads are not
   added to correlation records or integration metadata.
 

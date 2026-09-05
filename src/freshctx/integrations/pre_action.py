@@ -12,11 +12,23 @@ from dataclasses import dataclass
 from os import PathLike
 from typing import Any
 
-from ..core import guard, reasoning
+from ..core import FreshnessBlocked, guard, reasoning
 from ..errors import ConfigurationError
 
 
 EXPERIMENTAL_PRE_ACTION_CONTRACT = "freshctx.pre_action.experimental.v1"
+
+
+def blocked_contract_payload(blocked: FreshnessBlocked) -> dict[str, Any]:
+    """Return the portable, non-sensitive blocked result used by integrations."""
+
+    return {
+        "freshctx": blocked.result.to_dict(),
+        "correlation": (
+            blocked.correlation.to_dict() if blocked.correlation is not None else None
+        ),
+        "contract": EXPERIMENTAL_PRE_ACTION_CONTRACT,
+    }
 
 
 @dataclass(frozen=True)

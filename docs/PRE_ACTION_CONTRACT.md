@@ -90,6 +90,10 @@ A framework integration is not considered conformant until installed-framework t
 6. Audit evidence identifies the runtime, action, contract version, and framework execution ID when supplied.
 7. Arguments and credentials are absent from FreshCtx integration metadata.
 8. The documentation states which lifecycle responsibilities remain outside FreshCtx.
+9. Every boundary emits the same `freshctx.action_evidence_correlation.v1`
+   record, with the framework runtime and action identity intact.
+10. A native blocked surface exposes that record without changing existing
+    FreshCtx result fields; successful tool return values remain untouched.
 
 ## Current evidence
 
@@ -99,6 +103,8 @@ The shared conformance matrix in `tests/test_framework_conformance.py` now runs
 equivalent current, stale, unverifiable, unrelated-change, exactly-once, audit,
 and sensitive-argument checks through all six installed framework paths. See
 `docs/FRAMEWORK_CONFORMANCE.md` for the executable contract and local command.
+The portable record and native blocked-surface mappings are documented in
+`docs/CROSS_INTEGRATION_CORRELATION.md`.
 
 ElevenLabs is the sixth mapping. It registers a protected handler in the
 official Python SDK `ClientTools` registry and returns a structured tool result

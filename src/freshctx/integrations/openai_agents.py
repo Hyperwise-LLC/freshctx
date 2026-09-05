@@ -15,7 +15,12 @@ from agents.tool_guardrails import (
 
 from ..core import FreshnessBlocked
 from ..errors import ConfigurationError
-from .pre_action import EXPERIMENTAL_PRE_ACTION_CONTRACT, PreActionBoundary, PreActionCall
+from .pre_action import (
+    EXPERIMENTAL_PRE_ACTION_CONTRACT,
+    PreActionBoundary,
+    PreActionCall,
+    blocked_contract_payload,
+)
 
 
 def _dependencies(depends_on: Iterable[Any]) -> tuple[Any, ...]:
@@ -66,9 +71,7 @@ def openai_agents_tool_guardrail(
         try:
             await boundary.invoke_async(call, lambda: None)
         except FreshnessBlocked as blocked:
-            return ToolGuardrailFunctionOutput.raise_exception(
-                {"freshctx": blocked.result.to_dict(), "contract": EXPERIMENTAL_PRE_ACTION_CONTRACT}
-            )
+            return ToolGuardrailFunctionOutput.raise_exception(blocked_contract_payload(blocked))
         return ToolGuardrailFunctionOutput.allow(
             {
                 "freshctx": {"state": "CURRENT", "policy_decision": "allow"},
