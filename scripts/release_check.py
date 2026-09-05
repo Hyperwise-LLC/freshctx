@@ -23,6 +23,7 @@ REQUIRED = [
     "SUPPORT.md", "THIRD_PARTY_NOTICES.md",
     "docs/ADAPTER_CONTRACT.md", "docs/SECURITY_MODEL.md", "docs/PERFORMANCE.md",
     "docs/FAQ.md", "docs/SUCCESS_CASES.md", "docs/CLI.md", "docs/INTEGRATIONS.md",
+    "docs/ACTION_EVIDENCE_CORRELATION.md",
     "docs/ELEVENLABS.md",
     "docs/MCP_GUARD.md", "docs/MCP_HOST_VALIDATION.md",
     "examples/mcp_balance_guard.py",
@@ -36,6 +37,9 @@ REQUIRED = [
     "examples/selection_provenance/fixtures/authoritative_ledger_2026.csv",
     "examples/selection_provenance/fixtures/2026_operations_ledger_FINAL.csv",
     "tests/test_selection_provenance.py",
+    "schemas/action-evidence-correlation.schema.json",
+    "src/freshctx/schemas/action-evidence-correlation.schema.json",
+    "tests/test_action_evidence_correlation.py",
     "docs/COMPATIBILITY_AUDIT.md", "docs/VALIDATION_REPORT.md",
     "docs/evidence/success-cases-v0.1.json",
     "docs/evidence/banking-postgres-v0.1.json",
@@ -61,8 +65,8 @@ def main() -> int:
         return 1
     root_schemas = sorted((ROOT / "schemas").glob("*.schema.json"))
     packaged = ROOT / "src" / "freshctx" / "schemas"
-    if len(root_schemas) != 6:
-        print("Expected six root schema files", file=sys.stderr); return 1
+    if len(root_schemas) != 7:
+        print("Expected seven root schema files", file=sys.stderr); return 1
     for schema in root_schemas:
         json.loads(schema.read_text())
         packaged_schema = packaged / schema.name

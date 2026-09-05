@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://freshctx.com/schemas/action-evidence-correlation.schema.json",
+  "title": "ActionEvidenceCorrelation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "correlation_id", "run_id", "action", "boundary",
+    "subject_id", "declared_dependency_ids", "reasoning_ids", "observation_ids",
+    "unresolved_dependency_ids", "freshness_state",
+    "policy_decision", "boundary_outcome", "runtime", "execution_id",
+    "checked_at", "created_at"
+  ],
+  "properties": {
+    "schema_version": {"const": "freshctx.action_evidence_correlation.v1"},
+    "correlation_id": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "runtime": {"type": ["string", "null"], "minLength": 1},
+    "execution_id": {"type": ["string", "null"], "minLength": 1},
+    "action": {"type": "string", "minLength": 1},
+    "boundary": {"type": "string", "minLength": 1},
+    "subject_id": {"type": "string", "minLength": 1},
+    "declared_dependency_ids": {
+      "type": "array", "items": {"type": "string", "minLength": 1},
+      "minItems": 1, "uniqueItems": true
+    },
+    "reasoning_ids": {
+      "type": "array", "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "observation_ids": {
+      "type": "array", "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "unresolved_dependency_ids": {
+      "type": "array", "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "freshness_state": {
+      "enum": ["CURRENT", "STALE_SOURCE", "STALE_REASONING", "UNVERIFIABLE"]
+    },
+    "policy_decision": {
+      "enum": ["allow", "warn", "refresh", "block", "replan", "require_approval"]
+    },
+    "boundary_outcome": {"enum": ["allowed", "blocked"]},
+    "checked_at": {"type": "string", "format": "date-time"},
+    "created_at": {"type": "string", "format": "date-time"}
+  }
+}

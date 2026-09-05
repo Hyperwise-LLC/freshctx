@@ -31,6 +31,8 @@ Validation remains synchronous and ordered by default. Set `validation_workers` 
 `validation_budget_ms` defines the decision-validity budget. Checks unfinished at the deadline become `UNVERIFIABLE` with `validation_budget_exceeded`. FreshCtx waits for already-started validators to reach their adapter-specific timeout before returning, discards late results, and leaves no background validation work. The budget is therefore not a hard wall-clock cancellation guarantee.
 
 `Guard.result` contains the final `CheckResult` after automatic enforcement.
+After `run()` or `run_async()`, `Guard.correlation` contains the corresponding
+`ActionEvidenceCorrelation` record for both allowed and blocked boundaries.
 
 ## `observe()`
 
@@ -103,7 +105,12 @@ Guard.run(
 ) -> object
 ```
 
-This is the required API for protected side effects. It resolves freshness and records the allow decision before invoking `action`. Under `block`, `refresh`, `replan`, or `require_approval`, a non-current result or required audit failure raises `FreshnessBlocked` and the callable is not invoked. Refresh is attempted at most once.
+This is the required API for protected side effects. It resolves freshness, writes an `action_evidence_correlated` event, and records the allow decision before invoking `action`. Under `block`, `refresh`, `replan`, or `require_approval`, a non-current result or required audit failure raises `FreshnessBlocked` and the callable is not invoked. Refresh is attempted at most once.
+
+The correlation record joins the action and boundary to the declared dependency
+IDs, reachable reasoning and observation IDs, unresolved IDs, freshness state,
+policy decision, audit run, and optional framework execution identity. It never
+contains action arguments. See `docs/ACTION_EVIDENCE_CORRELATION.md`.
 
 ## `Guard.check()`
 
@@ -122,9 +129,10 @@ Evaluates a subject without automatically raising. If omitted, the latest protec
 ```python
 class FreshnessBlocked(RuntimeError):
     result: CheckResult
+    correlation: ActionEvidenceCorrelation | None
 ```
 
-Raised by the blocking policy. The message is safe and concise; detailed machine-readable evidence is available through `result`.
+Raised by the blocking policy. The message is safe and concise; detailed machine-readable evidence is available through `result`. Protected `run()` and `run_async()` calls also attach the action/evidence record through `correlation`.
 
 ## Domain objects
 

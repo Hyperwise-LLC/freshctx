@@ -84,6 +84,7 @@ class PreActionBoundary:
         self.audit_path = audit_path
         self.validation_workers = validation_workers
         self.validation_budget_ms = validation_budget_ms
+        self.last_correlation = None
 
     @staticmethod
     def _metadata(call: PreActionCall) -> dict[str, str]:
@@ -117,13 +118,16 @@ class PreActionBoundary:
                 metadata=self._metadata(call),
             ) as boundary_decision:
                 pass
-            return ctx.run(
-                continuation,
-                *args,
-                depends_on=[boundary_decision],
-                boundary=call.boundary,
-                **kwargs,
-            )
+            try:
+                return ctx.run(
+                    continuation,
+                    *args,
+                    depends_on=[boundary_decision],
+                    boundary=call.boundary,
+                    **kwargs,
+                )
+            finally:
+                self.last_correlation = ctx.correlation
 
     async def invoke_async(
         self,
@@ -149,10 +153,13 @@ class PreActionBoundary:
                 metadata=self._metadata(call),
             ) as boundary_decision:
                 pass
-            return await ctx.run_async(
-                continuation,
-                *args,
-                depends_on=[boundary_decision],
-                boundary=call.boundary,
-                **kwargs,
-            )
+            try:
+                return await ctx.run_async(
+                    continuation,
+                    *args,
+                    depends_on=[boundary_decision],
+                    boundary=call.boundary,
+                    **kwargs,
+                )
+            finally:
+                self.last_correlation = ctx.correlation

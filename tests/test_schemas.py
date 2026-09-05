@@ -43,7 +43,7 @@ class SchemaConformanceTests(unittest.TestCase):
     def validate(self, schema_name, value): self.validators[schema_name].validate(value)
 
     def test_all_schema_files_have_required_identity(self):
-        self.assertEqual(len(self.schemas), 6)
+        self.assertEqual(len(self.schemas), 7)
         for schema in self.schemas.values():
             self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
             self.assertIn("$id", schema); self.assertEqual(schema["type"], "object")
