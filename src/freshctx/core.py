@@ -84,7 +84,7 @@ class Guard(AbstractContextManager):
         value=action(*args,**kwargs)
         return await value if inspect.isawaitable(value) else value
     def _correlation_graph(self,subject):
-        observations=set();reasoning_nodes=set();unresolved=set();integration={};pending=[subject];seen=set()
+        observations=set();reasoning_nodes=set();unresolved=set();integration:dict[str,Any]={};pending=[subject];seen=set()
         while pending:
             object_id=pending.pop()
             if object_id in seen:continue
