@@ -1,10 +1,10 @@
 # FreshCtx development pipeline
 
 Last updated: 2026-09-05
-Current public release: `0.11.0`
+Current release candidate: `0.12.0`
 
-PyPI, Git tag `v0.11.0`, and the GitHub Release were published on 2026-09-05
-after protected PR #63 merged.
+Version `0.12.0` adds observed evidence provenance on top of the public 0.11.0
+action/evidence correlation and attestation release.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.

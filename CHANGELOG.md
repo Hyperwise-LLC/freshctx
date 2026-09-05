@@ -4,6 +4,8 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.12.0 - 2026-09-05
+
 ### Added
 
 - Observed file-read capture that derives inspected sources from successful

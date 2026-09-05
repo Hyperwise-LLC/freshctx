@@ -13,6 +13,6 @@ try:
     __version__ = version("freshctx")
 except PackageNotFoundError:
     # Supports running examples and adapter tests directly from a source checkout.
-    __version__ = "0.11.0"
+    __version__ = "0.12.0"
 
 __all__ = ["ATTESTATION_SCHEMA_VERSION", "ActionEvidenceCorrelation", "AttestationVerification", "AuditFailure", "CheckResult", "ConfigurationError", "EvidenceAttestation", "FilesystemLimitExceeded", "FilesystemScopeError", "FreshCtxError", "FreshnessBlocked", "FreshnessState", "FreshnessStatus", "MemoryStore", "ObservationToken", "ObservedEvidenceReceipt", "ObservedReadCapture", "PROVENANCE_SCHEMA_VERSION", "PolicyResponse", "ProvenanceAssessment", "ReasoningNode", "SCHEMA_VERSION", "SQLiteStore", "SourceReadEvent", "StorageConflictError", "StorageCorruptionError", "StorageMigrationError", "ValidationReport", "__version__", "adapter_contract_issues", "attest_correlation", "guard", "observe", "reasoning", "register_adapter", "verify_attestation"]
