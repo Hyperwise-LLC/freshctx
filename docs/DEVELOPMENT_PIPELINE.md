@@ -1,10 +1,10 @@
 # FreshCtx development pipeline
 
-Last updated: 2026-09-02
-Current public release: `0.10.0`
+Last updated: 2026-09-05
+Current public release: `0.11.0`
 
-PyPI, Git tag `v0.10.0`, and the GitHub Release were published on 2026-09-02
-after protected PR #59 merged.
+PyPI, Git tag `v0.11.0`, and the GitHub Release were published on 2026-09-05
+after protected PR #63 merged.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
@@ -43,6 +43,23 @@ does not justify a software release.
 13. **ElevenLabs** - Python client-tool registration, synchronous and
     asynchronous handler protection, and a bounded current/stale/unverifiable
     customer-record scenario in 0.10.0.
+14. **Action/evidence correlation and bounded attestation** - portable action,
+    dependency, freshness, and policy records across every supported runtime,
+    plus process-local integrity receipts in 0.11.0.
+
+## P2 - observed evidence provenance
+
+1. Capture successful file reads through a bounded root-scoped hook.
+2. Generate inspected sources from those access events rather than accepting a
+   caller-supplied inspected list.
+3. Record inspected, selected, cited, and application-required sources
+   separately.
+4. Link each provenance receipt to the existing FreshCtx observation and
+   action/evidence correlation IDs.
+5. Keep provenance assessment independent from `CURRENT`, `STALE_REASONING`,
+   and `UNVERIFIABLE` freshness states.
+6. Demonstrate both wrong-source discovery and right-file-read/wrong-file-cited
+   outcomes without claiming semantic correctness.
 
 ## Completed - Wave 1 integration conformance
 

@@ -73,11 +73,13 @@ until a named primary-source receipt was supplied, then re-entered the declared
 dependency map on a four-source rerun. Its `CURRENT` results mean only that the
 selected source fingerprints were unchanged.
 
-The [experimental selection-provenance scenario](examples/selection_provenance/)
-demonstrates a separate boundary: an agent can select a plausible but incorrect
-source and honestly receive `CURRENT` when that selected source remains
-unchanged. Its optional receipt records candidate, inspected, and selected
-sources without claiming that FreshCtx established source correctness.
+The [observed evidence-provenance scenario](examples/selection_provenance/)
+captures actual file reads and records inspected, selected, and cited sources
+separately. Its receipt links those events to the protected action while keeping
+provenance assessment independent from freshness: a decoy can remain `CURRENT`
+without being presented as authoritative or correct.
+
+[Read the provenance contract](docs/OBSERVED_EVIDENCE_PROVENANCE.md).
 
 ## Quickstart
 
