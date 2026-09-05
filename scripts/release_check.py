@@ -25,6 +25,8 @@ REQUIRED = [
     "docs/FAQ.md", "docs/SUCCESS_CASES.md", "docs/CLI.md", "docs/INTEGRATIONS.md",
     "docs/ACTION_EVIDENCE_CORRELATION.md",
     "docs/CROSS_INTEGRATION_CORRELATION.md",
+    "docs/EVIDENCE_ATTESTATION.md",
+    "examples/evidence_attestation.py",
     "docs/ELEVENLABS.md",
     "docs/MCP_GUARD.md", "docs/MCP_HOST_VALIDATION.md",
     "examples/mcp_balance_guard.py",
@@ -40,6 +42,8 @@ REQUIRED = [
     "tests/test_selection_provenance.py",
     "schemas/action-evidence-correlation.schema.json",
     "src/freshctx/schemas/action-evidence-correlation.schema.json",
+    "schemas/evidence-attestation.schema.json",
+    "src/freshctx/schemas/evidence-attestation.schema.json",
     "tests/test_action_evidence_correlation.py",
     "docs/COMPATIBILITY_AUDIT.md", "docs/VALIDATION_REPORT.md",
     "docs/evidence/success-cases-v0.1.json",
@@ -66,8 +70,8 @@ def main() -> int:
         return 1
     root_schemas = sorted((ROOT / "schemas").glob("*.schema.json"))
     packaged = ROOT / "src" / "freshctx" / "schemas"
-    if len(root_schemas) != 7:
-        print("Expected seven root schema files", file=sys.stderr); return 1
+    if len(root_schemas) != 8:
+        print("Expected eight root schema files", file=sys.stderr); return 1
     for schema in root_schemas:
         json.loads(schema.read_text())
         packaged_schema = packaged / schema.name

@@ -396,6 +396,12 @@ without storing action arguments. See
 `docs/CROSS_INTEGRATION_CORRELATION.md`. Treat audit files as application data:
 restrict access, define retention, and avoid putting them in source control.
 
+Applications can also create a short-lived integrity receipt for one exact
+correlation record with `attest_correlation()` and verify it independently with
+`verify_attestation()`. Keys remain process-local, and verification does not
+change or broaden the FreshCtx freshness result. See
+`docs/EVIDENCE_ATTESTATION.md` and `examples/evidence_attestation.py`.
+
 SQLite records are written to `.freshctx/freshctx.db` unless a store path is supplied; SQLite may also create `-wal` and `-shm` companion files. Records and audit events can contain absolute local paths. To remove local FreshCtx data, stop every process using the store, then delete the database, its `-wal`/`-shm` companions, and the configured JSONL audit file. Deletion is irreversible; follow your application retention policy first.
 
 ## Adapter quick reference

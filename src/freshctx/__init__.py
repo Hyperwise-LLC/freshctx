@@ -1,6 +1,7 @@
 from importlib.metadata import PackageNotFoundError, version
 
 from .adapters import register_adapter
+from .attestation import ATTESTATION_SCHEMA_VERSION, AttestationVerification, EvidenceAttestation, attest_correlation, verify_attestation
 from .conformance import adapter_contract_issues
 from .core import FreshnessBlocked, guard, observe, reasoning
 from .errors import AuditFailure, ConfigurationError, FilesystemLimitExceeded, FilesystemScopeError, FreshCtxError, StorageConflictError, StorageCorruptionError, StorageMigrationError
@@ -11,6 +12,6 @@ try:
     __version__ = version("freshctx")
 except PackageNotFoundError:
     # Supports running examples and adapter tests directly from a source checkout.
-    __version__ = "0.10.0"
+    __version__ = "0.11.0"
 
-__all__ = ["ActionEvidenceCorrelation", "AuditFailure", "CheckResult", "ConfigurationError", "FilesystemLimitExceeded", "FilesystemScopeError", "FreshCtxError", "FreshnessBlocked", "FreshnessState", "FreshnessStatus", "MemoryStore", "ObservationToken", "PolicyResponse", "ReasoningNode", "SCHEMA_VERSION", "SQLiteStore", "StorageConflictError", "StorageCorruptionError", "StorageMigrationError", "ValidationReport", "__version__", "adapter_contract_issues", "guard", "observe", "reasoning", "register_adapter"]
+__all__ = ["ATTESTATION_SCHEMA_VERSION", "ActionEvidenceCorrelation", "AttestationVerification", "AuditFailure", "CheckResult", "ConfigurationError", "EvidenceAttestation", "FilesystemLimitExceeded", "FilesystemScopeError", "FreshCtxError", "FreshnessBlocked", "FreshnessState", "FreshnessStatus", "MemoryStore", "ObservationToken", "PolicyResponse", "ReasoningNode", "SCHEMA_VERSION", "SQLiteStore", "StorageConflictError", "StorageCorruptionError", "StorageMigrationError", "ValidationReport", "__version__", "adapter_contract_issues", "attest_correlation", "guard", "observe", "reasoning", "register_adapter", "verify_attestation"]
