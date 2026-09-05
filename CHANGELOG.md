@@ -4,6 +4,26 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.13.0 - 2026-09-05
+
+### Added
+
+- Agent-driven source-discovery demonstration through the real OpenAI Agents
+  SDK tool loop, with reproducible model-free and optional live-model modes
+- Pre-action provenance enforcement for synchronous and asynchronous actions,
+  with fail-closed handling of inconsistent or unassessed provenance
+- Versioned provenance-enforcement records that preserve the independent
+  FreshCtx freshness state and link to evidence receipts and action correlation
+- Controlled cases for authoritative selection, decoy selection, and an
+  authoritative read followed by citation of an uninspected source
+
+### Compatibility
+
+- Provenance enforcement is opt-in and does not change existing FreshCtx guard,
+  adapter, integration, freshness, or policy behavior.
+- `CURRENT` continues to mean only that declared evidence has not changed.
+- Applications remain responsible for source authority and semantic policy.
+
 ## 0.12.0 - 2026-09-05
 
 ### Added

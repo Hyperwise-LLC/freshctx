@@ -1,10 +1,10 @@
 # FreshCtx development pipeline
 
 Last updated: 2026-09-05
-Current release candidate: `0.12.0`
+Current release candidate: `0.13.0`
 
-Version `0.12.0` adds observed evidence provenance on top of the public 0.11.0
-action/evidence correlation and attestation release.
+Version `0.13.0` completes the public P0-P4 evidence chain through agent-driven
+read capture and opt-in pre-action provenance enforcement.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
@@ -60,6 +60,25 @@ does not justify a software release.
    and `UNVERIFIABLE` freshness states.
 6. Demonstrate both wrong-source discovery and right-file-read/wrong-file-cited
    outcomes without claiming semantic correctness.
+
+## P3 - agent-driven source discovery
+
+1. Route an agent SDK's file access through the observed read hook.
+2. Derive inspected sources from actual read-tool execution.
+3. Record selected and cited sources from the agent output separately.
+4. Provide deterministic SDK reproduction without credentials and an optional
+   live-model run using the identical tool boundary.
+
+## P4 - provenance enforcement
+
+1. Revalidate FreshCtx evidence before evaluating provenance.
+2. Allow the protected action only when the declared provenance policy passes.
+3. Block inconsistent provenance and fail closed on unassessed provenance by
+   default, with an explicit application-owned override for the latter.
+4. Preserve freshness and provenance as separate results in a versioned
+   enforcement record.
+5. Support synchronous and asynchronous protected actions without duplicate
+   execution.
 
 ## Completed - Wave 1 integration conformance
 

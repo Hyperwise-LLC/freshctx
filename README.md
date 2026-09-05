@@ -81,6 +81,12 @@ without being presented as authoritative or correct.
 
 [Read the provenance contract](docs/OBSERVED_EVIDENCE_PROVENANCE.md).
 
+FreshCtx can also [enforce an application-declared provenance policy](docs/PROVENANCE_ENFORCEMENT.md)
+after freshness validation and before the consequential action. The packaged
+agent-driven scenario routes actual file access through the read hook and shows
+that a `CURRENT` decoy or an uninspected citation is blocked without redefining
+what `CURRENT` means.
+
 ## Quickstart
 
 Prerequisites: Python 3.10–3.13. Git is required only by the Git adapter and its compatibility tests.

@@ -38,6 +38,12 @@ REQUIRED = [
     "examples/selection_provenance/run.py",
     "src/freshctx/schemas/observed-evidence-provenance.schema.json",
     "docs/OBSERVED_EVIDENCE_PROVENANCE.md",
+    "docs/PROVENANCE_ENFORCEMENT.md",
+    "examples/agent_source_provenance.py",
+    "tests/test_agent_source_provenance.py",
+    "tests/test_provenance_enforcement.py",
+    "schemas/provenance-enforcement.schema.json",
+    "src/freshctx/schemas/provenance-enforcement.schema.json",
     "examples/selection_provenance/fixtures/authoritative_ledger_2026.csv",
     "examples/selection_provenance/fixtures/2026_operations_ledger_FINAL.csv",
     "tests/test_observed_evidence_provenance.py",
@@ -71,8 +77,8 @@ def main() -> int:
         return 1
     root_schemas = sorted((ROOT / "schemas").glob("*.schema.json"))
     packaged = ROOT / "src" / "freshctx" / "schemas"
-    if len(root_schemas) != 9:
-        print("Expected nine root schema files", file=sys.stderr); return 1
+    if len(root_schemas) != 10:
+        print("Expected ten root schema files", file=sys.stderr); return 1
     for schema in root_schemas:
         json.loads(schema.read_text())
         packaged_schema = packaged / schema.name

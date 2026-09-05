@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://freshctx.com/schemas/provenance-enforcement.schema.json",
+  "title": "ProvenanceEnforcement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "enforcement_id", "receipt_id", "correlation_id", "freshness_state", "provenance_assessment", "policy_decision", "boundary_outcome", "reasons", "created_at"],
+  "properties": {
+    "schema_version": {"const": "freshctx.provenance_enforcement.v1"},
+    "enforcement_id": {"type": "string", "minLength": 1},
+    "receipt_id": {"type": "string", "minLength": 1},
+    "correlation_id": {"type": "string", "minLength": 1},
+    "freshness_state": {"enum": ["CURRENT", "STALE_SOURCE", "STALE_REASONING", "UNVERIFIABLE"]},
+    "provenance_assessment": {"enum": ["CONSISTENT", "INCONSISTENT", "NOT_ASSESSED"]},
+    "policy_decision": {"enum": ["allow", "block"]},
+    "boundary_outcome": {"enum": ["allowed", "blocked"]},
+    "reasons": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "created_at": {"type": "string", "format": "date-time"}
+  }
+}
