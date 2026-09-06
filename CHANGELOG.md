@@ -4,6 +4,24 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.14.0 - 2026-09-05
+
+### Added
+
+- Official A2A Python SDK receiving-side executor guard at the delegated action boundary
+- Versioned, expiring delegation records with root and parent correlation links
+- Bounded HMAC-SHA256 delegation attestations with recipient, integrity, and expiry checks
+- Native A2A rejected-task events for missing, invalid, expired, tampered, stale, or unverifiable evidence
+- Three-agent A2A delegation demonstration ending at a protected MCP `tools/call` boundary
+
+### Compatibility and scope
+
+- A2A support is optional through `freshctx[a2a]` or `freshctx[a2a-mcp]`.
+- Delegation metadata contains identifiers and evidence references only; it excludes prompts,
+  credentials, source content, and tool arguments.
+- FreshCtx verifies declared evidence freshness and delegation-record integrity. Applications
+  remain responsible for identity, authorization, source selection, task semantics, and key trust.
+
 ## 0.13.0 - 2026-09-05
 
 ### Added

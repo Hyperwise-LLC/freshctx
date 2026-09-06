@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://freshctx.com/schemas/a2a-delegation.schema.json",
+  "title": "FreshCtx A2A Delegation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "root_correlation_id", "delegation_id", "origin_agent", "receiving_agent", "skill_id", "observation_ids", "created_at", "expires_at"],
+  "properties": {
+    "schema_version": {"const": "freshctx.a2a_delegation.v1"},
+    "root_correlation_id": {"type": "string", "minLength": 1},
+    "delegation_id": {"type": "string", "minLength": 1},
+    "parent_delegation_id": {"type": ["string", "null"]},
+    "origin_agent": {"type": "string", "minLength": 1},
+    "receiving_agent": {"type": "string", "minLength": 1},
+    "skill_id": {"type": "string", "minLength": 1},
+    "observation_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "evidence_attestation_id": {"type": ["string", "null"]},
+    "task_id": {"type": ["string", "null"]},
+    "context_id": {"type": ["string", "null"]},
+    "created_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"}
+  }
+}

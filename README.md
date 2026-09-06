@@ -22,6 +22,7 @@ observe evidence → reason from it → revalidate dependencies → act or block
 - **Local-first** — no account, hosted control plane, or telemetry.
 - **Explicit and auditable** — you choose which evidence matters; FreshCtx records what was checked.
 - **Useful beyond files** — six adapters cover filesystem, Git, HTTP, Postgres, Stripe Subscriptions, and safe MCP reads.
+- **Safe delegation across agents** — signed, expiring A2A receipts carry evidence references across agent boundaries without copying prompts, credentials, or tool arguments.
 
 ![FreshCtx MCP pre-action guard blocking a stale protected tool call](docs/assets/freshctx-mcp-stale-action-demo.gif)
 
@@ -261,6 +262,13 @@ Agno, LangGraph, the OpenAI Agents SDK, Google ADK, ElevenLabs, and MCP are exer
 The matrix verifies equivalent current, stale, unverifiable, unrelated-change,
 exactly-once, audit, and sensitive-argument requirements across their native
 execution boundaries.
+
+FreshCtx also protects receiving agents through the official A2A Python SDK. A
+signed, expiring delegation record links parent and root correlation IDs to
+declared observation references. The receiver rejects invalid provenance or
+stale/unverifiable evidence before its executor starts. See
+[`docs/A2A_GUARD.md`](docs/A2A_GUARD.md) and the
+[three-agent A2A-to-MCP demonstration](examples/a2a_to_mcp_delegation.py).
 
 ### ElevenLabs voice-agent tools
 

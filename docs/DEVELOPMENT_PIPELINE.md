@@ -1,10 +1,10 @@
 # FreshCtx development pipeline
 
 Last updated: 2026-09-05
-Current release candidate: `0.13.0`
+Current release candidate: `0.14.0`
 
-Version `0.13.0` completes the public P0-P4 evidence chain through agent-driven
-read capture and opt-in pre-action provenance enforcement.
+Version `0.14.0` adds bounded, signed A2A delegation provenance and a
+receiving-side guard, including a three-agent path ending at MCP.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
@@ -46,6 +46,12 @@ does not justify a software release.
 14. **Action/evidence correlation and bounded attestation** - portable action,
     dependency, freshness, and policy records across every supported runtime,
     plus process-local integrity receipts in 0.11.0.
+15. **Evidence provenance and enforcement** - observed reads, agent-driven
+    discovery, separate freshness and selection verdicts, and opt-in pre-action
+    enforcement in 0.12.0 and 0.13.0.
+16. **A2A delegation guard** - signed, expiring, recipient-bound delegation
+    records, receiving-side executor blocking, parent/root chain links, and a
+    three-agent A2A-to-MCP demonstration in 0.14.0.
 
 ## P2 - observed evidence provenance
 
