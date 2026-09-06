@@ -118,6 +118,18 @@ agent = Agent(
 
 FreshCtx does not own ADK model or tool selection, sessions, state, retries, confirmations, long-running operation completion, transactions, or idempotency. Tools that do not traverse the configured agent-level before-tool callback are outside this boundary. See `examples/google_adk_stale_tool.py` for a deterministic run through ADK's real in-memory runner without an external model call.
 
+## A2A
+
+Wrap an official A2A Python SDK `AgentExecutor` with `FreshCtxA2AExecutor` at
+the receiving agent. The wrapper verifies a signed, expiring delegation record
+and revalidates declared evidence before delegated work starts. Invalid,
+expired, tampered, wrong-recipient, stale, and unverifiable requests produce a
+native rejected-task event without invoking the wrapped executor.
+
+Install with `python -m pip install 'freshctx[a2a]==0.14.0'`. Use
+`freshctx[a2a-mcp]` for the three-agent example that ends at a guarded MCP tool.
+See `docs/A2A_GUARD.md` for the contract and explicit security boundaries.
+
 ## MCP
 
 Use only resources or tools that are safe, read-only validators. Non-idempotent MCP operations are deliberately `UNVERIFIABLE`. Recreate readers after a process restart. Do not label an operation thread-safe unless its client and transport support concurrent calls.

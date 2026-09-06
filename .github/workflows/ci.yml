@@ -106,6 +106,25 @@ jobs:
       - name: Run out-of-process MCP stdio validation
         run: python examples/mcp_guard_external_host.py
 
+  a2a-guard:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install official A2A and MCP SDKs
+        run: python -m pip install -e '.[a2a-mcp]'
+      - name: Run A2A receiving-boundary tests
+        run: python -m unittest tests.test_a2a_integration -v
+      - name: Run three-agent A2A to MCP demonstration
+        run: python examples/a2a_to_mcp_delegation.py
+
   framework-conformance:
     runs-on: ubuntu-latest
     strategy:

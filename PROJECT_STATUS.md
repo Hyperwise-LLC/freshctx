@@ -1,19 +1,24 @@
 # FreshCtx project status
 
-Last updated: 2026-09-02
-Current public release: `0.12.0`
-Current release candidate: `0.13.0`
+Last updated: 2026-09-05
+Current public release: `0.13.0`
+Current release candidate: `0.14.0`
 
-PyPI, Git tag `v0.12.0`, and the GitHub Release were published on 2026-09-05
-after protected PR #59 merged.
+FreshCtx 0.13.0 is public on PyPI. Version 0.14.0 is the protected A2A
+delegation release candidate and is not public until its PR, CI, package, and
+clean-install gates complete.
 
 ## Current milestone
 
-FreshCtx 0.10.0 preserves the original synchronous
+FreshCtx preserves the original synchronous
 Core contract while adding opt-in concurrency, async protected actions,
 validation budgets, stronger developer tooling, six adapters, and native
 pre-action mappings for Agno, LangGraph, the OpenAI Agents SDK, Google ADK, and
 the official MCP Python SDK v2, plus an ElevenLabs Python client-tool bridge.
+
+The 0.14.0 candidate adds official A2A Python SDK receiving-side protection,
+signed and expiring delegation records, parent/root correlation links, and a
+three-agent A2A path ending at a guarded MCP tool.
 
 The 0.9.0 package adds an MCP server extension
 at the native `tools/call` boundary, a versioned blocked-response schema,

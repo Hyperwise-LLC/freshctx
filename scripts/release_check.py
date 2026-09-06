@@ -26,6 +26,11 @@ REQUIRED = [
     "docs/ACTION_EVIDENCE_CORRELATION.md",
     "docs/CROSS_INTEGRATION_CORRELATION.md",
     "docs/EVIDENCE_ATTESTATION.md",
+    "docs/A2A_GUARD.md",
+    "examples/a2a_to_mcp_delegation.py",
+    "tests/test_a2a_integration.py",
+    "schemas/a2a-delegation.schema.json",
+    "src/freshctx/schemas/a2a-delegation.schema.json",
     "examples/evidence_attestation.py",
     "docs/ELEVENLABS.md",
     "docs/MCP_GUARD.md", "docs/MCP_HOST_VALIDATION.md",
@@ -77,8 +82,8 @@ def main() -> int:
         return 1
     root_schemas = sorted((ROOT / "schemas").glob("*.schema.json"))
     packaged = ROOT / "src" / "freshctx" / "schemas"
-    if len(root_schemas) != 10:
-        print("Expected ten root schema files", file=sys.stderr); return 1
+    if len(root_schemas) != 11:
+        print("Expected eleven root schema files", file=sys.stderr); return 1
     for schema in root_schemas:
         json.loads(schema.read_text())
         packaged_schema = packaged / schema.name

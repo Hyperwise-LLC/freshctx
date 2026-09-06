@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "freshctx"
-version = "0.13.0"
+version = "0.14.0"
 description = "Freshness enforcement for AI agent observations and reasoning"
 keywords = [
   "ai-agents",
@@ -50,6 +50,8 @@ openai-agents = ["openai-agents>=0.22,<1"]
 google-adk = ["google-adk>=1.26,<2"]
 elevenlabs = ["elevenlabs>=2.66,<3"]
 mcp-guard = ["mcp>=2,<3"]
+a2a = ["a2a-sdk>=1,<2"]
+a2a-mcp = ["a2a-sdk>=1,<2", "mcp>=2,<3"]
 conformance = [
   "agno>=2.9,<3",
   "elevenlabs>=2.66,<3",
@@ -57,8 +59,9 @@ conformance = [
   "langgraph>=1,<2",
   "openai-agents>=0.22,<1",
 ]
-test = ["agno>=2.9,<3", "elevenlabs>=2.66,<3", "google-adk>=1.26,<2", "jsonschema>=4.23,<5", "langgraph>=1,<2", "openai-agents>=0.22,<1", "rfc3339-validator>=0.1.4,<1"]
+test = ["a2a-sdk>=1,<2", "agno>=2.9,<3", "elevenlabs>=2.66,<3", "google-adk>=1.26,<2", "jsonschema>=4.23,<5", "langgraph>=1,<2", "openai-agents>=0.22,<1", "rfc3339-validator>=0.1.4,<1"]
 dev = [
+  "a2a-sdk>=1,<2",
   "agno>=2.9,<3",
   "build>=1,<2",
   "elevenlabs>=2.66,<3",
