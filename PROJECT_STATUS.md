@@ -1,12 +1,11 @@
 # FreshCtx project status
 
 Last updated: 2026-09-05
-Current public release: `0.13.0`
-Current release candidate: `0.14.0`
+Current public release: `0.14.0`
+Current release candidate: none
 
-FreshCtx 0.13.0 is public on PyPI. Version 0.14.0 is the protected A2A
-delegation release candidate and is not public until its PR, CI, package, and
-clean-install gates complete.
+FreshCtx 0.14.0 is public on PyPI. Its protected PR, Python 3.10–3.13 CI,
+package validation, and clean public-install A2A-to-MCP reproduction passed.
 
 ## Current milestone
 
@@ -16,7 +15,7 @@ validation budgets, stronger developer tooling, six adapters, and native
 pre-action mappings for Agno, LangGraph, the OpenAI Agents SDK, Google ADK, and
 the official MCP Python SDK v2, plus an ElevenLabs Python client-tool bridge.
 
-The 0.14.0 candidate adds official A2A Python SDK receiving-side protection,
+The 0.14.0 release adds official A2A Python SDK receiving-side protection,
 signed and expiring delegation records, parent/root correlation links, and a
 three-agent A2A path ending at a guarded MCP tool.
 

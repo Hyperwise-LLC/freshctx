@@ -5,7 +5,7 @@ Contract identifier: `freshctx.pre_action.experimental.v1`
 
 ## Purpose
 
-The contract gives framework and protocol bridges one narrow job: place the same FreshCtx validation boundary immediately before a consequential action. It is being tested across Agno, LangGraph, OpenAI Agents SDK, Google ADK, and the official MCP Python SDK before FreshCtx considers a stable public integration API.
+The contract gives framework and protocol bridges one narrow job: place the same FreshCtx validation boundary immediately before a consequential action. It is exercised across Agno, LangGraph, OpenAI Agents SDK, Google ADK, ElevenLabs, and the official MCP Python SDK. A2A uses the same pre-action invariant at its receiving executor while adding signed delegation provenance.
 
 ## Invariant
 

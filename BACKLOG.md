@@ -1,6 +1,6 @@
 # FreshCtx backlog
 
-Current public release: `0.8.0`
+Current public release: `0.14.0`
 
 This file is the concise issue-oriented backlog. The ordered roadmap, release
 rules, completed milestones, and evidence priorities are maintained in
@@ -8,8 +8,8 @@ rules, completed milestones, and evidence priorities are maintained in
 
 ## P0 - Wave 1 integration conformance
 
-1. Compare Agno, LangGraph, OpenAI Agents SDK, and Google ADK against the same
-   pre-action requirements.
+1. Maintain the shared conformance requirements across Agno, LangGraph,
+   OpenAI Agents SDK, Google ADK, ElevenLabs, MCP, and A2A.
 2. Confirm that every bridge checks at the true action boundary, blocks before
    execution, preserves non-sensitive correlation, and retains application-owned
    policy decisions.
