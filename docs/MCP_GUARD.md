@@ -50,7 +50,7 @@ for the client application and the pre-action contract identifier.
 Install the released package from PyPI:
 
 ```bash
-python -m pip install 'freshctx[mcp-guard]==0.9.0'
+python -m pip install 'freshctx[mcp-guard]==0.14.0'
 ```
 
 Attach the guard when constructing the MCP server:

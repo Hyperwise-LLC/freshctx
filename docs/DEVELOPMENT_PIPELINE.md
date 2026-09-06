@@ -1,7 +1,7 @@
 # FreshCtx development pipeline
 
 Last updated: 2026-09-05
-Current release candidate: `0.14.0`
+Current public release: `0.14.0`
 
 Version `0.14.0` adds bounded, signed A2A delegation provenance and a
 receiving-side guard, including a three-agent path ending at MCP.
