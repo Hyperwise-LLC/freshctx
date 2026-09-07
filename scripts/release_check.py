@@ -28,6 +28,7 @@ REQUIRED = [
     "docs/EVIDENCE_ATTESTATION.md",
     "docs/A2A_GUARD.md",
     "examples/a2a_to_mcp_delegation.py",
+    "examples/monotonic_evidence_version.py",
     "tests/test_a2a_integration.py",
     "schemas/a2a-delegation.schema.json",
     "src/freshctx/schemas/a2a-delegation.schema.json",

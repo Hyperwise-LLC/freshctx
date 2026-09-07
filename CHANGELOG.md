@@ -4,6 +4,28 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+## 0.15.0 - 2026-09-06
+
+### Added
+
+- Privacy-bounded A2A action-intent commitments that sign a domain-separated
+  digest without copying raw MCP tool arguments into receipts or audit records
+- Atomic single-use delegation stores for process-local and cross-process SQLite
+  replay protection, including concurrent-use coverage
+- Bounded fail-closed retries for temporary `UNVERIFIABLE` validation outcomes
+  and an optional circuit breaker that rejects work while validation is degraded
+- A monotonic evidence-version example covering the ABA case where a value
+  changes and later returns to its original representation
+
+### Compatibility and scope
+
+- Existing 0.14 A2A receipts remain readable. Intent and replay enforcement are
+  enabled when the receiver configures the corresponding resolver and store.
+- Freshness, delegation integrity, action-intent integrity, replay protection,
+  provenance, authorization, and availability remain separate claims.
+- Parent and root correlation IDs remain audit links rather than chain-wide
+  security anchors or revocation controls.
+
 ## 0.14.0 - 2026-09-05
 
 ### Added

@@ -269,6 +269,11 @@ declared observation references. The receiver rejects invalid provenance or
 stale/unverifiable evidence before its executor starts. See
 [`docs/A2A_GUARD.md`](docs/A2A_GUARD.md) and the
 [three-agent A2A-to-MCP demonstration](examples/a2a_to_mcp_delegation.py).
+FreshCtx 0.15 adds optional action-intent commitments, atomic single-use
+delegations, bounded fail-closed validation retries, and a circuit breaker.
+Only an intent digest is signed; raw tool arguments remain outside receipts and
+audit records. Parent/root IDs remain audit links, while every hop revalidates
+its own evidence.
 
 ### ElevenLabs voice-agent tools
 

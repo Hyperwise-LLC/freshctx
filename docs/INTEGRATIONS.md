@@ -126,9 +126,11 @@ and revalidates declared evidence before delegated work starts. Invalid,
 expired, tampered, wrong-recipient, stale, and unverifiable requests produce a
 native rejected-task event without invoking the wrapped executor.
 
-Install with `python -m pip install 'freshctx[a2a]==0.14.0'`. Use
+Install with `python -m pip install 'freshctx[a2a]==0.15.0'`. Use
 `freshctx[a2a-mcp]` for the three-agent example that ends at a guarded MCP tool.
-See `docs/A2A_GUARD.md` for the contract and explicit security boundaries.
+Version 0.15 can additionally bind the receipt to an action-intent digest,
+atomically reject delegation replay, and bound retries for temporary validation
+failure. See `docs/A2A_GUARD.md` for the contract and explicit security boundaries.
 
 ## MCP
 

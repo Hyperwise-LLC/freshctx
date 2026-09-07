@@ -1,10 +1,11 @@
 # FreshCtx development pipeline
 
-Last updated: 2026-09-05
-Current release candidate: `0.14.0`
+Last updated: 2026-09-06
+Current release candidate: `0.15.0`
 
-Version `0.14.0` adds bounded, signed A2A delegation provenance and a
-receiving-side guard, including a three-agent path ending at MCP.
+Version `0.15.0` hardens the A2A receiving boundary with action-intent
+commitments, atomic replay protection, bounded fail-closed retries, and
+monotonic evidence-version guidance.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
@@ -52,6 +53,9 @@ does not justify a software release.
 16. **A2A delegation guard** - signed, expiring, recipient-bound delegation
     records, receiving-side executor blocking, parent/root chain links, and a
     three-agent A2A-to-MCP demonstration in 0.14.0.
+17. **A2A action integrity and replay hardening** - privacy-bounded intent
+    digests, process-local and SQLite atomic replay stores, bounded retries,
+    fail-closed circuit breaking, and an ABA/version example in 0.15.0.
 
 ## P2 - observed evidence provenance
 
