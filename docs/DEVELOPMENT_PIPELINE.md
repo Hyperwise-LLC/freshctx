@@ -1,7 +1,8 @@
 # FreshCtx development pipeline
 
 Last updated: 2026-09-06
-Current release candidate: `0.15.0`
+Current public release: `0.15.0`
+Current release candidate: none
 
 Version `0.15.0` hardens the A2A receiving boundary with action-intent
 commitments, atomic replay protection, bounded fail-closed retries, and
@@ -57,7 +58,7 @@ does not justify a software release.
     digests, process-local and SQLite atomic replay stores, bounded retries,
     fail-closed circuit breaking, and an ABA/version example in 0.15.0.
 
-## P2 - observed evidence provenance
+## Completed - P2 observed evidence provenance
 
 1. Capture successful file reads through a bounded root-scoped hook.
 2. Generate inspected sources from those access events rather than accepting a
@@ -71,7 +72,7 @@ does not justify a software release.
 6. Demonstrate both wrong-source discovery and right-file-read/wrong-file-cited
    outcomes without claiming semantic correctness.
 
-## P3 - agent-driven source discovery
+## Completed - P3 agent-driven source discovery
 
 1. Route an agent SDK's file access through the observed read hook.
 2. Derive inspected sources from actual read-tool execution.
@@ -79,7 +80,7 @@ does not justify a software release.
 4. Provide deterministic SDK reproduction without credentials and an optional
    live-model run using the identical tool boundary.
 
-## P4 - provenance enforcement
+## Completed - P4 provenance enforcement
 
 1. Revalidate FreshCtx evidence before evaluating provenance.
 2. Allow the protected action only when the declared provenance policy passes.

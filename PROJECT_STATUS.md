@@ -1,12 +1,11 @@
 # FreshCtx project status
 
 Last updated: 2026-09-06
-Current public release: `0.14.0`
-Current release candidate: `0.15.0`
+Current public release: `0.15.0`
+Current release candidate: none
 
-FreshCtx 0.14.0 is public on PyPI. Version 0.15.0 is the A2A action-integrity
-hardening candidate and is not public until its PR, CI, package, and
-clean-install gates complete.
+FreshCtx 0.15.0 is public on PyPI. Its protected PR, supported-Python CI,
+package, and clean-install gates completed before publication.
 
 ## Current milestone
 
@@ -20,7 +19,7 @@ The 0.14.0 package adds official A2A Python SDK receiving-side protection,
 signed and expiring delegation records, parent/root correlation links, and a
 three-agent A2A path ending at a guarded MCP tool.
 
-The 0.15.0 candidate adds action-intent commitments without retaining raw tool
+The 0.15.0 package adds action-intent commitments without retaining raw tool
 arguments, atomic single-use delegation stores, bounded fail-closed retries, an
 optional validation circuit breaker, and monotonic-version guidance for ABA changes.
 

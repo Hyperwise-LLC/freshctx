@@ -1,6 +1,6 @@
 # FreshCtx MCP Guard
 
-Status: available in FreshCtx 0.9.0
+Status: available since FreshCtx 0.9.0
 
 FreshCtx MCP Guard is an opt-in server extension for the official MCP Python
 SDK v2. It intercepts a protected `tools/call` immediately before the real tool
@@ -50,7 +50,7 @@ for the client application and the pre-action contract identifier.
 Install the released package from PyPI:
 
 ```bash
-python -m pip install 'freshctx[mcp-guard]==0.9.0'
+python -m pip install 'freshctx[mcp-guard]==0.15.0'
 ```
 
 Attach the guard when constructing the MCP server:
