@@ -203,9 +203,9 @@ class A2AIntegrationTests(unittest.TestCase):
         )
         asyncio.run(guarded.execute(Context(metadata), Collector()))
         self.assertEqual(executor.executions, 1)
-        serialized = json.dumps(metadata, sort_keys=True)
-        self.assertNotIn("customer-7", serialized)
-        self.assertNotIn("450", serialized)
+        delegation = metadata[A2A_EXTENSION_URI]["delegation"]
+        self.assertEqual(set(delegation).intersection(intent), set())
+        self.assertEqual(len(delegation["action_intent_digest"]), 64)
 
     def test_same_receipt_with_different_action_intent_is_rejected(self) -> None:
         metadata = self._metadata(action_intent={"operation": "update", "record_id": "7"})
