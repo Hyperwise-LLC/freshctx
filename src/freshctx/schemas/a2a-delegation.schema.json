@@ -17,6 +17,7 @@
     "evidence_attestation_id": {"type": ["string", "null"]},
     "task_id": {"type": ["string", "null"]},
     "context_id": {"type": ["string", "null"]},
+    "action_intent_digest": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
     "created_at": {"type": "string", "format": "date-time"},
     "expires_at": {"type": "string", "format": "date-time"}
   }

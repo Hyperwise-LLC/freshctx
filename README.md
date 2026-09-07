@@ -144,7 +144,7 @@ with TemporaryDirectory() as directory:
 FreshCtx includes synchronous and asynchronous LangGraph action-node wrappers. Install the current optional integration dependency and run the controlled stale-state scenario:
 
 ```console
-python -m pip install 'freshctx[langgraph]==0.8.0'
+python -m pip install 'freshctx[langgraph]==0.15.0'
 python examples/langgraph_stale_config.py
 ```
 
@@ -179,7 +179,7 @@ A stale or unverifiable dependency raises `FreshnessBlocked` before the node bod
 The optional Agno integration is included in FreshCtx 0.8.0. Install the integration and run the model-free tool-hook scenario:
 
 ```console
-python -m pip install 'freshctx[agno]==0.8.0'
+python -m pip install 'freshctx[agno]==0.15.0'
 python examples/agno_stale_tool.py
 ```
 
@@ -206,7 +206,7 @@ FreshCtx does not replace Agno's internal run-state, concurrency, transaction, o
 FreshCtx maps the same pre-action contract to an OpenAI Agents SDK input guardrail for custom function tools:
 
 ```console
-python -m pip install 'freshctx[openai-agents]==0.8.0'
+python -m pip install 'freshctx[openai-agents]==0.15.0'
 python examples/openai_agents_stale_tool.py
 ```
 
@@ -233,7 +233,7 @@ Stale or unverifiable evidence triggers the SDK's native input-tool tripwire bef
 FreshCtx 0.8.0 maps the same pre-action contract to Google ADK's native `before_tool_callback` boundary:
 
 ```console
-python -m pip install 'freshctx[google-adk]==0.8.0'
+python -m pip install 'freshctx[google-adk]==0.15.0'
 python examples/google_adk_stale_tool.py
 ```
 
@@ -269,6 +269,11 @@ declared observation references. The receiver rejects invalid provenance or
 stale/unverifiable evidence before its executor starts. See
 [`docs/A2A_GUARD.md`](docs/A2A_GUARD.md) and the
 [three-agent A2A-to-MCP demonstration](examples/a2a_to_mcp_delegation.py).
+FreshCtx 0.15 adds optional action-intent commitments, atomic single-use
+delegations, bounded fail-closed validation retries, and a circuit breaker.
+Only an intent digest is signed; raw tool arguments remain outside receipts and
+audit records. Parent/root IDs remain audit links, while every hop revalidates
+its own evidence.
 
 ### ElevenLabs voice-agent tools
 
@@ -276,7 +281,7 @@ Protect consequential ElevenLabs Python client tools at their registered
 handler boundary:
 
 ```console
-python -m pip install 'freshctx[elevenlabs]==0.10.0'
+python -m pip install 'freshctx[elevenlabs]==0.15.0'
 python examples/elevenlabs_voice_customer_guard.py
 ```
 
@@ -538,7 +543,7 @@ Unsafe or non-idempotent MCP operations are `UNVERIFIABLE`; do not use them as v
 
 FreshCtx does not provide an MCP transport or client. The application supplies and reconstructs the safe-reader callback after process restart. External network calls occur only when the application explicitly selects an external adapter such as HTTP, Postgres, Stripe Subscription, or MCP.
 
-To guard an MCP server's consequential tools at the native `tools/call` boundary, attach `FreshCtxMCPGuard` as an official MCP Python SDK v2 extension. Install the public package with `python -m pip install 'freshctx[mcp-guard]==0.9.0'`. See `docs/MCP_GUARD.md` for the stable blocked-response format, multiple-tool configuration, three-outcome demonstration, real stdio subprocess validation, and the named-host Codex run. This server integration is separate from the safe-reader adapter above: the adapter re-reads evidence, while the guard controls whether a tool call may proceed.
+To guard an MCP server's consequential tools at the native `tools/call` boundary, attach `FreshCtxMCPGuard` as an official MCP Python SDK v2 extension. Install the current package with `python -m pip install 'freshctx[mcp-guard]==0.15.0'`. See `docs/MCP_GUARD.md` for the stable blocked-response format, multiple-tool configuration, three-outcome demonstration, real stdio subprocess validation, and the named-host Codex run. This server integration is separate from the safe-reader adapter above: the adapter re-reads evidence, while the guard controls whether a tool call may proceed.
 
 ## Project, support, and commercial inquiries
 

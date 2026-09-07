@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import asyncio
 import json
+import sqlite3
+import threading
+import time
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
@@ -30,6 +34,100 @@ except ImportError as exc:  # pragma: no cover - exercised without the optional 
 A2A_EXTENSION_URI = "https://freshctx.com/extensions/a2a-delegation/v1"
 A2A_DELEGATION_SCHEMA_VERSION = "freshctx.a2a_delegation.v1"
 A2A_ATTESTATION_SCHEMA_VERSION = "freshctx.a2a_delegation_attestation.v1"
+
+
+def a2a_action_intent_digest(value: bytes | str | Mapping[str, Any]) -> str:
+    """Return a domain-separated digest without retaining the supplied intent.
+
+    Applications decide which non-secret action fields are material. Raw tool
+    arguments are consumed only while calculating this digest and are never
+    copied into delegation metadata or FreshCtx audit records.
+    """
+
+    if isinstance(value, bytes):
+        payload = value
+    elif isinstance(value, str):
+        payload = value.encode("utf-8")
+    elif isinstance(value, Mapping):
+        try:
+            payload = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        except (TypeError, ValueError) as exc:
+            raise ConfigurationError("A2A action intent must be canonically serializable") from exc
+    else:
+        raise ConfigurationError("A2A action intent must be bytes, text, or a mapping")
+    return hashlib.sha256(b"freshctx.a2a_action_intent.v1\0" + payload).hexdigest()
+
+
+class MemoryDelegationReplayStore:
+    """Process-local atomic single-use store for delegation identifiers."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._consumed: dict[str, float] = {}
+
+    def consume(self, delegation_id: str, expires_at: str) -> bool:
+        expiry = _parse_time(expires_at).timestamp()
+        now = datetime.now(timezone.utc).timestamp()
+        with self._lock:
+            self._consumed = {key: value for key, value in self._consumed.items() if value >= now}
+            if delegation_id in self._consumed:
+                return False
+            self._consumed[delegation_id] = expiry
+            return True
+
+
+class SQLiteDelegationReplayStore:
+    """Cross-process atomic single-use store backed by SQLite."""
+
+    def __init__(self, path: str) -> None:
+        self.path = path
+        with sqlite3.connect(self.path) as connection:
+            connection.execute(
+                "CREATE TABLE IF NOT EXISTS freshctx_a2a_consumed "
+                "(delegation_id TEXT PRIMARY KEY, expires_at REAL NOT NULL)"
+            )
+
+    def consume(self, delegation_id: str, expires_at: str) -> bool:
+        expiry = _parse_time(expires_at).timestamp()
+        now = datetime.now(timezone.utc).timestamp()
+        with sqlite3.connect(self.path, timeout=5) as connection:
+            connection.execute("DELETE FROM freshctx_a2a_consumed WHERE expires_at < ?", (now,))
+            try:
+                connection.execute(
+                    "INSERT INTO freshctx_a2a_consumed (delegation_id, expires_at) VALUES (?, ?)",
+                    (delegation_id, expiry),
+                )
+            except sqlite3.IntegrityError:
+                return False
+        return True
+
+
+class ValidationCircuitBreaker:
+    """Small fail-closed breaker for repeated unverifiable validations."""
+
+    def __init__(self, *, failure_threshold: int = 3, open_seconds: float = 30) -> None:
+        if failure_threshold < 1 or open_seconds <= 0:
+            raise ConfigurationError("A2A circuit breaker requires a positive threshold and open period")
+        self.failure_threshold = int(failure_threshold)
+        self.open_seconds = float(open_seconds)
+        self._lock = threading.Lock()
+        self._failures = 0
+        self._open_until = 0.0
+
+    def allow_validation(self) -> bool:
+        with self._lock:
+            return time.monotonic() >= self._open_until
+
+    def record_current(self) -> None:
+        with self._lock:
+            self._failures = 0
+            self._open_until = 0.0
+
+    def record_unverifiable(self) -> None:
+        with self._lock:
+            self._failures += 1
+            if self._failures >= self.failure_threshold:
+                self._open_until = time.monotonic() + self.open_seconds
 
 
 def _parse_time(value: str) -> datetime:
@@ -64,6 +162,7 @@ class A2ADelegation:
     evidence_attestation_id: str | None = None
     task_id: str | None = None
     context_id: str | None = None
+    action_intent_digest: str | None = None
     schema_version: str = A2A_DELEGATION_SCHEMA_VERSION
 
     def __post_init__(self) -> None:
@@ -75,26 +174,39 @@ class A2ADelegation:
             raise ConfigurationError("A2A delegation requires observation IDs")
         if _parse_time(self.expires_at) <= _parse_time(self.created_at):
             raise ConfigurationError("A2A delegation expiry must follow creation")
+        if self.action_intent_digest is not None and (
+            len(self.action_intent_digest) != 64
+            or any(character not in "0123456789abcdef" for character in self.action_intent_digest)
+        ):
+            raise ConfigurationError("A2A action intent digest must be a lowercase SHA-256 digest")
 
     def to_dict(self) -> dict[str, Any]:
         value = asdict(self)
         value["observation_ids"] = list(self.observation_ids)
+        if self.action_intent_digest is None:
+            value.pop("action_intent_digest")
         return value
 
     @classmethod
     def create(cls, *, root_correlation_id: str, origin_agent: str, receiving_agent: str,
                skill_id: str, observation_ids: Iterable[str], ttl_seconds: float,
                parent_delegation_id: str | None = None, evidence_attestation_id: str | None = None,
-               task_id: str | None = None, context_id: str | None = None, now: str | None = None) -> "A2ADelegation":
+               task_id: str | None = None, context_id: str | None = None,
+               action_intent: bytes | str | Mapping[str, Any] | None = None,
+               action_intent_digest: str | None = None, now: str | None = None) -> "A2ADelegation":
         if not isinstance(ttl_seconds, (int, float)) or ttl_seconds <= 0:
             raise ConfigurationError("A2A delegation ttl_seconds must be positive")
         created = _parse_time(now or utcnow())
+        if action_intent is not None and action_intent_digest is not None:
+            raise ConfigurationError("provide action_intent or action_intent_digest, not both")
+        intent_digest = a2a_action_intent_digest(action_intent) if action_intent is not None else action_intent_digest
         return cls(root_correlation_id=root_correlation_id, delegation_id=str(uuid4()),
                    origin_agent=origin_agent, receiving_agent=receiving_agent, skill_id=skill_id,
                    observation_ids=tuple(observation_ids), created_at=created.isoformat(),
                    expires_at=(created + timedelta(seconds=float(ttl_seconds))).isoformat(),
                    parent_delegation_id=parent_delegation_id,
-                   evidence_attestation_id=evidence_attestation_id, task_id=task_id, context_id=context_id)
+                   evidence_attestation_id=evidence_attestation_id, task_id=task_id, context_id=context_id,
+                   action_intent_digest=intent_digest)
 
     @classmethod
     def from_dict(cls, value: Mapping[str, Any]) -> "A2ADelegation":
@@ -173,13 +285,29 @@ class FreshCtxA2AExecutor(AgentExecutor):
     """Guard an official A2A executor before delegated work begins."""
 
     def __init__(self, executor: AgentExecutor, *, receiving_agent: str, depends_on: Iterable[Any] | Callable[[RequestContext], Iterable[Any]],
-                 store: Any, key_resolver: Callable[[str, str], bytes | None], audit_path: str = ".freshctx/a2a-audit.jsonl") -> None:
+                 store: Any, key_resolver: Callable[[str, str], bytes | None], audit_path: str = ".freshctx/a2a-audit.jsonl",
+                 action_intent: Callable[[RequestContext], bytes | str | Mapping[str, Any]] | None = None,
+                 replay_store: Any | None = None, validation_attempts: int = 1,
+                 validation_retry_delay_ms: float = 0, validation_retry_budget_ms: float | None = None,
+                 circuit_breaker: ValidationCircuitBreaker | None = None) -> None:
         self.executor = executor
         self.receiving_agent = _label("receiving_agent", receiving_agent)
         self.depends_on = depends_on
         self.store = store
         self.key_resolver = key_resolver
         self.audit_path = audit_path
+        if validation_attempts < 1:
+            raise ConfigurationError("A2A validation_attempts must be at least 1")
+        if validation_retry_delay_ms < 0:
+            raise ConfigurationError("A2A validation_retry_delay_ms must not be negative")
+        if validation_retry_budget_ms is not None and validation_retry_budget_ms <= 0:
+            raise ConfigurationError("A2A validation_retry_budget_ms must be positive")
+        self.action_intent = action_intent
+        self.replay_store = replay_store
+        self.validation_attempts = int(validation_attempts)
+        self.validation_retry_delay_ms = float(validation_retry_delay_ms)
+        self.validation_retry_budget_ms = validation_retry_budget_ms
+        self.circuit_breaker = circuit_breaker
         self.last_delegation: A2ADelegation | None = None
         self.last_correlation = None
 
@@ -205,18 +333,65 @@ class FreshCtxA2AExecutor(AgentExecutor):
         if not valid:
             await self._reject(context, event_queue, reason)
             return
+        if self.action_intent is not None:
+            try:
+                expected_intent = a2a_action_intent_digest(self.action_intent(context))
+            except Exception:
+                await self._reject(context, event_queue, "action_intent_unverifiable")
+                return
+            if delegation.action_intent_digest is None:
+                await self._reject(context, event_queue, "missing_action_intent")
+                return
+            if not hmac.compare_digest(expected_intent, delegation.action_intent_digest):
+                await self._reject(context, event_queue, "action_intent_mismatch")
+                return
+        if self.circuit_breaker is not None and not self.circuit_breaker.allow_validation():
+            await self._reject(context, event_queue, "validation_circuit_open")
+            return
+        if self.replay_store is not None:
+            try:
+                consumed = self.replay_store.consume(delegation.delegation_id, delegation.expires_at)
+            except Exception:
+                await self._reject(context, event_queue, "replay_store_unverifiable")
+                return
+            if not consumed:
+                await self._reject(context, event_queue, "delegation_replayed")
+                return
         self.last_delegation = delegation
         dependencies = self.depends_on(context) if callable(self.depends_on) else self.depends_on
-        boundary = PreActionBoundary(depends_on=dependencies, store=self.store, audit_path=self.audit_path)
-        try:
-            await boundary.invoke_async(
-                PreActionCall(runtime="a2a", action=delegation.skill_id, execution_id=context.task_id or delegation.delegation_id),
-                self.executor.execute, context, event_queue)
-        except FreshnessBlocked as blocked:
-            self.last_correlation = blocked.correlation
-            await self._reject(context, event_queue, "freshctx_blocked", blocked_contract_payload(blocked))
+        started = time.monotonic()
+        for attempt in range(1, self.validation_attempts + 1):
+            boundary = PreActionBoundary(depends_on=dependencies, store=self.store, audit_path=self.audit_path)
+            try:
+                await boundary.invoke_async(
+                    PreActionCall(runtime="a2a", action=delegation.skill_id, execution_id=context.task_id or delegation.delegation_id),
+                    self.executor.execute, context, event_queue)
+            except FreshnessBlocked as blocked:
+                self.last_correlation = blocked.correlation
+                elapsed_ms = (time.monotonic() - started) * 1000
+                can_retry = (
+                    blocked.result.state.value == "UNVERIFIABLE"
+                    and attempt < self.validation_attempts
+                    and (self.validation_retry_budget_ms is None or elapsed_ms < self.validation_retry_budget_ms)
+                )
+                if can_retry:
+                    delay = self.validation_retry_delay_ms / 1000
+                    if self.validation_retry_budget_ms is not None:
+                        remaining = max(0, (self.validation_retry_budget_ms - elapsed_ms) / 1000)
+                        delay = min(delay, remaining)
+                    if delay:
+                        await asyncio.sleep(delay)
+                    continue
+                details = blocked_contract_payload(blocked)
+                details["validation_attempts"] = attempt
+                if blocked.result.state.value == "UNVERIFIABLE" and self.circuit_breaker is not None:
+                    self.circuit_breaker.record_unverifiable()
+                await self._reject(context, event_queue, "freshctx_blocked", details)
+                return
+            self.last_correlation = boundary.last_correlation
+            if self.circuit_breaker is not None:
+                self.circuit_breaker.record_current()
             return
-        self.last_correlation = boundary.last_correlation
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
         await self.executor.cancel(context, event_queue)

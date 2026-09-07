@@ -20,6 +20,9 @@ from freshctx.integrations.a2a import (
     A2A_EXTENSION_URI,
     A2ADelegation,
     FreshCtxA2AExecutor,
+    MemoryDelegationReplayStore,
+    SQLiteDelegationReplayStore,
+    ValidationCircuitBreaker,
     a2a_delegation_metadata,
     attest_a2a_delegation,
 )
@@ -79,7 +82,7 @@ class A2AIntegrationTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp.cleanup()
 
-    def _metadata(self, **changes: Any) -> dict[str, Any]:
+    def _metadata(self, action_intent: Any = None, **changes: Any) -> dict[str, Any]:
         delegation = A2ADelegation.create(
             root_correlation_id="root-1",
             origin_agent="planner",
@@ -88,6 +91,7 @@ class A2AIntegrationTests(unittest.TestCase):
             observation_ids=[self.token.id],
             ttl_seconds=60,
             parent_delegation_id="parent-1",
+            action_intent=action_intent,
         )
         if changes:
             delegation = replace(delegation, **changes)
@@ -183,6 +187,140 @@ class A2AIntegrationTests(unittest.TestCase):
         serialized = repr(self._metadata())
         for forbidden in ("arguments", "credentials", "prompt", "source_content"):
             self.assertNotIn(forbidden, serialized)
+
+    def test_action_intent_digest_matches_without_storing_arguments(self) -> None:
+        intent = {"operation": "update_record", "record_id": "customer-7", "amount": 450}
+        metadata = self._metadata(action_intent=intent)
+        executor = RecordingExecutor()
+        guarded = FreshCtxA2AExecutor(
+            executor,
+            receiving_agent="worker",
+            depends_on=[self.decision],
+            store=self.store,
+            key_resolver=lambda issuer, key_id: KEY,
+            action_intent=lambda context: intent,
+            audit_path=str(self.root / "intent-audit.jsonl"),
+        )
+        asyncio.run(guarded.execute(Context(metadata), Collector()))
+        self.assertEqual(executor.executions, 1)
+        delegation = metadata[A2A_EXTENSION_URI]["delegation"]
+        self.assertEqual(set(delegation).intersection(intent), set())
+        self.assertEqual(len(delegation["action_intent_digest"]), 64)
+
+    def test_same_receipt_with_different_action_intent_is_rejected(self) -> None:
+        metadata = self._metadata(action_intent={"operation": "update", "record_id": "7"})
+        executor = RecordingExecutor()
+        guarded = FreshCtxA2AExecutor(
+            executor,
+            receiving_agent="worker",
+            depends_on=[self.decision],
+            store=self.store,
+            key_resolver=lambda issuer, key_id: KEY,
+            action_intent=lambda context: {"operation": "delete", "record_id": "7"},
+        )
+        queue = Collector()
+        asyncio.run(guarded.execute(Context(metadata), queue))
+        self.assertEqual(executor.executions, 0)
+        self.assertEqual(dict(queue.events[0].metadata)[A2A_EXTENSION_URI]["reason"], "action_intent_mismatch")
+
+    def test_legacy_receipt_shape_remains_valid(self) -> None:
+        metadata = self._metadata()
+        self.assertNotIn("action_intent_digest", metadata[A2A_EXTENSION_URI]["delegation"])
+        executor = RecordingExecutor()
+        queue = Collector()
+        asyncio.run(self._guard(executor).execute(Context(metadata), queue))
+        self.assertEqual(executor.executions, 1)
+
+    def test_same_delegation_is_single_use(self) -> None:
+        metadata = self._metadata()
+        executor = RecordingExecutor()
+        guarded = FreshCtxA2AExecutor(
+            executor,
+            receiving_agent="worker",
+            depends_on=[self.decision],
+            store=self.store,
+            key_resolver=lambda issuer, key_id: KEY,
+            replay_store=MemoryDelegationReplayStore(),
+        )
+        first, second = Collector(), Collector()
+        asyncio.run(guarded.execute(Context(metadata), first))
+        asyncio.run(guarded.execute(Context(metadata), second))
+        self.assertEqual(executor.executions, 1)
+        self.assertEqual(dict(second.events[0].metadata)[A2A_EXTENSION_URI]["reason"], "delegation_replayed")
+
+    def test_concurrent_replay_allows_exactly_one_execution(self) -> None:
+        metadata = self._metadata()
+        executor = RecordingExecutor()
+        guarded = FreshCtxA2AExecutor(
+            executor,
+            receiving_agent="worker",
+            depends_on=[self.decision],
+            store=self.store,
+            key_resolver=lambda issuer, key_id: KEY,
+            replay_store=MemoryDelegationReplayStore(),
+        )
+        queues = [Collector(), Collector()]
+
+        async def run_both() -> None:
+            await asyncio.gather(*(guarded.execute(Context(metadata), queue) for queue in queues))
+
+        asyncio.run(run_both())
+        self.assertEqual(executor.executions, 1)
+        reasons = [dict(queue.events[0].metadata)[A2A_EXTENSION_URI]["reason"] for queue in queues if queue.events]
+        self.assertEqual(reasons, ["delegation_replayed"])
+
+    def test_sqlite_replay_store_is_shared_between_instances(self) -> None:
+        path = str(self.root / "replay.sqlite3")
+        metadata = self._metadata()
+        delegation = A2ADelegation.from_dict(metadata[A2A_EXTENSION_URI]["delegation"])
+        self.assertTrue(SQLiteDelegationReplayStore(path).consume(delegation.delegation_id, delegation.expires_at))
+        self.assertFalse(SQLiteDelegationReplayStore(path).consume(delegation.delegation_id, delegation.expires_at))
+
+    def test_unverifiable_validation_retries_within_attempt_bound(self) -> None:
+        class FlakyStore:
+            def __init__(self, wrapped: Any) -> None:
+                self.wrapped = wrapped
+                self.failed = False
+
+            def get(self, object_id: str) -> Any:
+                if not self.failed:
+                    self.failed = True
+                    return None
+                return self.wrapped.get(object_id)
+
+            def __getattr__(self, name: str) -> Any:
+                return getattr(self.wrapped, name)
+
+        executor = RecordingExecutor()
+        guarded = FreshCtxA2AExecutor(
+            executor,
+            receiving_agent="worker",
+            depends_on=[self.decision],
+            store=FlakyStore(self.store),
+            key_resolver=lambda issuer, key_id: KEY,
+            validation_attempts=2,
+        )
+        queue = Collector()
+        asyncio.run(guarded.execute(Context(self._metadata()), queue))
+        self.assertEqual(executor.executions, 1)
+        self.assertEqual(queue.events, [])
+
+    def test_circuit_breaker_rejects_without_executing(self) -> None:
+        breaker = ValidationCircuitBreaker(failure_threshold=1, open_seconds=60)
+        breaker.record_unverifiable()
+        executor = RecordingExecutor()
+        guarded = FreshCtxA2AExecutor(
+            executor,
+            receiving_agent="worker",
+            depends_on=[self.decision],
+            store=self.store,
+            key_resolver=lambda issuer, key_id: KEY,
+            circuit_breaker=breaker,
+        )
+        queue = Collector()
+        asyncio.run(guarded.execute(Context(self._metadata()), queue))
+        self.assertEqual(executor.executions, 0)
+        self.assertEqual(dict(queue.events[0].metadata)[A2A_EXTENSION_URI]["reason"], "validation_circuit_open")
 
     def test_public_delegation_schema_accepts_record(self) -> None:
         value = self._metadata()[A2A_EXTENSION_URI]["delegation"]

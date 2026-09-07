@@ -1,10 +1,12 @@
 # FreshCtx development pipeline
 
-Last updated: 2026-09-05
-Current release candidate: `0.14.0`
+Last updated: 2026-09-06
+Current public release: `0.15.0`
+Current release candidate: none
 
-Version `0.14.0` adds bounded, signed A2A delegation provenance and a
-receiving-side guard, including a three-agent path ending at MCP.
+Version `0.15.0` hardens the A2A receiving boundary with action-intent
+commitments, atomic replay protection, bounded fail-closed retries, and
+monotonic evidence-version guidance.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
@@ -52,8 +54,11 @@ does not justify a software release.
 16. **A2A delegation guard** - signed, expiring, recipient-bound delegation
     records, receiving-side executor blocking, parent/root chain links, and a
     three-agent A2A-to-MCP demonstration in 0.14.0.
+17. **A2A action integrity and replay hardening** - privacy-bounded intent
+    digests, process-local and SQLite atomic replay stores, bounded retries,
+    fail-closed circuit breaking, and an ABA/version example in 0.15.0.
 
-## P2 - observed evidence provenance
+## Completed - P2 observed evidence provenance
 
 1. Capture successful file reads through a bounded root-scoped hook.
 2. Generate inspected sources from those access events rather than accepting a
@@ -67,7 +72,7 @@ does not justify a software release.
 6. Demonstrate both wrong-source discovery and right-file-read/wrong-file-cited
    outcomes without claiming semantic correctness.
 
-## P3 - agent-driven source discovery
+## Completed - P3 agent-driven source discovery
 
 1. Route an agent SDK's file access through the observed read hook.
 2. Derive inspected sources from actual read-tool execution.
@@ -75,7 +80,7 @@ does not justify a software release.
 4. Provide deterministic SDK reproduction without credentials and an optional
    live-model run using the identical tool boundary.
 
-## P4 - provenance enforcement
+## Completed - P4 provenance enforcement
 
 1. Revalidate FreshCtx evidence before evaluating provenance.
 2. Allow the protected action only when the declared provenance policy passes.
