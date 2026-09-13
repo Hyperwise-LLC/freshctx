@@ -1,13 +1,13 @@
 # A2A delegation guard
 
-FreshCtx 0.15.0 guards the receiving side of an official A2A Python SDK
+Since 0.15.0, FreshCtx guards the receiving side of an official A2A Python SDK
 `AgentExecutor`. The receiver verifies a bounded delegation receipt and then
 revalidates its declared FreshCtx evidence immediately before delegated work begins.
 
 Install:
 
 ```bash
-python -m pip install 'freshctx[a2a]==0.15.0'
+python -m pip install 'freshctx[a2a]==0.16.0'
 ```
 
 Wrap an existing executor:
@@ -86,7 +86,7 @@ selection, authorization, safety, or compliance.
 Run the cross-protocol demonstration:
 
 ```bash
-python -m pip install 'freshctx[a2a-mcp]==0.15.0'
+python -m pip install 'freshctx[a2a-mcp]==0.16.0'
 python examples/a2a_to_mcp_delegation.py
 python examples/monotonic_evidence_version.py
 ```

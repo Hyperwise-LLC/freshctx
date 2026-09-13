@@ -2,17 +2,17 @@
 
 Last updated: 2026-09-13
 Current public release: `0.15.0`
-Current release candidate: none
+Current release candidate: `0.16.0`
 
 FreshCtx 0.15.0 is public on PyPI. Its protected PR, supported-Python CI,
 package, and clean-install gates completed before publication.
 
-Protected-action qualification for a possible 0.16.0 release is complete on a
-protected feature branch and remains under review. It adds regression evidence
+Protected-action qualification for 0.16.0 is merged and the versioned release
+candidate is under protected review. It adds regression evidence
 for retry-like repeated invocation, real LangGraph checkpoint resume, nested
 boundaries, shared dependencies, preserved policy results, and ABA detection.
-It does not change runtime behavior, bump the package version, publish a
-release candidate, or make 0.16.0 public.
+It does not change runtime behavior and does not make 0.16.0 public before the
+release and clean public-PyPI installation gates complete.
 
 ## Current milestone
 
@@ -104,8 +104,8 @@ or general workflow validation.
    ownership, longer booking, and voice-agent scenarios.
 3. Expand the independent-result schema, benchmark matrix, adapter-author kit,
    and longer framework loops.
-4. Review the protected-action qualification record before any separately
-   authorized 0.16.0 versioning or release work.
+4. Complete protected release review, publication, and clean public-package
+   reproduction for 0.16.0.
 
 See `docs/DEVELOPMENT_PIPELINE.md` for the ordered public plan.
 
