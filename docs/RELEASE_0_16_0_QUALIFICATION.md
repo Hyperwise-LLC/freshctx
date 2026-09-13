@@ -1,12 +1,12 @@
 # FreshCtx 0.16.0 qualification contract
 
-Status: **qualification complete; 0.16.0 release candidate in protected review**
+Status: **qualified, published, and independently reinstalled from public PyPI**
 Release identity: **protected-action qualification and reproducibility**  
 Compatibility baseline: public FreshCtx 0.15.0 at `e08f98e50a603fb273fd3bff9bf399e7ebc6f479`
 
-This is an engineering acceptance record, not a claim that 0.16.0 is publicly
-available. FreshCtx 0.15.0 remains the current public release until the
-authorized release process publishes and independently rechecks 0.16.0.
+This engineering acceptance record began before publication. FreshCtx 0.16.0
+is now the current public release after the authorized release process
+published and independently rechecked it from public PyPI.
 
 ## Source-of-truth baseline
 
@@ -87,7 +87,7 @@ existing runtime. Otherwise, do not add it.
 | Add qualification regressions for supported paths | `NONE` | Implemented on feature branch | Tests only; no runtime result changed |
 | Add a real LangGraph checkpoint/resume example | `NONE` | Implemented on feature branch | Example only; existing wrapper and framework APIs are unchanged |
 | Record machine-readable qualification evidence | `NONE` | Implemented on feature branch | Evidence only |
-| Correct the public website to verified 0.16.0 after publication | `NONE` | Required outside this repository | Accuracy correction; no product behavior change |
+| Correct the public website to verified 0.16.0 after publication | `NONE` | Authorized next external-site work | Accuracy correction; no product behavior change |
 | Add or alter a runtime/API to satisfy a path test | Undetermined until evidence exists | Not authorized | Must pass the existing-program-result decision rule |
 
 ## Qualification matrix
@@ -198,6 +198,24 @@ Machine-readable details are in
 `docs/evidence/qualification-v0.16.0.json`. Protected CI remains responsible
 for Python 3.10 and 3.12 and for independently repeating repository checks.
 
+## Publication results
+
+- Release commit and tag: `7a89d6de342b88de6fbfd84a6857b911dbcad6d8`
+  and `v0.16.0`.
+- GitHub release: published, not a draft or prerelease.
+- PyPI: `freshctx==0.16.0` published as a wheel and source archive.
+- Clean public installation: passed outside the checkout with cache disabled
+  on Python 3.11.15 and 3.13.13.
+- Installed import paths resolved under the new temporary environments'
+  `site-packages`, not this repository.
+- CLI result: version 0.16.0, stale demo blocked with `STALE_REASONING`, five
+  audit events, and doctor status `ok`.
+- Installed LangGraph result on Python 3.11: resumed stale reasoning returned
+  `STALE_REASONING`, policy decision `block`, and zero action executions.
+
+The durable publication record is
+`docs/evidence/release-v0.16.0.json`.
+
 ## Compatibility decision
 
 `SAFE FOR REVIEW — BEHAVIOR PRESERVED`
@@ -234,6 +252,6 @@ Stop 0.16 preparation and record the finding if:
   could not deliberately ignore it;
 - release, tag, PyPI, repository, website, or example claims disagree.
 
-Qualification approval does not itself prove publication. Tag, GitHub release,
-PyPI publication, clean public installation, and website updates remain
-separate recorded release gates.
+Qualification, tag, GitHub release, PyPI publication, and clean public
+installation gates are complete. Website and announcement updates remain a
+separate accuracy gate.

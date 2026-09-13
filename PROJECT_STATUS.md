@@ -1,18 +1,17 @@
 # FreshCtx project status
 
 Last updated: 2026-09-13
-Current public release: `0.15.0`
-Current release candidate: `0.16.0`
+Current public release: `0.16.0`
+Current release candidate: none
 
-FreshCtx 0.15.0 is public on PyPI. Its protected PR, supported-Python CI,
-package, and clean-install gates completed before publication.
+FreshCtx 0.16.0 is public on PyPI. Its qualification and release PRs,
+supported-Python CI, official release build, package publication, and clean
+public-install gates completed before the public status was recorded.
 
-Protected-action qualification for 0.16.0 is merged and the versioned release
-candidate is under protected review. It adds regression evidence
+Protected-action qualification for 0.16.0 adds regression evidence
 for retry-like repeated invocation, real LangGraph checkpoint resume, nested
 boundaries, shared dependencies, preserved policy results, and ABA detection.
-It does not change runtime behavior and does not make 0.16.0 public before the
-release and clean public-PyPI installation gates complete.
+It does not change runtime behavior.
 
 ## Current milestone
 
@@ -87,6 +86,9 @@ continues.
 
 - CI covers Python 3.10-3.13, package construction, static analysis, dependency
   checks, Windows onboarding, and installed-package smoke tests.
+- Public-PyPI 0.16.0 installations outside the checkout passed on Python
+  3.11.15 and 3.13.13. The CLI stale demo blocked, diagnostics passed, and the
+  Python 3.11 LangGraph checkpoint/resume scenario blocked before action.
 - The OpsWatch JSONL experiment separates a FreshCtx control decision from the
   downstream agent's observed behavior.
 - The independent research-brief `r3` record documents four claims mapped to
@@ -104,8 +106,8 @@ or general workflow validation.
    ownership, longer booking, and voice-agent scenarios.
 3. Expand the independent-result schema, benchmark matrix, adapter-author kit,
    and longer framework loops.
-4. Complete protected release review, publication, and clean public-package
-   reproduction for 0.16.0.
+4. Keep README, PyPI, GitHub release, website, and public messaging aligned to
+   the verified 0.16.0 release.
 
 See `docs/DEVELOPMENT_PIPELINE.md` for the ordered public plan.
 
