@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-09-13T17:53:49Z",
+  "repository": "https://github.com/Hyperwise-LLC/freshctx.git",
+  "default_branch": "main",
+  "repository_sha": "e08f98e50a603fb273fd3bff9bf399e7ebc6f479",
+  "tag": "v0.15.0",
+  "github_release": "v0.15.0",
+  "github_release_published_at": "2026-09-09T17:03:31Z",
+  "github_release_url": "https://github.com/Hyperwise-LLC/freshctx/releases/tag/v0.15.0",
+  "baseline_ci": {
+    "workflow": "CI",
+    "run_id": 34080137953,
+    "url": "https://github.com/Hyperwise-LLC/freshctx/actions/runs/34080137953",
+    "conclusion": "success"
+  },
+  "package_version": "0.15.0",
+  "pypi_version": "0.15.0",
+  "working_branch": "hardening/0.16-protected-action-qualification",
+  "declared_python": ["3.10", "3.11", "3.12", "3.13"],
+  "environment": {
+    "operating_system": "macOS 26.6.2",
+    "architecture": "arm64"
+  },
+  "source_release_check": {
+    "python": "3.11.15",
+    "command": "python scripts/release_check.py",
+    "tests_run": 170,
+    "tests_passed": 170,
+    "tests_skipped": 9,
+    "result": "pass",
+    "limitations": [
+      "OpenAI trace export was skipped because OPENAI_API_KEY was not set.",
+      "Optional integrations with incompatible MCP major-version requirements run in separate CI environments."
+    ]
+  },
+  "public_pypi_reproductions": [
+    {
+      "python": "3.11.15",
+      "index": "https://pypi.org/simple",
+      "requirement": "freshctx==0.15.0",
+      "installed_version": "0.15.0",
+      "installed_path": "/private/tmp/freshctx-pypi-015-py311/lib/python3.11/site-packages/freshctx/__init__.py",
+      "scenario": "examples/payment_balance_change.py",
+      "observed": "PAYMENT STOPPED: STALE_REASONING; REQUIRE_APPROVAL",
+      "result": "pass"
+    },
+    {
+      "python": "3.13.13",
+      "index": "https://pypi.org/simple",
+      "requirement": "freshctx==0.15.0",
+      "installed_version": "0.15.0",
+      "installed_path": "/private/tmp/freshctx-pypi-015-py313/lib/python3.13/site-packages/freshctx/__init__.py",
+      "scenario": "examples/payment_balance_change.py",
+      "observed": "PAYMENT STOPPED: STALE_REASONING; REQUIRE_APPROVAL",
+      "result": "pass"
+    }
+  ],
+  "discrepancies": [],
+  "untested_locally": ["Python 3.10", "Python 3.12"]
+}
