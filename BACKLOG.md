@@ -1,7 +1,7 @@
 # FreshCtx backlog
 
-Current public release: `0.15.0`
-Current release candidate: `0.16.0`
+Current public release: `0.16.0`
+Current release candidate: none
 
 This file is the concise issue-oriented backlog. The ordered roadmap, release
 rules, completed milestones, and evidence priorities are maintained in

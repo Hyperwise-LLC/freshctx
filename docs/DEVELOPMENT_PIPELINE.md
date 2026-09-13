@@ -1,25 +1,25 @@
 # FreshCtx development pipeline
 
 Last updated: 2026-09-13
-Current public release: `0.15.0`
-Current release candidate: `0.16.0`
+Current public release: `0.16.0`
+Current release candidate: none
 
-Version `0.15.0` hardens the A2A receiving boundary with action-intent
-commitments, atomic replay protection, bounded fail-closed retries, and
-monotonic evidence-version guidance.
+Version `0.16.0` qualifies protected-action behavior across repeated
+invocation, real LangGraph checkpoint resume, nested boundaries, shared
+dependencies, preserved policy outcomes, and monotonic-version ABA detection.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
 
-## Qualified - 0.16 protected-action release candidate
+## Completed - 0.16 protected-action qualification
 
-The merged qualification work and protected release candidate qualify the
-existing 0.15.0 runtime across
+The merged and published qualification work preserves the 0.15.0 runtime
+semantics while adding evidence across
 repeated invocation, real LangGraph checkpoint resume, nested boundaries,
 shared dependencies, existing policy outcomes, and monotonic-version ABA
-detection. The work is tests, examples, evidence, documentation, and CI only.
-The candidate carries version 0.16.0 but is not public until the tag, GitHub
-release, PyPI publication, and clean public-install gates complete.
+detection. The release changes tests, examples, evidence, documentation, CI,
+version metadata, and the isolated-build tooling floor. It does not change the
+FreshCtx runtime contract.
 
 ## Release rule
 
@@ -67,6 +67,9 @@ does not justify a software release.
 17. **A2A action integrity and replay hardening** - privacy-bounded intent
     digests, process-local and SQLite atomic replay stores, bounded retries,
     fail-closed circuit breaking, and an ABA/version example in 0.15.0.
+18. **Protected-action lifecycle qualification** - repeated invocation, real
+    LangGraph checkpoint resume, nested boundaries, shared dependencies,
+    preserved policy outcomes, and ABA regressions in 0.16.0.
 
 ## Completed - P2 observed evidence provenance
 

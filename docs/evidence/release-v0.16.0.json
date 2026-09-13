@@ -1,0 +1,51 @@
+{
+  "record_type": "freshctx_public_release",
+  "record_version": "1",
+  "recorded_at": "2026-09-13",
+  "repository": "https://github.com/Hyperwise-LLC/freshctx.git",
+  "version": "0.16.0",
+  "tag": "v0.16.0",
+  "commit_sha": "7a89d6de342b88de6fbfd84a6857b911dbcad6d8",
+  "github_release": {
+    "url": "https://github.com/Hyperwise-LLC/freshctx/releases/tag/v0.16.0",
+    "published_at": "2026-09-13T19:06:04Z",
+    "draft": false,
+    "prerelease": false
+  },
+  "pypi": {
+    "project_url": "https://pypi.org/project/freshctx/0.16.0/",
+    "requirement": "freshctx==0.16.0",
+    "wheel_sha256": "695e9b37580807f0138ed017003251a619c26e99aa07c3e50cee8cf013150017",
+    "source_archive_sha256": "529854aadab1064398eff658b65720b7869ece0147a5694437f1669f60474951"
+  },
+  "public_installations": [
+    {
+      "python": "3.11.15",
+      "cache_disabled": true,
+      "index": "https://pypi.org/simple",
+      "installed_version": "0.16.0",
+      "import_path": "/private/tmp/freshctx-016-pypi.83Ovp1/py311/lib/python3.11/site-packages/freshctx/__init__.py",
+      "cli_demo": "BLOCKED: STALE_REASONING",
+      "audit_events": 5,
+      "doctor_status": "ok",
+      "langgraph_checkpoint_resume": {
+        "freshness": "STALE_REASONING",
+        "policy_decision": "block",
+        "action_executions": 0
+      }
+    },
+    {
+      "python": "3.13.13",
+      "cache_disabled": true,
+      "index": "https://pypi.org/simple",
+      "installed_version": "0.16.0",
+      "import_path": "/private/tmp/freshctx-016-pypi.83Ovp1/py313/lib/python3.13/site-packages/freshctx/__init__.py",
+      "cli_demo": "BLOCKED: STALE_REASONING",
+      "audit_events": 5,
+      "doctor_status": "ok"
+    }
+  ],
+  "compatibility_decision": "SAFE FOR REVIEW — BEHAVIOR PRESERVED",
+  "credential_cleanup": "temporary PyPI token file removed after successful upload",
+  "claim_limit": "FreshCtx reports freshness and policy at the protected boundary; downstream execution remains application-owned."
+}
