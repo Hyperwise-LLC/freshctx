@@ -4,6 +4,22 @@ All notable FreshCtx changes will be documented here.
 
 ## Unreleased
 
+### Qualification
+
+- Added behavior-preservation regressions for repeated protected invocations,
+  nested boundaries, shared dependencies, existing policy outcomes, and the
+  documented monotonic-version ABA strategy.
+- Added a real LangGraph interrupt/checkpoint/resume scenario proving that
+  source drift blocks before the resumed action node body starts.
+- Added a machine-readable 0.16.0 qualification record and made the new
+  qualification artifacts part of the release check.
+
+### Compatibility
+
+- Qualification changes affect tests, examples, documentation, evidence, and
+  CI only. The runtime, public API, schemas, freshness states, policies,
+  adapters, and audit events remain unchanged from 0.15.0.
+
 ## 0.15.0 - 2026-09-06
 
 ### Added

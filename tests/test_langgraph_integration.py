@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.types import Command, interrupt
 
 from freshctx import FreshnessBlocked, MemoryStore, guard, observe, reasoning
 from freshctx.errors import ConfigurationError
@@ -20,6 +22,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class AsyncActionState(TypedDict):
     value: str
+    decision: Any
+    execution_id: str
+    completed: bool
+
+
+class ResumeActionState(TypedDict):
     decision: Any
     execution_id: str
     completed: bool
@@ -133,6 +141,65 @@ class LangGraphIntegrationTests(unittest.TestCase):
         with self.assertRaises(ConfigurationError):
             protected({})
         self.assertEqual(executed, [])
+
+    def test_checkpoint_resume_revalidates_before_action_body(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "approval.txt"
+            source.write_text("approved\n", encoding="utf-8")
+            store = MemoryStore()
+            audit = root / "resume-audit.jsonl"
+            executed: list[str] = []
+
+            with guard(store=store, audit_path=audit):
+                token = observe(source)
+                with reasoning("approve_action", depends_on=[token]) as decision:
+                    pass
+
+            def wait_for_resume(state: ResumeActionState) -> dict[str, bool]:
+                interrupt("resume protected action")
+                return {"completed": state["completed"]}
+
+            def action(state: ResumeActionState) -> dict[str, bool]:
+                executed.append(state["execution_id"])
+                return {"completed": True}
+
+            protected = langgraph_action_node(
+                action,
+                depends_on=lambda state: [state["decision"]],
+                store=store,
+                action_name="write_after_resume",
+                execution_id=lambda state: state["execution_id"],
+                audit_path=audit,
+            )
+            builder = StateGraph(ResumeActionState)
+            builder.add_node("wait", wait_for_resume)
+            builder.add_node("write", protected)
+            builder.add_edge(START, "wait")
+            builder.add_edge("wait", "write")
+            builder.add_edge("write", END)
+            graph = builder.compile(checkpointer=InMemorySaver())
+            config = {"configurable": {"thread_id": "freshctx-resume-test"}}
+
+            paused = graph.invoke(
+                {
+                    "decision": decision.id,
+                    "execution_id": "resume-run-1",
+                    "completed": False,
+                },
+                config,
+            )
+            self.assertIn("__interrupt__", paused)
+            self.assertEqual(executed, [])
+
+            source.write_text("revoked\n", encoding="utf-8")
+            with self.assertRaises(FreshnessBlocked) as raised:
+                graph.invoke(Command(resume=True), config)
+
+            self.assertEqual(raised.exception.result.state.value, "STALE_REASONING")
+            self.assertEqual(raised.exception.result.policy_decision, "block")
+            self.assertEqual(executed, [])
+            self.assertEqual(raised.exception.correlation.execution_id, "resume-run-1")
 
 
 if __name__ == "__main__":

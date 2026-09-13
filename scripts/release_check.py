@@ -61,11 +61,13 @@ REQUIRED = [
     "docs/COMPATIBILITY_AUDIT.md", "docs/VALIDATION_REPORT.md",
     "docs/RELEASE_0_16_0_QUALIFICATION.md",
     "docs/evidence/baseline-v0.15.0.json",
+    "docs/evidence/qualification-v0.16.0.json",
     "docs/evidence/success-cases-v0.1.json",
     "docs/evidence/banking-postgres-v0.1.json",
     "docs/assets/freshctx-social-preview.png", "examples/quickstart.py",
     "examples/async_protected_action.py",
-    "examples/langgraph_stale_config.py", "tests/test_langgraph_integration.py",
+    "examples/langgraph_stale_config.py", "examples/langgraph_checkpoint_resume.py",
+    "tests/test_langgraph_integration.py", "tests/test_protected_action_qualification.py",
     "examples/agno_stale_tool.py", "tests/test_agno_integration.py",
     "examples/google_adk_stale_tool.py", "tests/test_google_adk_integration.py",
     "examples/elevenlabs_voice_customer_guard.py", "tests/test_elevenlabs_integration.py",
@@ -119,6 +121,13 @@ def main() -> int:
     )
     if langgraph.returncode:
         return langgraph.returncode
+    checkpoint_resume = subprocess.run(
+        [sys.executable, str(ROOT / "examples" / "langgraph_checkpoint_resume.py")],
+        cwd=ROOT,
+        env=env,
+    )
+    if checkpoint_resume.returncode:
+        return checkpoint_resume.returncode
     async_example = subprocess.run(
         [sys.executable, str(ROOT / "examples" / "async_protected_action.py")],
         cwd=ROOT,

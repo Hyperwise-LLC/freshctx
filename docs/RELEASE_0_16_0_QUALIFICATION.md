@@ -1,6 +1,6 @@
 # FreshCtx 0.16.0 qualification contract
 
-Status: **pre-release qualification**  
+Status: **qualification complete; release preparation remains separate**
 Release identity: **protected-action qualification and reproducibility**  
 Compatibility baseline: public FreshCtx 0.15.0 at `e08f98e50a603fb273fd3bff9bf399e7ebc6f479`
 
@@ -84,7 +84,9 @@ existing runtime. Otherwise, do not add it.
 | Add this qualification contract | `NONE` | Implemented on feature branch | Documentation only |
 | Add the machine-readable 0.15.0 baseline record | `NONE` | Implemented on feature branch | Evidence only |
 | Require both records in the release-check file inventory | `NONE` | Implemented on feature branch | Release tooling only; runtime is untouched |
-| Add qualification regressions for supported paths | `NONE` | Authorized next work | Tests only; failures must be classified before fixes |
+| Add qualification regressions for supported paths | `NONE` | Implemented on feature branch | Tests only; no runtime result changed |
+| Add a real LangGraph checkpoint/resume example | `NONE` | Implemented on feature branch | Example only; existing wrapper and framework APIs are unchanged |
+| Record machine-readable qualification evidence | `NONE` | Implemented on feature branch | Evidence only |
 | Correct the public website from 0.9.0 to verified 0.15.0 | `NONE` | Required outside this repository | Accuracy correction; no product behavior change |
 | Add or alter a runtime/API to satisfy a path test | Undetermined until evidence exists | Not authorized | Must pass the existing-program-result decision rule |
 
@@ -98,15 +100,15 @@ that lifecycle behavior.
 | Invocation or risk | Required control | Current evidence | Status | Allowed change |
 | --- | --- | --- | --- | --- |
 | Ordinary protected invocation | Current runs once; stale and unverifiable do not start; unrelated change runs once | Shared installed-framework conformance matrix | `QUALIFIED` | `NONE` |
-| Retry | A retry must revalidate and must not turn a block into execution | A2A bounded unverifiable retry is covered | `TO QUALIFY` for each other actual retry surface | `NONE` |
-| Checkpoint resume | Resumed LangGraph execution revalidates immediately before the action | No explicit checkpoint-resume regression identified | `TO QUALIFY` | `NONE` |
-| Framework state injection | Only dependencies resolved through the supported state mapping control the boundary; payload remains absent from evidence | LangGraph state resolver and payload-redaction tests | `QUALIFIED` for ordinary invocation; `TO QUALIFY` for resumed state | `NONE` |
-| Nested protected calls | Each actual boundary revalidates; current continuations execute once; a blocked inner boundary does not execute | No dedicated nested-boundary regression identified | `TO QUALIFY` | `NONE` |
+| Retry | Every actual invocation of the supported boundary revalidates and does not turn a block into execution | Repeated-boundary regression plus A2A bounded unverifiable retry | `QUALIFIED` for supported FreshCtx and A2A invocation paths; framework-owned automatic retries remain outside the contract | `NONE` |
+| Checkpoint resume | Resumed LangGraph execution revalidates immediately before the action | Real `InMemorySaver`, `interrupt`, and `Command(resume=True)` regression and example | `QUALIFIED` for the tested LangGraph path | `NONE` |
+| Framework state injection | Only dependencies resolved through the supported state mapping control the boundary; payload remains absent from evidence | Ordinary and resumed LangGraph state-resolver tests; checkpoints persist the reasoning ID, not the runtime object | `QUALIFIED` for tested paths | `NONE` |
+| Nested protected calls | Each actual boundary revalidates; current continuations execute once; a blocked inner boundary does not execute | Dedicated current and blocked-inner regressions | `QUALIFIED` | `NONE` |
 | Receiving-side delegation | Valid/current starts receiver once; stale, unverifiable, expired, tampered, wrong recipient, or replay does not | A2A integration suite | `QUALIFIED` | `NONE` |
-| Shared dependencies | One shared observation is evaluated under existing graph semantics without duplicate or broad invalidation | Core memoization and framework conformance coverage | `TO QUALIFY` with an explicit action-boundary regression | `NONE` |
+| Shared dependencies | One shared observation is evaluated under existing graph semantics without duplicate or broad invalidation | Explicit two-reasoning-path action-boundary regression validates the shared observation once per boundary | `QUALIFIED` | `NONE` |
 | Unrelated dependency change | A protected action remains current when its declared evidence is unchanged | Core, Git path-scope, framework, and A2A tests | `QUALIFIED` | `NONE` |
 | Consequential fields | Adapter-specific selected fields and canonicalization behave exactly as currently documented | Git path scope and Stripe selected-field tests | `QUALIFIED` only for current supported strategies | `NONE` |
-| ABA history | A monotonic evidence version exposes A→B→A even if the visible value returns to A | `examples/monotonic_evidence_version.py` | `TO QUALIFY` with a dedicated regression | `NONE` |
+| ABA history | A monotonic evidence version exposes A→B→A even if the visible value returns to A | `examples/monotonic_evidence_version.py` plus dedicated regression | `QUALIFIED` for the documented monotonic-version strategy | `NONE` |
 | External effect | FreshCtx reports the decision at the boundary; the application must honor it | Existing correlation and assurance tests | `QUALIFIED` for control result only | `OUT OF SCOPE` for execution enforcement |
 
 ## Required evidence ladder
@@ -148,6 +150,58 @@ temporary environments while the working directory was outside the checkout.
 No source/PyPI behavior discrepancy was observed in these checks. Python 3.10
 and 3.12 remain release-matrix requirements; they were not locally available in
 this session and must be confirmed by protected CI and artifact tests.
+
+## 0.16.0 qualification results
+
+The qualification branch tests the unchanged 0.15.0 runtime. It does not yet
+change the package version or represent a published 0.16.0 artifact.
+
+- Source suite and examples: 177 tests passed and 9 optional-environment tests
+  skipped in the mixed development environment. The MCP v2 tests were then run
+  in their required separate environment.
+- Protected-action additions: six regressions passed for repeated invocation,
+  current and blocked nested boundaries, shared dependencies, preserved policy
+  results, and ABA detection.
+- LangGraph: six existing integration tests plus the new real checkpoint/resume
+  test passed. A paused graph resumed after evidence changed, returned
+  `STALE_REASONING` with policy decision `block`, and executed the action zero
+  times.
+- MCP v2: eight native guard tests and the applicable shared conformance test
+  passed with MCP 2.2.0. In-process and stdio-subprocess examples produced
+  `CURRENT` with one execution and blocked `STALE_REASONING` and
+  `UNVERIFIABLE` with zero executions.
+- A2A-to-MCP: 18 tests passed, including current, stale, unverifiable, expiry,
+  tampering, intent mismatch, concurrent replay, SQLite replay, retry, circuit
+  breaking, and the three-agent receiving path.
+- Static and dependency checks: Ruff passed, mypy passed for 20 source files,
+  and `pip-audit` found no known vulnerabilities.
+- Benchmark smoke: five iterations over 16-dependency wide and deep graphs
+  remained `CURRENT`; local median processing ranged from 0.688 ms to 0.745 ms
+  with one worker and no simulated adapter delay. This is an environment-local
+  smoke result, not a performance guarantee or optimization claim.
+- Artifacts: wheel and source archive built successfully and passed `twine
+  check`. Clean installs outside the checkout passed on Python 3.11.15 (wheel
+  and source archive) and Python 3.13.13 (wheel), including the CLI stale demo
+  and checkpoint/resume example.
+
+The first local full-suite attempt could not open loopback sockets for two HTTP
+tests because of the execution sandbox. The identical suite passed with local
+socket permission; this was an environment limitation, not a product change.
+A first source-archive check selected the operating system's Python 3.9 and was
+correctly rejected by the declared `>=3.10` requirement; rerunning under the
+intended Python 3.11 passed.
+
+Machine-readable details are in
+`docs/evidence/qualification-v0.16.0.json`. Protected CI remains responsible
+for Python 3.10 and 3.12 and for independently repeating repository checks.
+
+## Compatibility decision
+
+`SAFE FOR REVIEW — BEHAVIOR PRESERVED`
+
+This decision covers the qualification changes only. No file under
+`src/freshctx`, public API, schema, policy, adapter, freshness rule, or audit
+event was changed.
 
 ## Explicit exclusions
 

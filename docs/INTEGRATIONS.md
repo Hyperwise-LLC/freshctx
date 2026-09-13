@@ -55,7 +55,19 @@ protected_write = langgraph_action_node(
 )
 ```
 
-The bridge uses the same experimental pre-action contract as Agno. A blocking result propagates as `FreshnessBlocked` before the node body starts. LangGraph continues to own graph routing, checkpointing, interrupts, retries, and state reconciliation. See `examples/langgraph_stale_config.py` for a real installed graph with both blocked and permitted paths.
+The bridge uses the same experimental pre-action contract as Agno. A blocking
+result propagates as `FreshnessBlocked` before the node body starts. For a
+checkpointed workflow, persist the FreshCtx observation or reasoning ID in
+graph state and resolve it at the action node. Do not require LangGraph's
+checkpointer to serialize FreshCtx runtime objects.
+
+FreshCtx revalidates when the protected action node is actually invoked,
+including after a tested `interrupt` and checkpoint resume. LangGraph continues
+to own graph routing, checkpointing, interrupts, retries, and state
+reconciliation. FreshCtx does not make resume or retry decisions. See
+`examples/langgraph_stale_config.py` for ordinary paths and
+`examples/langgraph_checkpoint_resume.py` for the real paused-then-stale resume
+path.
 
 ## Agno
 
