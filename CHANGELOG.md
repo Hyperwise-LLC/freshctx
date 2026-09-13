@@ -2,7 +2,7 @@
 
 All notable FreshCtx changes will be documented here.
 
-## Unreleased
+## 0.16.0 - 2026-09-13
 
 ### Qualification
 
@@ -13,12 +13,19 @@ All notable FreshCtx changes will be documented here.
   source drift blocks before the resumed action node body starts.
 - Added a machine-readable 0.16.0 qualification record and made the new
   qualification artifacts part of the release check.
+- Raised the isolated-build setuptools floor to 83 after the release audit
+  identified an advisory affecting an older local build-tool version.
 
 ### Compatibility
 
 - Qualification changes affect tests, examples, documentation, evidence, and
   CI only. The runtime, public API, schemas, freshness states, policies,
   adapters, and audit events remain unchanged from 0.15.0.
+- FreshCtx continues to report the boundary decision; downstream execution,
+  retries, checkpointing, authorization, transactions, and recovery remain
+  application or framework responsibilities.
+- The build-tool minimum affects package construction only; FreshCtx runtime
+  dependencies and runtime semantics are unchanged.
 
 ## 0.15.0 - 2026-09-06
 

@@ -1,12 +1,12 @@
 # FreshCtx 0.16.0 qualification contract
 
-Status: **qualification complete; release preparation remains separate**
+Status: **qualification complete; 0.16.0 release candidate in protected review**
 Release identity: **protected-action qualification and reproducibility**  
 Compatibility baseline: public FreshCtx 0.15.0 at `e08f98e50a603fb273fd3bff9bf399e7ebc6f479`
 
-This is an engineering acceptance record, not a claim that 0.16.0 is available.
-FreshCtx 0.15.0 remains the current public release until a separate, authorized
-release process publishes and independently rechecks 0.16.0.
+This is an engineering acceptance record, not a claim that 0.16.0 is publicly
+available. FreshCtx 0.15.0 remains the current public release until the
+authorized release process publishes and independently rechecks 0.16.0.
 
 ## Source-of-truth baseline
 
@@ -87,7 +87,7 @@ existing runtime. Otherwise, do not add it.
 | Add qualification regressions for supported paths | `NONE` | Implemented on feature branch | Tests only; no runtime result changed |
 | Add a real LangGraph checkpoint/resume example | `NONE` | Implemented on feature branch | Example only; existing wrapper and framework APIs are unchanged |
 | Record machine-readable qualification evidence | `NONE` | Implemented on feature branch | Evidence only |
-| Correct the public website from 0.9.0 to verified 0.15.0 | `NONE` | Required outside this repository | Accuracy correction; no product behavior change |
+| Correct the public website to verified 0.16.0 after publication | `NONE` | Required outside this repository | Accuracy correction; no product behavior change |
 | Add or alter a runtime/API to satisfy a path test | Undetermined until evidence exists | Not authorized | Must pass the existing-program-result decision rule |
 
 ## Qualification matrix
@@ -153,8 +153,11 @@ this session and must be confirmed by protected CI and artifact tests.
 
 ## 0.16.0 qualification results
 
-The qualification branch tests the unchanged 0.15.0 runtime. It does not yet
-change the package version or represent a published 0.16.0 artifact.
+The qualification work tested the unchanged 0.15.0 runtime before the release
+version was applied. The protected release branch now carries version 0.16.0
+without changing the qualified runtime semantics; this record still does not
+claim that a public 0.16.0 artifact exists before publication and clean
+public-package verification.
 
 - Source suite and examples: 177 tests passed and 9 optional-environment tests
   skipped in the mixed development environment. The MCP v2 tests were then run
@@ -162,8 +165,8 @@ change the package version or represent a published 0.16.0 artifact.
 - Protected-action additions: six regressions passed for repeated invocation,
   current and blocked nested boundaries, shared dependencies, preserved policy
   results, and ABA detection.
-- LangGraph: six existing integration tests plus the new real checkpoint/resume
-  test passed. A paused graph resumed after evidence changed, returned
+- LangGraph: five existing integration tests plus the new real
+  checkpoint/resume test passed. A paused graph resumed after evidence changed, returned
   `STALE_REASONING` with policy decision `block`, and executed the action zero
   times.
 - MCP v2: eight native guard tests and the applicable shared conformance test
@@ -231,4 +234,6 @@ Stop 0.16 preparation and record the finding if:
   could not deliberately ignore it;
 - release, tag, PyPI, repository, website, or example claims disagree.
 
-No merge, tag, release, or publication is authorized by this document.
+Qualification approval does not itself prove publication. Tag, GitHub release,
+PyPI publication, clean public installation, and website updates remain
+separate recorded release gates.

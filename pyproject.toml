@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=83"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "freshctx"
-version = "0.15.0"
+version = "0.16.0"
 description = "Freshness enforcement for AI agent observations and reasoning"
 keywords = [
   "ai-agents",

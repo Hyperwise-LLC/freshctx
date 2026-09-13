@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-13
 Current public release: `0.15.0`
-Current release candidate: none
+Current release candidate: `0.16.0`
 
 Version `0.15.0` hardens the A2A receiving boundary with action-intent
 commitments, atomic replay protection, bounded fail-closed retries, and
@@ -11,13 +11,15 @@ monotonic evidence-version guidance.
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
 
-## In review - 0.16 protected-action qualification
+## Qualified - 0.16 protected-action release candidate
 
-The protected feature branch qualifies the existing 0.15.0 runtime across
+The merged qualification work and protected release candidate qualify the
+existing 0.15.0 runtime across
 repeated invocation, real LangGraph checkpoint resume, nested boundaries,
 shared dependencies, existing policy outcomes, and monotonic-version ABA
 detection. The work is tests, examples, evidence, documentation, and CI only.
-It is not a version bump, release candidate, tag, or publication.
+The candidate carries version 0.16.0 but is not public until the tag, GitHub
+release, PyPI publication, and clean public-install gates complete.
 
 ## Release rule
 
