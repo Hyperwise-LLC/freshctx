@@ -30,6 +30,8 @@ and execution count. The suite also verifies that:
   recorded before the protected action starts;
 - repeated or duplicate execution does not occur;
 - an asynchronous Agno tool is blocked before execution; and
+- a real LangGraph checkpoint resumed after source drift revalidates and blocks
+  before the action node body starts; and
 - the matrix runs under Python 3.10 through 3.13 in protected CI.
 
 Frameworks retain their native success and blocking surfaces. Normalization is
@@ -54,6 +56,18 @@ Run MCP Guard in a separate environment:
 python -m pip install -e '.[mcp-guard]'
 FRESHCTX_CONFORMANCE_RUNTIMES=mcp python -m unittest tests.test_framework_conformance -v
 ```
+
+Run the real LangGraph checkpoint/resume scenario:
+
+```console
+python examples/langgraph_checkpoint_resume.py
+```
+
+The scenario stores a reasoning-node ID in checkpointed graph state, pauses
+before the action, changes the declared source, and resumes. The expected
+result is `STALE_REASONING`, policy decision `block`, and zero action
+executions. This qualifies the tested boundary; LangGraph still owns when and
+how a graph resumes.
 
 ## Integration points
 

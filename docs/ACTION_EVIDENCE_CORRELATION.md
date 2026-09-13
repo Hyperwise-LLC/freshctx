@@ -1,6 +1,6 @@
 # Action/evidence correlation contract
 
-Status: versioned additive contract, pending release
+Status: versioned additive contract, released in FreshCtx 0.11.0
 
 Contract identifier: `freshctx.action_evidence_correlation.v1`
 

@@ -1,0 +1,102 @@
+{
+  "record_type": "freshctx_protected_action_qualification",
+  "record_version": "1",
+  "recorded_at": "2026-09-13",
+  "qualification_target": "0.16.0",
+  "runtime_under_test": "0.15.0",
+  "repository": "https://github.com/Hyperwise-LLC/freshctx.git",
+  "repository_base_sha": "e08f98e50a603fb273fd3bff9bf399e7ebc6f479",
+  "branch": "hardening/0.16-protected-action-qualification",
+  "classification": "NONE",
+  "compatibility_decision": "SAFE FOR REVIEW — BEHAVIOR PRESERVED",
+  "runtime_files_changed": false,
+  "public_api_changed": false,
+  "schemas_changed": false,
+  "freshness_semantics_changed": false,
+  "policy_semantics_changed": false,
+  "audit_semantics_changed": false,
+  "qualification": {
+    "source_suite": {
+      "passed": 177,
+      "skipped": 9,
+      "python": "3.11.15",
+      "notes": "MCP v2 runs separately because the mixed conformance environment contains MCP 1.x for Google ADK."
+    },
+    "protected_action_regressions": {
+      "passed": 6,
+      "coverage": [
+        "repeated invocation",
+        "nested current boundaries",
+        "blocked inner boundary",
+        "shared dependency paths",
+        "existing policy outcomes",
+        "monotonic-version ABA detection"
+      ]
+    },
+    "langgraph": {
+      "passed": 6,
+      "checkpoint_resume_result": {
+        "freshness": "STALE_REASONING",
+        "policy_decision": "block",
+        "action_executions": 0
+      }
+    },
+    "mcp_v2": {
+      "sdk_version": "2.2.0",
+      "guard_tests_passed": 8,
+      "shared_conformance_tests_passed": 1,
+      "in_process_and_stdio_results": {
+        "current": {"freshness": "CURRENT", "action_executions": 1},
+        "stale": {"freshness": "STALE_REASONING", "action_executions": 0},
+        "unverifiable": {"freshness": "UNVERIFIABLE", "action_executions": 0}
+      }
+    },
+    "a2a_to_mcp": {
+      "passed": 18,
+      "current_final_mcp_executions": 1,
+      "stale_final_mcp_executions": 0,
+      "unverifiable_final_mcp_executions": 0
+    },
+    "static_and_dependency": {
+      "ruff": "passed",
+      "mypy": "passed: 20 source files",
+      "pip_audit": "no known vulnerabilities"
+    },
+    "benchmark_smoke": {
+      "width": 16,
+      "iterations": 5,
+      "workers": 1,
+      "simulated_adapter_delay_ms": 0,
+      "state": "CURRENT",
+      "median_ms": {
+        "wide_sequential": 0.688,
+        "wide_concurrent": 0.691,
+        "deep_sequential": 0.745,
+        "deep_concurrent": 0.723
+      },
+      "claim_limit": "Local smoke measurement only; not a performance guarantee."
+    },
+    "artifacts": {
+      "twine_check": "passed",
+      "wheel": {
+        "python_versions": ["3.11.15", "3.13.13"],
+        "installed_outside_checkout": true,
+        "cli_stale_demo": "blocked",
+        "checkpoint_resume": "blocked before action"
+      },
+      "source_distribution": {
+        "python_versions": ["3.11.15"],
+        "installed_outside_checkout": true,
+        "cli_stale_demo": "blocked",
+        "checkpoint_resume": "blocked before action"
+      }
+    }
+  },
+  "limitations": [
+    "The artifacts retain version 0.15.0 because qualification does not authorize a version bump or publication.",
+    "Python 3.10 and 3.12 were not installed locally and remain protected-CI requirements.",
+    "FreshCtx reports and records the boundary decision; downstream obedience remains application-owned.",
+    "LangGraph owns routing, checkpointing, resume, retry, and reconciliation.",
+    "The first full-suite run required local loopback-socket permission for existing HTTP tests."
+  ]
+}

@@ -17,6 +17,11 @@ This plan converts public developer feedback into bounded, reproducible evidence
 | Research-brief source drift | Map claims to named sources and flag only claims whose source changed, without interpreting the revised source | Independent `r3` rerun reported four mapped claims, four sources, an empty excluded set, and all fingerprints `CURRENT` after a defensible receipt restored the timing claim; see `docs/INDEPENDENT_RESEARCH_BRIEF_R3.md` |
 | Wrong-source selection | Keep source selection provenance separate from source freshness; a selected decoy may remain `CURRENT` without being presented as correct | Experimental exact-filename and discovery paths, versioned receipt schema, ledger fixtures, and regression tests in `examples/selection_provenance/` |
 | Agno external dependency drift | Revalidate declared external evidence in Agno's tool-hook chain before the tool body runs | `examples/agno_stale_tool.py` and `tests/test_agno_integration.py`; Agno maintainer review pending |
+| Repeated protected invocation | Revalidate on each actual boundary invocation and block a later attempt after source drift | `tests/test_protected_action_qualification.py` |
+| LangGraph checkpoint resume | Persist a reasoning ID, pause before action, change evidence, then revalidate on resume | `examples/langgraph_checkpoint_resume.py` and `tests/test_langgraph_integration.py` |
+| Nested protected boundaries | Revalidate each reached boundary and prevent a stale inner action from starting | `tests/test_protected_action_qualification.py` |
+| Shared dependency paths | Evaluate a shared observation once per action boundary under existing graph semantics | `tests/test_protected_action_qualification.py` |
+| ABA source history | Use a monotonic source version so A→B→A remains detectable | `examples/monotonic_evidence_version.py` and `tests/test_protected_action_qualification.py` |
 
 ## Evidence ladder
 

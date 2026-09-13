@@ -1,6 +1,6 @@
 # FreshCtx development pipeline
 
-Last updated: 2026-09-06
+Last updated: 2026-09-13
 Current public release: `0.15.0`
 Current release candidate: none
 
@@ -10,6 +10,14 @@ monotonic evidence-version guidance.
 
 This is the canonical ordered development plan for FreshCtx. Completed releases
 remain visible so product claims can be traced to public artifacts.
+
+## In review - 0.16 protected-action qualification
+
+The protected feature branch qualifies the existing 0.15.0 runtime across
+repeated invocation, real LangGraph checkpoint resume, nested boundaries,
+shared dependencies, existing policy outcomes, and monotonic-version ABA
+detection. The work is tests, examples, evidence, documentation, and CI only.
+It is not a version bump, release candidate, tag, or publication.
 
 ## Release rule
 
