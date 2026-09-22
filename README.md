@@ -30,6 +30,8 @@ observe evidence → reason from it → revalidate dependencies → act or block
 
 FreshCtx is Apache-2.0 software owned and stewarded by Hyperwise LLC as an independent open-source project.
 
+[Subscribe to occasional FreshCtx release and security updates](https://7155189d.sibforms.com/serve/MUIFAE2QNShI5c6Xdam3b23kafccFaDqgXB0ujKtwz60rVHZwBUI0wp76_5Tu3Q795TZhgi1KM5S3WhM0Il1LIQq7sRhymQ3ywx1Je0ZZMuhhRu10RzxdBKBiQhh6E2eHssT4p-G1h3ywGvSkALF9UOJQ9IA9CiuYzQssiJ0DPIEYY1aOslh_dLxFrT7cH5qu9l_aILH1SRvkcMR).
+
 ## The failure mode
 
 This is a time-of-check/time-of-use problem for agent reasoning:
