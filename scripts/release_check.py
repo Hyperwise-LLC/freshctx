@@ -63,6 +63,7 @@ REQUIRED = [
     "docs/evidence/baseline-v0.15.0.json",
     "docs/evidence/qualification-v0.16.0.json",
     "docs/evidence/release-v0.16.0.json",
+    "docs/evidence/release-v0.17.0.json",
     "docs/evidence/success-cases-v0.1.json",
     "docs/evidence/banking-postgres-v0.1.json",
     "docs/assets/freshctx-social-preview.png", "examples/quickstart.py",

@@ -1,8 +1,8 @@
 # FreshCtx development pipeline
 
-Last updated: 2026-09-27
-Current public release: `0.16.0`
-Current release candidate: `0.17.0`
+Last updated: 2026-09-28
+Current public release: `0.17.0`
+Current release candidate: none
 
 Version `0.16.0` qualifies protected-action behavior across repeated
 invocation, real LangGraph checkpoint resume, nested boundaries, shared
@@ -21,20 +21,21 @@ detection. The release changes tests, examples, evidence, documentation, CI,
 version metadata, and the isolated-build tooling floor. It does not change the
 FreshCtx runtime contract.
 
-## Release candidate - 0.17 evidence-boundary lineage and revalidation
+## Completed - 0.17 evidence-boundary lineage and revalidation
 
 The completed Prompt 1C increment adds opt-in bounded retries for classified
 transient evidence-revalidation failures, consequential action-parameter
 lineage, declared intermediate tool-output lineage across supported hooks, and
 caller-supplied operation/attempt observability. Required missing lineage fails
-closed as `UNVERIFIABLE` before the protected action runs.
+closed as `UNVERIFIABLE` before the protected action runs. The protected
+release PR, CI matrix, tag, GitHub Release, PyPI publication, and clean public
+install all completed on 2026-09-28.
 
 The retry boundary includes evidence verification only. It does not repeat a
 consequential action. Lineage validates declared dependencies and configured
 value binding; it does not claim universal provenance, truth, authorization,
 execution control, idempotency, or authoritative observation of an external
-effect. Version 0.17.0 remains an unpublished candidate until the protected
-review, artifact, publication, and clean public-install gates complete.
+effect.
 
 ## Release rule
 
