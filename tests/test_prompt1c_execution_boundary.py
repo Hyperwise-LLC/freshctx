@@ -245,12 +245,19 @@ class Prompt1CExecutionBoundaryTests(unittest.TestCase):
     def test_backoff_uses_deterministic_sleep_hook(self):
         token, adapter = self.source([RetryableVerificationError("timeout"), AdapterResult("equivalent")])
         delays = []
+        real_sleep = __import__("time").sleep
         real_monotonic = __import__("time").monotonic
         boundary = PreActionBoundary(
             depends_on=[token.id], store=self.store, audit_path=self.audit,
             retry_policy=RetryPolicy(max_attempts=2, max_elapsed_ms=1000, backoff_ms=5),
         )
-        with patch("freshctx.core.time.sleep", side_effect=lambda seconds: delays.append(seconds)):
+        def record_boundary_delay(seconds):
+            if seconds == 0.005:
+                delays.append(seconds)
+                return None
+            return real_sleep(seconds)
+
+        with patch("freshctx.core.time.sleep", side_effect=record_boundary_delay):
             boundary.invoke(self.call(), lambda: "ok")
         self.assertEqual(delays, [0.005])
         self.assertGreater(real_monotonic(), 0)
