@@ -2,6 +2,40 @@
 
 All notable FreshCtx changes will be documented here.
 
+## 0.17.0 - 2026-09-27
+
+### Added
+
+- Added opt-in, bounded retries for adapter-classified transient evidence-
+  revalidation failures. Definitive stale results and recognized permanent
+  failures are not retried; exhausted or unverifiable checks remain fail
+  closed as `UNVERIFIABLE`.
+- Added consequential action-parameter evidence lineage. Applications can bind
+  selected protected parameters to declared evidence dependencies and a
+  canonical value digest at the existing pre-action boundary.
+- Added optional multi-hop lineage through declared intermediate tool outputs
+  for MCP Guard, LangGraph, and Agno integrations. Integrations that expose
+  only a pre-action hook require upstream output instrumentation.
+- Added caller-supplied operation and action-attempt identifiers to existing
+  action/evidence correlation records for observability. FreshCtx does not
+  infer operation identity or enforce action-attempt limits.
+
+### Compatibility and scope
+
+- The new retry, protected-parameter, output-lineage, and attempt-observability
+  inputs are additive and opt in. Existing callers retain their prior
+  freshness states, policy behavior, correlation shape, and validation path.
+- Required missing, malformed, cyclic, or unverifiable lineage fails closed as
+  `UNVERIFIABLE` before the protected action runs, including under permissive
+  `allow` and `warn` policies.
+- Evidence-verification retries are separate from consequential-action retries.
+  FreshCtx may repeat a read-only evidence check within configured bounds; it
+  never repeats the consequential action as a result of that policy.
+- Evidence lineage validates declared dependencies, their continued validity,
+  and configured parameter binding. It does not establish universal
+  provenance, truth, authorization, execution control, idempotency, or the
+  observed result of an external effect.
+
 ## 0.16.0 - 2026-09-13
 
 ### Qualification

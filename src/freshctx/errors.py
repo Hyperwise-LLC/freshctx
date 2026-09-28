@@ -13,6 +13,10 @@ class ConfigurationError(FreshCtxError):
     """Raised for invalid FreshCtx configuration."""
 
 
+class RetryableVerificationError(FreshCtxError):
+    """Adapter-declared transient evidence verification failure."""
+
+
 class StorageConflictError(FreshCtxError):
     """Raised when an existing immutable ID is written with different content."""
 
