@@ -1,10 +1,8 @@
-# FreshCtx 0.17.0 release-candidate qualification
+# FreshCtx 0.17.0 release qualification
 
 Date: 2026-09-27
 
-Current public release: `0.16.0`
-
-Release candidate: `0.17.0`
+Released version: `0.17.0`
 
 Remote baseline: `c84700c361872db43448b72bda37ec560a711eaa`
 
@@ -12,7 +10,7 @@ Prompt 1C accepted result tree: `1c4f49b2b5c0a879bb671b029ebfcf20f52a96b3`
 
 ## Scope
 
-This candidate packages the completed Prompt 1C evidence-boundary increment:
+This release packages the completed Prompt 1C evidence-boundary increment:
 
 - bounded retries for adapter-classified transient evidence-revalidation
   failures;
@@ -64,8 +62,14 @@ idempotency, or the observed result of an external effect.
 - The repository-native release check passed, including the full regression
   discovery, package/source checks, quickstart, checkpoint/resume, async, and
   controlled success-case demonstrations.
-- A local `freshctx-0.17.0` wheel and source archive built successfully and
-  both passed `twine check`; neither artifact was published.
+- The official CI `freshctx-0.17.0` wheel and source archive built successfully
+  and both passed `twine check`.
+- PyPI publication completed at `https://pypi.org/project/freshctx/0.17.0/`.
+- A clean Python 3.11 environment installed `freshctx==0.17.0` from public
+  PyPI outside the checkout at `/private/tmp/freshctx-017-clean-install/lib/python3.11/site-packages/freshctx/__init__.py`.
+- The clean install reported version `0.17.0`; `python -m freshctx version`
+  reported `0.17.0`, and the demo produced `BLOCKED: STALE_REASONING` with
+  five audit events.
 - The run included all 32 focused execution-boundary tests and all four focused
   framework Prompt 1C tests.
 - Existing compatibility tests confirmed legacy correlation serialization,
@@ -79,5 +83,11 @@ Baseline C remains intact.
 
 ## Publication status
 
-No tag, GitHub release, PyPI publication, npm publication, remote branch, or
-production deployment is created by this release-candidate finalization.
+- Protected release branch: `release/0.17.0`
+- Release PR: [#74](https://github.com/Hyperwise-LLC/freshctx/pull/74)
+- Merged `main` commit: `de03bb33aefed13ff75d3c576e7d9ed2545c4b77`
+- Tag and GitHub Release: `v0.17.0`
+- PyPI: `freshctx==0.17.0`
+- npm: not applicable; the repository contains no npm package.
+- Website deployment remains an external-site task and is not represented as a
+  package-runtime guarantee.

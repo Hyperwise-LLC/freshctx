@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "version": "0.17.0",
+  "tag": "v0.17.0",
+  "repository": "https://github.com/Hyperwise-LLC/freshctx",
+  "main_commit": "de03bb33aefed13ff75d3c576e7d9ed2545c4b77",
+  "pull_request": "https://github.com/Hyperwise-LLC/freshctx/pull/74",
+  "github_release": "https://github.com/Hyperwise-LLC/freshctx/releases/tag/v0.17.0",
+  "pypi_project": "https://pypi.org/project/freshctx/0.17.0/",
+  "requirement": "freshctx==0.17.0",
+  "clean_install": {
+    "python": "3.11",
+    "environment": "/private/tmp/freshctx-017-clean-install",
+    "installed_path": "/private/tmp/freshctx-017-clean-install/lib/python3.11/site-packages/freshctx/__init__.py",
+    "source": "public PyPI",
+    "checkout_import": false,
+    "reported_version": "0.17.0",
+    "version_command": "python -m freshctx version",
+    "version_output": "0.17.0",
+    "demo_command": "python -m freshctx demo",
+    "demo_output": ["BLOCKED: STALE_REASONING", "AUDIT EVENTS: 5"]
+  },
+  "publication": {
+    "wheel": "freshctx-0.17.0-py3-none-any.whl",
+    "source_archive": "freshctx-0.17.0.tar.gz",
+    "twine_check": "passed",
+    "npm": "not applicable; no npm package in repository"
+  }
+}

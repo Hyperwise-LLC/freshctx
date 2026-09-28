@@ -1,20 +1,19 @@
 # FreshCtx project status
 
-Last updated: 2026-09-27
-Current public release: `0.16.0`
-Current release candidate: `0.17.0`
+Last updated: 2026-09-28
+Current public release: `0.17.0`
+Current release candidate: none
 
-FreshCtx 0.16.0 is public on PyPI. Its qualification and release PRs,
-supported-Python CI, official release build, package publication, and clean
-public-install gates completed before the public status was recorded.
+FreshCtx 0.17.0 is public on PyPI. Its protected release PR, supported-Python
+CI, official release build, GitHub tag and release, package publication, and
+clean public-install gate completed before this status was recorded.
 
 Protected-action qualification for 0.16.0 adds regression evidence
 for retry-like repeated invocation, real LangGraph checkpoint resume, nested
 boundaries, shared dependencies, preserved policy results, and ABA detection.
 It does not change runtime behavior.
 
-FreshCtx 0.17.0 is an unpublished release candidate for the completed Prompt
-1C evidence-boundary increment. It adds opt-in bounded retries for transient
+FreshCtx 0.17.0 is the completed Prompt 1C evidence-boundary increment. It adds opt-in bounded retries for transient
 evidence revalidation, consequential action-parameter lineage, declared
 multi-hop and intermediate tool-output lineage, and supplied operation/attempt
 observability. Required missing lineage fails closed as `UNVERIFIABLE`.
@@ -116,7 +115,7 @@ or general workflow validation.
 3. Expand the independent-result schema, benchmark matrix, adapter-author kit,
    and longer framework loops.
 4. Keep README, PyPI, GitHub release, website, and public messaging aligned to
-   the verified 0.16.0 release.
+   the verified 0.17.0 release.
 
 See `docs/DEVELOPMENT_PIPELINE.md` for the ordered public plan.
 
