@@ -8,6 +8,7 @@ from typing import Any
 
 from ..core import FreshnessBlocked
 from ..errors import ConfigurationError
+from ..model import ActionAttempt, ProtectedParameter, RetryPolicy
 from .pre_action import (
     PreActionBoundary,
     PreActionCall,
@@ -58,6 +59,9 @@ def google_adk_tool_callback(
     audit_path: str | PathLike[str] = ".freshctx/google-adk-audit.jsonl",
     validation_workers: int = 1,
     validation_budget_ms: float | None = None,
+    retry_policy: RetryPolicy | None = None,
+    protected_parameters: dict[str, ProtectedParameter] | None = None,
+    action_attempt: ActionAttempt | None = None,
 ) -> Callable[..., Any]:
     """Return an async ``before_tool_callback`` for a Google ADK agent.
 
@@ -79,7 +83,6 @@ def google_adk_tool_callback(
         dependency_source = depends_on
 
     async def freshctx_google_adk_before_tool(*, tool: Any, args: dict[str, Any], tool_context: Any):
-        del args
         action = getattr(tool, "name", None)
         if not isinstance(action, str) or not action.strip():
             raise ConfigurationError("Google ADK tool must expose a non-empty name")
@@ -93,13 +96,25 @@ def google_adk_tool_callback(
             audit_path=audit_path,
             validation_workers=validation_workers,
             validation_budget_ms=validation_budget_ms,
+            retry_policy=retry_policy,
+            protected_parameters=protected_parameters,
+            parameter_values=(
+                {name: args[name] for name in protected_parameters if name in args}
+                if protected_parameters is not None else None
+            ),
         )
         call_id = getattr(tool_context, "function_call_id", None)
         if call_id is not None:
             call_id = str(call_id)
         try:
             await boundary.invoke_async(
-                PreActionCall(runtime="google_adk", action=action, execution_id=call_id),
+                PreActionCall(
+                    runtime="google_adk", action=action, execution_id=call_id,
+                    operation_id=action_attempt.operation_id if action_attempt else None,
+                    attempt_id=action_attempt.attempt_id if action_attempt else None,
+                    parent_attempt_id=action_attempt.parent_attempt_id if action_attempt else None,
+                    previous_outcome=action_attempt.previous_outcome if action_attempt else None,
+                ),
                 lambda: None,
             )
         except FreshnessBlocked as blocked:

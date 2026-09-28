@@ -17,6 +17,14 @@
     "run_id": {"type": "string", "minLength": 1},
     "runtime": {"type": ["string", "null"], "minLength": 1},
     "execution_id": {"type": ["string", "null"], "minLength": 1},
+    "operation_id": {"type": ["string", "null"], "minLength": 1},
+    "attempt_id": {"type": ["string", "null"], "minLength": 1},
+    "parent_attempt_id": {"type": ["string", "null"], "minLength": 1},
+    "previous_outcome": {"type": ["string", "null"], "minLength": 1},
+    "operation_identity_supplied": {"type": "boolean"},
+    "protected_parameter_ids": {
+      "type": "object", "additionalProperties": {"type": "string", "minLength": 1}
+    },
     "action": {"type": "string", "minLength": 1},
     "boundary": {"type": "string", "minLength": 1},
     "subject_id": {"type": "string", "minLength": 1},

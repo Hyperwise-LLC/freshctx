@@ -7,7 +7,7 @@ revalidates its declared FreshCtx evidence immediately before delegated work beg
 Install:
 
 ```bash
-python -m pip install 'freshctx[a2a]==0.16.0'
+python -m pip install 'freshctx[a2a]==0.17.0'
 ```
 
 Wrap an existing executor:
@@ -86,7 +86,7 @@ selection, authorization, safety, or compliance.
 Run the cross-protocol demonstration:
 
 ```bash
-python -m pip install 'freshctx[a2a-mcp]==0.16.0'
+python -m pip install 'freshctx[a2a-mcp]==0.17.0'
 python examples/a2a_to_mcp_delegation.py
 python examples/monotonic_evidence_version.py
 ```

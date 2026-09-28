@@ -112,16 +112,22 @@ class HTTPAdapter:
             if exc.code==304:return 304,b"",url,dict(exc.headers.items()),int((time.monotonic()-start)*1000)
             raise
         return status,body,final,rh,int((time.monotonic()-start)*1000)
-    def observe(self,locator,*,headers=None,timeout=5.0):
+    def observe(self,locator,*,headers=None,timeout=5.0,retry_transient=False):
         headers=dict(headers or {}); status,body,final,rh,_=self._request(str(locator),headers,timeout)
-        metadata={"status":status,"etag":rh.get("ETag"),"last_modified":rh.get("Last-Modified"),"body_sha256":_sha(body),"final_url":self._safe_url(final),"timeout":timeout}
+        metadata={"status":status,"etag":rh.get("ETag"),"last_modified":rh.get("Last-Modified"),"body_sha256":_sha(body),"final_url":self._safe_url(final),"timeout":timeout,"retry_transient":bool(retry_transient)}
         token=ObservationToken(self.name,self._safe_url(str(locator)),_sha(_canonical(metadata)),metadata=metadata); self._runtime_headers[token.id]=headers; return token
     def validate(self,token):
         headers=dict(self._runtime_headers.get(token.id,{})); etag=token.metadata.get("etag"); modified=token.metadata.get("last_modified")
         if etag:headers["If-None-Match"]=str(etag)
         elif modified:headers["If-Modified-Since"]=str(modified)
         try:status,body,final,rh,latency=self._request(token.locator,headers,float(token.metadata.get("timeout",5)))
-        except (TimeoutError,urllib.error.URLError,OSError,ValueError) as exc:return AdapterResult("indeterminate",evidence={"url":token.locator},error_code="http_timeout" if isinstance(exc,TimeoutError) else type(exc).__name__)
+        except urllib.error.HTTPError as exc:
+            retryable=bool(token.metadata.get("retry_transient")) and exc.code in {429,500,502,503,504}
+            return AdapterResult("indeterminate",evidence={"url":token.locator,"status":exc.code},error_code=f"http_{exc.code}",retryable=retryable)
+        except (TimeoutError,urllib.error.URLError,OSError,ValueError) as exc:
+            reason=exc.reason if isinstance(exc,urllib.error.URLError) else exc
+            retryable=bool(token.metadata.get("retry_transient")) and isinstance(reason,(TimeoutError,ConnectionError))
+            return AdapterResult("indeterminate",evidence={"url":token.locator},error_code="http_timeout" if isinstance(reason,TimeoutError) else type(exc).__name__,retryable=retryable)
         if status==304:return AdapterResult("equivalent",evidence={"status":304,"latency_ms":latency,"url":token.locator})
         body_hash=_sha(body); old_etag=str(etag or ""); new_etag=str(rh.get("ETag") or "")
         equivalent=(old_etag==new_etag) if old_etag and new_etag and not old_etag.startswith("W/") and not new_etag.startswith("W/") else body_hash==token.metadata.get("body_sha256") and status==token.metadata.get("status")

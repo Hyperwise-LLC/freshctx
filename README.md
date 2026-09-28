@@ -63,7 +63,7 @@ If `config.yaml` changes before `ctx.run()`, FreshCtx marks the observation `STA
 
 **Good first use cases:** deployment agents, coding agents, approval workflows, database-backed operations, browser agents, and MCP workflows that act on mutable resources.
 
-[Read the API](API.md) · [Use the CLI](docs/CLI.md) · [Integrate frameworks](docs/INTEGRATIONS.md) · [Understand the security model](docs/SECURITY_MODEL.md) · [See the roadmap](BACKLOG.md) · [Ask a question](https://github.com/Hyperwise-LLC/freshctx/discussions)
+[Read the API](API.md) · [Use the CLI](docs/CLI.md) · [Integrate frameworks](docs/INTEGRATIONS.md) · [Protect parameter evidence](docs/prompt1c-evidence-boundary.md) · [Understand the security model](docs/SECURITY_MODEL.md) · [See the roadmap](BACKLOG.md) · [Ask a question](https://github.com/Hyperwise-LLC/freshctx/discussions)
 
 For an independent control-versus-behavior test, run the
 [JSONL assurance experiment](docs/OPSWATCH_ASSURANCE_EXPERIMENT.md). It produces
@@ -146,7 +146,7 @@ with TemporaryDirectory() as directory:
 FreshCtx includes synchronous and asynchronous LangGraph action-node wrappers. Install the current optional integration dependency and run the controlled stale-state scenario:
 
 ```console
-python -m pip install 'freshctx[langgraph]==0.16.0'
+python -m pip install 'freshctx[langgraph]==0.17.0'
 python examples/langgraph_stale_config.py
 ```
 
@@ -181,7 +181,7 @@ A stale or unverifiable dependency raises `FreshnessBlocked` before the node bod
 The optional Agno integration is included in FreshCtx 0.8.0. Install the integration and run the model-free tool-hook scenario:
 
 ```console
-python -m pip install 'freshctx[agno]==0.16.0'
+python -m pip install 'freshctx[agno]==0.17.0'
 python examples/agno_stale_tool.py
 ```
 
@@ -208,7 +208,7 @@ FreshCtx does not replace Agno's internal run-state, concurrency, transaction, o
 FreshCtx maps the same pre-action contract to an OpenAI Agents SDK input guardrail for custom function tools:
 
 ```console
-python -m pip install 'freshctx[openai-agents]==0.16.0'
+python -m pip install 'freshctx[openai-agents]==0.17.0'
 python examples/openai_agents_stale_tool.py
 ```
 
@@ -235,7 +235,7 @@ Stale or unverifiable evidence triggers the SDK's native input-tool tripwire bef
 FreshCtx 0.8.0 maps the same pre-action contract to Google ADK's native `before_tool_callback` boundary:
 
 ```console
-python -m pip install 'freshctx[google-adk]==0.16.0'
+python -m pip install 'freshctx[google-adk]==0.17.0'
 python examples/google_adk_stale_tool.py
 ```
 
@@ -283,7 +283,7 @@ Protect consequential ElevenLabs Python client tools at their registered
 handler boundary:
 
 ```console
-python -m pip install 'freshctx[elevenlabs]==0.16.0'
+python -m pip install 'freshctx[elevenlabs]==0.17.0'
 python examples/elevenlabs_voice_customer_guard.py
 ```
 
@@ -295,7 +295,7 @@ remain application-owned. See `docs/INTEGRATIONS.md` for registration and scope.
 
 ## Current implementation
 
-The v0.16 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
+The v0.17 runtime preserves the v0.1 `ObservationToken`, `ReasoningNode`, `CheckResult`, and `FreshnessStatus` behavior. A `ReasoningNode` carries its canonical, sorted, duplicate-free dependency identifiers; there is no separate public edge object.
 
 The first v0.1 vertical slice includes:
 
@@ -545,7 +545,7 @@ Unsafe or non-idempotent MCP operations are `UNVERIFIABLE`; do not use them as v
 
 FreshCtx does not provide an MCP transport or client. The application supplies and reconstructs the safe-reader callback after process restart. External network calls occur only when the application explicitly selects an external adapter such as HTTP, Postgres, Stripe Subscription, or MCP.
 
-To guard an MCP server's consequential tools at the native `tools/call` boundary, attach `FreshCtxMCPGuard` as an official MCP Python SDK v2 extension. Install the current package with `python -m pip install 'freshctx[mcp-guard]==0.16.0'`. See `docs/MCP_GUARD.md` for the stable blocked-response format, multiple-tool configuration, three-outcome demonstration, real stdio subprocess validation, and the named-host Codex run. This server integration is separate from the safe-reader adapter above: the adapter re-reads evidence, while the guard controls whether a tool call may proceed.
+To guard an MCP server's consequential tools at the native `tools/call` boundary, attach `FreshCtxMCPGuard` as an official MCP Python SDK v2 extension. Install the current package with `python -m pip install 'freshctx[mcp-guard]==0.17.0'`. See `docs/MCP_GUARD.md` for the stable blocked-response format, multiple-tool configuration, three-outcome demonstration, real stdio subprocess validation, and the named-host Codex run. This server integration is separate from the safe-reader adapter above: the adapter re-reads evidence, while the guard controls whether a tool call may proceed.
 
 ## Project, support, and commercial inquiries
 

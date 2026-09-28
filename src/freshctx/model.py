@@ -65,6 +65,34 @@ class AdapterResult:
     checked_at: str = field(default_factory=utcnow)
     evidence: dict[str, Any] = field(default_factory=dict)
     error_code: str | None = None
+    retryable: bool = False
+
+
+@dataclass(frozen=True)
+class RetryPolicy:
+    """Opt-in bounds for evidence verification only, including the first attempt."""
+
+    max_attempts: int = 1
+    max_elapsed_ms: float | None = None
+    backoff_ms: float = 0
+
+
+@dataclass(frozen=True)
+class ProtectedParameter:
+    """Caller-declared lineage and digest of the value passed to an action."""
+
+    dependencies: tuple[str, ...]
+    value_digest: str
+
+
+@dataclass(frozen=True)
+class ActionAttempt:
+    """Caller-supplied identity; FreshCtx does not infer intent or enforce counts."""
+
+    operation_id: str | None = None
+    attempt_id: str | None = None
+    parent_attempt_id: str | None = None
+    previous_outcome: str | None = None
 
 
 @dataclass(frozen=True)
@@ -107,12 +135,23 @@ class ActionEvidenceCorrelation:
     boundary_outcome: str
     runtime: str | None = None
     execution_id: str | None = None
+    operation_id: str | None = None
+    attempt_id: str | None = None
+    parent_attempt_id: str | None = None
+    previous_outcome: str | None = None
+    operation_identity_supplied: bool = False
+    protected_parameter_ids: dict[str, str] = field(default_factory=dict)
+    attempt_metadata_supplied: bool = False
     checked_at: str = field(default_factory=utcnow)
     created_at: str = field(default_factory=utcnow)
     schema_version: str = "freshctx.action_evidence_correlation.v1"
 
     def to_dict(self) -> dict[str, Any]:
         value = asdict(self)
+        value.pop("attempt_metadata_supplied")
+        if not self.attempt_metadata_supplied and not self.protected_parameter_ids:
+            for key in ("operation_id", "attempt_id", "parent_attempt_id", "previous_outcome", "operation_identity_supplied", "protected_parameter_ids"):
+                value.pop(key)
         value["freshness_state"] = self.freshness_state.value
         value["declared_dependency_ids"] = list(self.declared_dependency_ids)
         value["reasoning_ids"] = list(self.reasoning_ids)

@@ -32,4 +32,6 @@ def normalize_adapter_result(value: Any) -> AdapterResult:
             evidence=value.evidence,
             error_code="invalid_adapter_outcome",
         )
+    if not isinstance(value.retryable, bool) or (value.retryable and value.outcome != "indeterminate"):
+        return AdapterResult("indeterminate", error_code="invalid_adapter_retry_classification")
     return value

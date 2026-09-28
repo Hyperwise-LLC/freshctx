@@ -14,6 +14,7 @@ from typing import Any
 
 from ..core import FreshnessBlocked, guard, reasoning
 from ..errors import ConfigurationError
+from ..model import ActionAttempt, ProtectedParameter, RetryPolicy
 
 
 EXPERIMENTAL_PRE_ACTION_CONTRACT = "freshctx.pre_action.experimental.v1"
@@ -43,6 +44,10 @@ class PreActionCall:
     runtime: str
     action: str
     execution_id: str | None = None
+    operation_id: str | None = None
+    attempt_id: str | None = None
+    parent_attempt_id: str | None = None
+    previous_outcome: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.runtime, str) or not self.runtime.strip():
@@ -53,6 +58,10 @@ class PreActionCall:
             not isinstance(self.execution_id, str) or not self.execution_id.strip()
         ):
             raise ConfigurationError("pre-action execution_id must not be empty")
+        for field_name in ("operation_id", "attempt_id", "parent_attempt_id", "previous_outcome"):
+            value = getattr(self, field_name)
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                raise ConfigurationError(f"pre-action {field_name} must not be empty")
 
     @property
     def boundary(self) -> str:
@@ -77,6 +86,9 @@ class PreActionBoundary:
         audit_path: str | PathLike[str] = ".freshctx/integration-audit.jsonl",
         validation_workers: int = 1,
         validation_budget_ms: float | None = None,
+        retry_policy: RetryPolicy | None = None,
+        protected_parameters: dict[str, ProtectedParameter] | None = None,
+        parameter_values: dict[str, Any] | None = None,
     ) -> None:
         if isinstance(depends_on, (str, bytes)):
             raise ConfigurationError("pre-action dependencies must be a non-empty iterable of FreshCtx objects or IDs")
@@ -96,6 +108,9 @@ class PreActionBoundary:
         self.audit_path = audit_path
         self.validation_workers = validation_workers
         self.validation_budget_ms = validation_budget_ms
+        self.retry_policy = retry_policy
+        self.protected_parameters = protected_parameters
+        self.parameter_values = parameter_values
         self.last_correlation = None
 
     @staticmethod
@@ -123,6 +138,8 @@ class PreActionBoundary:
             audit_path=self.audit_path,
             validation_workers=self.validation_workers,
             validation_budget_ms=self.validation_budget_ms,
+            retry_policy=self.retry_policy,
+            action_attempt=ActionAttempt(call.operation_id,call.attempt_id,call.parent_attempt_id,call.previous_outcome) if any((call.operation_id,call.attempt_id,call.parent_attempt_id,call.previous_outcome)) else None,
         ) as ctx:
             with reasoning(
                 "pre_action_integration",
@@ -136,6 +153,8 @@ class PreActionBoundary:
                     *args,
                     depends_on=[boundary_decision],
                     boundary=call.boundary,
+                    protected_parameters=self.protected_parameters,
+                    parameter_values=self.parameter_values,
                     **kwargs,
                 )
             finally:
@@ -158,6 +177,8 @@ class PreActionBoundary:
             audit_path=self.audit_path,
             validation_workers=self.validation_workers,
             validation_budget_ms=self.validation_budget_ms,
+            retry_policy=self.retry_policy,
+            action_attempt=ActionAttempt(call.operation_id,call.attempt_id,call.parent_attempt_id,call.previous_outcome) if any((call.operation_id,call.attempt_id,call.parent_attempt_id,call.previous_outcome)) else None,
         ) as ctx:
             with reasoning(
                 "pre_action_integration",
@@ -171,6 +192,8 @@ class PreActionBoundary:
                     *args,
                     depends_on=[boundary_decision],
                     boundary=call.boundary,
+                    protected_parameters=self.protected_parameters,
+                    parameter_values=self.parameter_values,
                     **kwargs,
                 )
             finally:

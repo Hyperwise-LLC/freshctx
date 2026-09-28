@@ -6,8 +6,9 @@ from collections.abc import Callable, Iterable, Mapping
 from os import PathLike
 from typing import Any
 
-from ..core import FreshnessBlocked
+from ..core import FreshnessBlocked, parameter_digest, reasoning
 from ..errors import ConfigurationError
+from ..model import ActionAttempt, ProtectedParameter, RetryPolicy
 from .pre_action import EXPERIMENTAL_PRE_ACTION_CONTRACT, PreActionBoundary, PreActionCall
 
 try:
@@ -74,6 +75,11 @@ class FreshCtxMCPGuard(Extension):
         audit_path: str | PathLike[str] = ".freshctx/mcp-guard-audit.jsonl",
         validation_workers: int = 1,
         validation_budget_ms: float | None = None,
+        retry_policy: RetryPolicy | None = None,
+        protected_parameters: Mapping[str, ProtectedParameter] | None = None,
+        action_attempt: ActionAttempt | None = None,
+        output_lineage: Callable[[str, Any], tuple[str, Iterable[Any]]] | None = None,
+        on_output_node: Callable[[Any], None] | None = None,
     ) -> None:
         if store is None:
             raise ConfigurationError("MCP Guard requires the store that owns its dependencies")
@@ -82,6 +88,13 @@ class FreshCtxMCPGuard(Extension):
         self.audit_path = audit_path
         self.validation_workers = validation_workers
         self.validation_budget_ms = validation_budget_ms
+        self.retry_policy = retry_policy
+        self.protected_parameters = dict(protected_parameters) if protected_parameters is not None else None
+        self.action_attempt = action_attempt
+        if (output_lineage is None) != (on_output_node is None):
+            raise ConfigurationError("MCP Guard output_lineage and on_output_node must be supplied together")
+        self.output_lineage = output_lineage
+        self.on_output_node = on_output_node
         self.protected_tools = _tool_names(protected_tools)
 
         if isinstance(depends_on, Mapping):
@@ -134,13 +147,40 @@ class FreshCtxMCPGuard(Extension):
             audit_path=self.audit_path,
             validation_workers=self.validation_workers,
             validation_budget_ms=self.validation_budget_ms,
+            retry_policy=self.retry_policy,
+            protected_parameters=self.protected_parameters,
+            parameter_values=(
+                {name: (params.arguments or {})[name] for name in self.protected_parameters if name in (params.arguments or {})}
+                if self.protected_parameters is not None else None
+            ),
         )
         request_id = getattr(ctx, "request_id", None)
         execution_id = str(request_id) if request_id is not None else None
+        async def continuation(context: Any) -> HandlerResult:
+            result = await call_next(context)
+            if self.output_lineage is not None and self.on_output_node is not None:
+                invocation_id, dependencies = self.output_lineage(tool_name, result)
+                if not isinstance(invocation_id, str) or not invocation_id.strip():
+                    raise ConfigurationError("MCP Guard output lineage requires a stable invocation ID")
+                dump = getattr(result, "model_dump", None)
+                digest_value = dump(mode="json") if callable(dump) else result
+                with reasoning(
+                    "tool_output", depends_on=dependencies,
+                    metadata={"tool_invocation_id": invocation_id, "output_digest": parameter_digest(digest_value)},
+                ) as output_node:
+                    pass
+                self.on_output_node(output_node)
+            return result
         try:
             return await boundary.invoke_async(
-                PreActionCall(runtime="mcp", action=tool_name, execution_id=execution_id),
-                call_next,
+                PreActionCall(
+                    runtime="mcp", action=tool_name, execution_id=execution_id,
+                    operation_id=self.action_attempt.operation_id if self.action_attempt else None,
+                    attempt_id=self.action_attempt.attempt_id if self.action_attempt else None,
+                    parent_attempt_id=self.action_attempt.parent_attempt_id if self.action_attempt else None,
+                    previous_outcome=self.action_attempt.previous_outcome if self.action_attempt else None,
+                ),
+                continuation,
                 ctx,
             )
         except FreshnessBlocked as blocked:
