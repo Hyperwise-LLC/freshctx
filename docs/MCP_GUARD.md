@@ -93,6 +93,18 @@ The stdio test is a real transport and process boundary, and the Codex run is
 one named-host validation. Neither is evidence of compatibility with every MCP
 host, transport, or deployment.
 
+### Commit-window example
+
+[`examples/mcp_commit_window.py`](../examples/mcp_commit_window.py) prints JSON
+for four synthetic in-process cases: mutation after handler admission on/off,
+and an application version check on/off. An event inside the admitted handler
+coordinates the mutation; one lock protects mutation and compare-and-commit.
+Without the version check, the old decision can overwrite the newer record.
+With it, the application returns `application_conflict` without committing;
+this is distinct from a FreshCtx `STALE_REASONING` block before admission.
+Admission does not establish post-commit freshness. This source-alpha example
+is not native-client, distributed-transaction, or production correctness evidence.
+
 ## Product boundary
 
 MCP authentication and authorization answer whether a caller may invoke a tool.

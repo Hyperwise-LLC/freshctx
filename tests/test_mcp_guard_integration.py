@@ -230,5 +230,49 @@ class MCPGuardIntegrationTests(unittest.TestCase):
         self.assertEqual(unverifiable["executed"], [])
 
 
+@unittest.skipUnless(MCP_V2, "official MCP Python SDK v2 is not installed")
+class MCPCommitWindowTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.example = runpy.run_path(ROOT / "examples" / "mcp_commit_window.py")
+
+    def test_four_rows_distinguish_admission_from_atomic_commit(self):
+        cases = (
+            (False, False, 1, "committed", {"version": 0, "value": 0}, {"version": 1, "value": 1}),
+            (False, True, 1, "committed", {"version": 0, "value": 0}, {"version": 1, "value": 1}),
+            (True, False, 1, "committed", {"version": 1, "value": 100}, {"version": 2, "value": 1}),
+            (True, True, 0, "application_conflict", {"version": 1, "value": 100}, {"version": 1, "value": 100}),
+        )
+        for mutate, check, commits, outcome, at_attempt, final_record in cases:
+            with self.subTest(mutate_after_admission=mutate, check_version=check):
+                row = asyncio.run(self.example["run_case"](mutate, check))
+                self.assertEqual(row["mutate_after_admission"], mutate)
+                self.assertEqual(row["check_version"], check)
+                self.assertEqual(row["handler_admissions"], 1)
+                self.assertEqual(row["commit_count"], commits)
+                self.assertFalse(row["mcp_error"])
+                self.assertEqual(row["application_result"], outcome)
+                self.assertEqual(row["decision"], {"version": 0, "value": 0})
+                self.assertEqual(row["record_at_admission"], {"version": 0, "value": 0})
+                self.assertEqual(row["record_at_commit_attempt"], at_attempt)
+                self.assertEqual(row["record"], final_record)
+                if mutate:
+                    self.assertNotEqual(row["decision"]["version"], at_attempt["version"])
+                else:
+                    self.assertEqual(row["decision"]["version"], at_attempt["version"])
+
+    def test_repeated_runs_have_no_shared_record_or_client_tasks(self):
+        async def repeat():
+            before = set(asyncio.all_tasks())
+            first = await self.example["run_demo"]()
+            second = await self.example["run_demo"]()
+            self.assertEqual(first, second)
+            self.assertEqual(len(first), 4)
+            self.assertEqual([row["commit_count"] for row in first], [1, 1, 1, 0])
+            self.assertEqual(set(asyncio.all_tasks()), before)
+
+        asyncio.run(repeat())
+
+
 if __name__ == "__main__":
     unittest.main()
